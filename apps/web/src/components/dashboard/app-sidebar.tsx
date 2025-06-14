@@ -9,11 +9,10 @@ import {
   IconFileDescription,
   IconFileWord,
   IconFolder,
-  IconHelp,
+  IconFolders,
   IconInnerShadowTop,
   IconListDetails,
   IconReport,
-  IconSearch,
   IconSettings,
   IconUsers
 } from "@tabler/icons-react";
@@ -117,18 +116,13 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/dashboard/settings",
       icon: IconSettings
     },
     {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch
+      title: "Media Gallery",
+      url: "/dashboard/gallery",
+      icon: IconFolders
     }
   ],
   documents: [
