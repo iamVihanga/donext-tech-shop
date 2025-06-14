@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.828.0",
+    "@aws-sdk/s3-request-presigner": "^3.820.0",
     "@better-fetch/fetch": "^1.1.18",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/modifiers": "^9.0.0",
@@ -48,6 +50,7 @@
     "@repo/ui": "workspace:*",
     "@tabler/icons-react": "^3.34.0",
     "@tanstack/react-form": "^1.12.2",
+    "@tanstack/react-query": "^5.80.7",
     "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "cmdk": "^1.1.1",
