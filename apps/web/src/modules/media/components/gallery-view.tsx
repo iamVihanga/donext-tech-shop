@@ -34,7 +34,7 @@ export default function GalleryView({ modal = false, activeTab }: Props) {
             setCurrentTab={setCurrentTab}
           />
 
-          <div className="my-3 h-full flex-1">
+          <div className="my-3 h-full flex-1 pb-4">
             <UploadTab currentTab={currentTab} setCurrentTab={setCurrentTab} />
           </div>
         </div>
