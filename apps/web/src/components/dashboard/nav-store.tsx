@@ -12,6 +12,8 @@ import {
   useSidebar
 } from "@repo/ui/components/sidebar";
 import { cn } from "@repo/ui/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface StoreNavItem {
   title: string;
@@ -29,6 +31,7 @@ export function NavStore({ items }: { items: StoreNavItem[] }) {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
+  const pathname = usePathname();
 
   const toggleExpand = (title: string) => {
     setExpandedItems((prev) => ({
@@ -41,50 +44,54 @@ export function NavStore({ items }: { items: StoreNavItem[] }) {
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Manage Store</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
-          <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton
-              asChild
-              className={cn(
-                item.isActive && "bg-sidebar-highlight text-sidebar-foreground",
-                item.items && item.items.length > 0 && "justify-between"
-              )}
-              onClick={() => item.items?.length && toggleExpand(item.title)}
-            >
-              <a href={item.url}>
-                <item.icon />
-                <span>{item.title}</span>
-                {item.items && item.items.length > 0 && (
-                  <IconChevronDown
-                    className={cn(
-                      "ml-auto h-4 w-4 transition-transform",
-                      expandedItems[item.title] && "transform rotate-180"
-                    )}
-                  />
-                )}
-              </a>
-            </SidebarMenuButton>
+        {items.map((item) => {
+          const isActive = pathname.startsWith(item.url);
 
-            {/* Render nested items if they exist and are expanded */}
-            {item.items &&
-              item.items.length > 0 &&
-              expandedItems[item.title] && (
-                <div className="ml-6 mt-1 space-y-1">
-                  {item.items.map((subItem) => (
-                    <SidebarMenuButton
-                      key={subItem.title}
-                      asChild
-                      className="py-1 text-sm"
-                    >
-                      <a href={subItem.url}>
-                        <span>{subItem.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  ))}
-                </div>
-              )}
-          </SidebarMenuItem>
-        ))}
+          return (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton
+                asChild
+                className={cn(
+                  isActive && "bg-accent",
+                  item.items && item.items.length > 0 && "justify-between"
+                )}
+                onClick={() => item.items?.length && toggleExpand(item.title)}
+              >
+                <Link href={item.url}>
+                  <item.icon />
+                  <span>{item.title}</span>
+                  {item.items && item.items.length > 0 && (
+                    <IconChevronDown
+                      className={cn(
+                        "ml-auto h-4 w-4 transition-transform",
+                        expandedItems[item.title] && "transform rotate-180"
+                      )}
+                    />
+                  )}
+                </Link>
+              </SidebarMenuButton>
+
+              {/* Render nested items if they exist and are expanded */}
+              {item.items &&
+                item.items.length > 0 &&
+                expandedItems[item.title] && (
+                  <div className="ml-6 mt-1 space-y-1">
+                    {item.items.map((subItem) => (
+                      <SidebarMenuButton
+                        key={subItem.title}
+                        asChild
+                        className="py-1 text-sm"
+                      >
+                        <a href={subItem.url}>
+                          <span>{subItem.title}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    ))}
+                  </div>
+                )}
+            </SidebarMenuItem>
+          );
+        })}
       </SidebarMenu>
     </SidebarGroup>
   );

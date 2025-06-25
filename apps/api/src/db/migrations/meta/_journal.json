@@ -15,6 +15,13 @@
       "when": 1750836753022,
       "tag": "0001_overrated_sentinel",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1750866731264,
+      "tag": "0002_regular_sandman",
+      "breakpoints": true
     }
   ]
 }

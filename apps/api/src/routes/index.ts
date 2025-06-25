@@ -2,10 +2,15 @@ import { createRouter } from "@/lib/create-app";
 import { AppOpenAPI } from "@/types";
 
 import { BASE_PATH } from "../lib/constants";
+import categories from "./categories/categories.index";
 import index from "./index.route";
 import tasks from "./tasks/tasks.index";
+
 export function registerRoutes(app: AppOpenAPI) {
-  return app.route("/", index).route("/tasks", tasks);
+  return app
+    .route("/", index)
+    .route("/tasks", tasks)
+    .route("/categories", categories);
 }
 
 // stand alone router type used for api client

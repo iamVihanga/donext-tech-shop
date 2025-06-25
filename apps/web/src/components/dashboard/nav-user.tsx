@@ -100,8 +100,8 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem>
-              <ToggleTheme />
+            <DropdownMenuItem asChild className="mb-2">
+              <ToggleTheme className="w-full" />
             </DropdownMenuItem>
 
             <DropdownMenuItem asChild>

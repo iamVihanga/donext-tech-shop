@@ -10,15 +10,15 @@ export default function configureOpenAPI(app: AppOpenAPI): void {
     openapi: "3.0.0",
     info: {
       version: packageJson.version,
-      title: "Hono Advanced API with Bun",
-    },
+      title: "Hono Advanced API with Bun"
+    }
   });
 
   app.get(
     "/reference",
     apiReference({
-      theme: "kepler",
-      url: `${BASE_PATH}/doc`,
+      theme: "saturn",
+      url: `${BASE_PATH}/doc`
     })
   );
 }

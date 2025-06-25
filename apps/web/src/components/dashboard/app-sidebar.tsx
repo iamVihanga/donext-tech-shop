@@ -42,43 +42,46 @@ const data = {
     {
       title: "Products",
       icon: IconCamera,
-      isActive: true,
-      url: "/admin/dashboard/products",
+      isActive: false,
+      url: "/admin/products",
       items: [
         {
           title: "Categories",
-          url: "/admin/dashboard/categories"
+          url: "/admin/products/categories"
         }
       ]
     },
     {
       title: "Orders",
       icon: IconFileDescription,
-      url: "/admin/dashboard/orders",
+      isActive: false,
+      url: "/admin/orders",
       items: []
     },
     {
       title: "Inventory",
       icon: IconFileAi,
-      url: "/admin/dashboard/inventory",
+      url: "/admin/inventory",
+      isActive: false,
       items: [
         {
           title: "Reserved",
-          url: "/admin/dashboard/inventory/reserved"
+          url: "/admin/inventory/reserved"
         }
       ]
     },
     {
       title: "Customers",
       icon: IconFileDescription,
-      url: "/admin/dashboard/customers",
+      isActive: false,
+      url: "/admin/customers",
       items: []
     }
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "/admin/dashboard/settings",
+      url: "/admin/settings",
       icon: IconSettings
     }
   ]
