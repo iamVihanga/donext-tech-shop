@@ -21,15 +21,10 @@ import { CiFacebook } from "react-icons/ci";
 import { toast } from "sonner";
 import { signinSchema, type SigninSchemaT } from "../schemas";
 
-interface SigninFormProps {
-  type?: "agent" | "user";
-}
-
 export function SigninForm({
   className,
-  type = "user",
   ...props
-}: React.ComponentProps<"div"> & SigninFormProps) {
+}: React.ComponentProps<"div">) {
   const toastId = useId();
   const router = useRouter();
 

@@ -1,12 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import {
-  admin as adminPlugin,
-  apiKey,
-  openAPI,
-  organization
-} from "better-auth/plugins";
+import { admin as adminPlugin, openAPI } from "better-auth/plugins";
 
 import { db } from "@/db";
 import env from "@/env";
@@ -50,17 +45,7 @@ export const auth = betterAuth({
     // facebook: {
     // },
   },
-  plugins: [
-    adminPlugin(),
-    openAPI(),
-    apiKey(),
-    organization({
-      allowUserToCreateOrganization() {
-        // TODO: In future, Allow permissions based on user's subscription
-        return true;
-      }
-    })
-  ]
+  plugins: [adminPlugin(), openAPI()]
 });
 
 export type Session = typeof auth.$Infer.Session;

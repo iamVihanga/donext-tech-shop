@@ -10,7 +10,7 @@ const authRoutes = [
   "/email-verified"
 ];
 
-const protectedRoutes = ["/dashboard"];
+const protectedRoutes = ["/admin", "/account"];
 
 export default async function authMiddleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -37,6 +37,10 @@ export default async function authMiddleware(request: NextRequest) {
     // If Auth route and Already authenticated,
     // Redirect back
     if (authRoutes.includes(pathname) && session) {
+      if (session.user.role === "admin") {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
+
       return NextResponse.redirect(new URL("/", request.url));
     }
 
@@ -47,46 +51,14 @@ export default async function authMiddleware(request: NextRequest) {
     }
 
     /**
-     * If dashboard route and authenticated,
-     * Check, is user have active organization id in session,
-     * If not, fetch list of organizations,
-     * If user have at least organization, switch to first organization,
-     * Otherwise, send 404 response
+     * If admin route and authenticated,
+     * Check, is user role is admin,
+     * If not, redirect to 404
+     * If user role is admin, continue,
      */
-    if (pathname === "/dashboard" && session) {
-      if (!session.session.activeOrganizationId) {
-        const { data: organizationsList } = await betterFetch(
-          "/api/auth/organization/list",
-          {
-            baseURL: request.nextUrl.origin,
-            headers: {
-              //get the cookie from the request
-              cookie: request.headers.get("cookie") || ""
-            }
-          }
-        );
-
-        if (!organizationsList || (organizationsList as []).length === 0) {
-          return NextResponse.redirect(new URL("/404", request.url));
-        }
-
-        const orgId = (organizationsList as any[])?.[0]?.id as string;
-
-        const switchRes = await betterFetch(
-          "/api/auth/organization/set-active",
-          {
-            baseURL: request.nextUrl.origin,
-            headers: {
-              cookie: request.headers.get("cookie") || ""
-            },
-            method: "POST",
-            body: { organizationId: orgId }
-          }
-        );
-
-        console.log(
-          `Agent '${session.session.userId}' switched to organization: '${orgId}'`
-        );
+    if (pathname.startsWith("/admin") && session) {
+      if (session.user.role !== "admin") {
+        return NextResponse.redirect(new URL("/404", request.url));
       }
     }
   }

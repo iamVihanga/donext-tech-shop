@@ -2,26 +2,17 @@
 
 import {
   IconCamera,
-  IconChartBar,
   IconDashboard,
-  IconDatabase,
   IconFileAi,
   IconFileDescription,
-  IconFileWord,
-  IconFolder,
-  IconFolders,
-  IconInnerShadowTop,
-  IconListDetails,
-  IconReport,
-  IconSettings,
-  IconUsers
+  IconSettings
 } from "@tabler/icons-react";
 import * as React from "react";
 
-import { NavDocuments } from "@/components/dashboard/nav-documents";
 import { NavMain } from "@/components/dashboard/nav-main";
-import { NavSecondary } from "@/components/dashboard/nav-secondary";
+import { NavStore } from "@/components/dashboard/nav-store";
 import { NavUser } from "@/components/dashboard/nav-user";
+import { SITE_NAME } from "@/lib/constants";
 import {
   Sidebar,
   SidebarContent,
@@ -31,6 +22,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from "@repo/ui/components/sidebar";
+import { ComputerIcon } from "lucide-react";
+import { NavSecondary } from "./nav-secondary";
 
 const data = {
   user: {
@@ -43,103 +36,50 @@ const data = {
       title: "Dashboard",
       url: "#",
       icon: IconDashboard
-    },
-    {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers
     }
   ],
-  navClouds: [
+  navStore: [
     {
-      title: "Capture",
+      title: "Products",
       icon: IconCamera,
       isActive: true,
-      url: "#",
+      url: "/admin/dashboard/products",
       items: [
         {
-          title: "Active Proposals",
-          url: "#"
-        },
-        {
-          title: "Archived",
-          url: "#"
+          title: "Categories",
+          url: "/admin/dashboard/categories"
         }
       ]
     },
     {
-      title: "Proposal",
+      title: "Orders",
       icon: IconFileDescription,
-      url: "#",
+      url: "/admin/dashboard/orders",
+      items: []
+    },
+    {
+      title: "Inventory",
+      icon: IconFileAi,
+      url: "/admin/dashboard/inventory",
       items: [
         {
-          title: "Active Proposals",
-          url: "#"
-        },
-        {
-          title: "Archived",
-          url: "#"
+          title: "Reserved",
+          url: "/admin/dashboard/inventory/reserved"
         }
       ]
     },
     {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#"
-        },
-        {
-          title: "Archived",
-          url: "#"
-        }
-      ]
+      title: "Customers",
+      icon: IconFileDescription,
+      url: "/admin/dashboard/customers",
+      items: []
     }
   ],
   navSecondary: [
     {
       title: "Settings",
-      url: "/dashboard/settings",
+      url: "/admin/dashboard/settings",
       icon: IconSettings
-    },
-    {
-      title: "Media Gallery",
-      url: "/dashboard/gallery",
-      icon: IconFolders
-    }
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord
     }
   ]
 };
@@ -155,8 +95,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <ComputerIcon className="!size-5" />
+                <span className="text-sm text-muted-foreground font-heading font-bold">{`${SITE_NAME} | Admin`}</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -164,7 +104,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        <NavStore items={data.navStore} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
