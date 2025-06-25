@@ -28,6 +28,7 @@ import {
   SidebarMenuItem,
   useSidebar
 } from "@repo/ui/components/sidebar";
+import { ToggleTheme } from "../../modules/layouts/toggle-theme";
 
 export function NavUser({
   user
@@ -98,6 +99,10 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
+
+            <DropdownMenuItem asChild className="mb-2">
+              <ToggleTheme className="w-full" />
+            </DropdownMenuItem>
 
             <DropdownMenuItem asChild>
               <SignoutButton className="w-full" />
