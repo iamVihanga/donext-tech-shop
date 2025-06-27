@@ -7,7 +7,7 @@ import {
   getPaginatedSchema,
   queryParamsSchema,
   stringIdParamSchema
-} from "@/lib/helpers";
+} from "@api/lib/helpers";
 import {
   categorySchema,
   categoryWithSubCategories,

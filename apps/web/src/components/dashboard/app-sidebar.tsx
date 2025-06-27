@@ -46,6 +46,10 @@ const data = {
       url: "/admin/products",
       items: [
         {
+          title: "New Product",
+          url: "/admin/products/new"
+        },
+        {
           title: "Categories",
           url: "/admin/products/categories"
         }

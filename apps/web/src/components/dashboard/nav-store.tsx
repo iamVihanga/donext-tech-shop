@@ -82,9 +82,9 @@ export function NavStore({ items }: { items: StoreNavItem[] }) {
                         asChild
                         className="py-1 text-sm"
                       >
-                        <a href={subItem.url}>
+                        <Link href={subItem.url}>
                           <span>{subItem.title}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                     ))}
                   </div>

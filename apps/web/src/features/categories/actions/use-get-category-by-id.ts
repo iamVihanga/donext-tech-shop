@@ -2,10 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 
 import { getClient } from "@/lib/rpc/client";
 
-export const useGetCategoryById = (id: string) => {
+export const useGetCategoryById = (id?: string) => {
   const query = useQuery({
-    queryKey: ["categories"],
+    queryKey: ["categories", { id }],
     queryFn: async () => {
+      if (!id) throw new Error("Category ID is required");
+
       const rpcClient = await getClient();
 
       const response = await rpcClient.api.categories[":id"].$get({

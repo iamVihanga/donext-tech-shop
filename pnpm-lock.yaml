@@ -133,6 +133,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.1.0)
+      '@hookform/resolvers':
+        specifier: ^5.1.1
+        version: 5.1.1(react-hook-form@7.57.0(react@19.1.0))
       '@nextplate/api':
         specifier: workspace:_
         version: link:../api
@@ -247,6 +250,9 @@ importers:
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       cmdk:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -313,6 +319,9 @@ importers:
       zod:
         specifier: ^3.25.57
         version: 3.25.57
+      zustand:
+        specifier: ^5.0.5
+        version: 5.0.5(@types/react@19.1.0)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -326,6 +335,9 @@ importers:
       '@types/react':
         specifier: ^19
         version: 19.1.0
+      '@types/react-beautiful-dnd':
+        specifier: ^13.1.8
+        version: 13.1.8
       '@types/react-dom':
         specifier: ^19
         version: 19.1.1(@types/react@19.1.0)
@@ -549,12 +561,18 @@ importers:
       react-phone-number-input:
         specifier: ^3.4.12
         version: 3.4.12(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      recharts:
+        specifier: ^2.15.3
+        version: 2.15.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       tailwind-merge:
         specifier: ^3.0.1
         version: 3.3.0
       tw-animate-css:
         specifier: ^1.2.4
         version: 1.3.4
+      vaul:
+        specifier: ^1.1.2
+        version: 1.1.2(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       zod:
         specifier: ^3.24.2
         version: 3.25.48
@@ -1300,6 +1318,11 @@ packages:
     peerDependencies:
       hono: '>=3.9.0'
       zod: ^3.25.0
+
+  '@hookform/resolvers@5.1.1':
+    resolution: {integrity: sha512-J/NVING3LMAEvexJkyTLjruSm7aOFx7QX21pzkiJfMoNG0wl5aFEjLTl7ay7IQb9EWY6AkrBy7tHL2Alijpdcg==}
+    peerDependencies:
+      react-hook-form: ^7.55.0
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2611,6 +2634,9 @@ packages:
     resolution: {integrity: sha512-4QvC49HTteI1gfemu0I1syWovJgPvGn7CVUoN9ZFkdvr/cCFkrEL7qNCdx/2eICqDWEGnnr68oMdSIPCLAriSQ==}
     engines: {node: '>=18.0.0'}
 
+  '@standard-schema/utils@0.3.0':
+    resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
+
   '@stylistic/eslint-plugin@4.4.0':
     resolution: {integrity: sha512-bIh/d9X+OQLCAMdhHtps+frvyjvAM4B1YlSJzcEEhl7wXLIqPar3ngn9DrHhkBOrTA/z9J0bUMtctAspe0dxdQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -2865,6 +2891,9 @@ packages:
 
   '@types/pg@8.15.4':
     resolution: {integrity: sha512-I6UNVBAoYbvuWkkU3oosC8yxqH21f4/Jc4DK71JLG3dT2mdlGe1z+ep/LQGXaKaOgcvUrsQoPRqfgtMcvZiJhg==}
+
+  '@types/react-beautiful-dnd@13.1.8':
+    resolution: {integrity: sha512-E3TyFsro9pQuK4r8S/OL6G99eq7p8v29sX0PM7oT8Z+PJfZvSQTx4zTQbUJ+QZXioAF0e7TGBEcA1XhYhCweyQ==}
 
   '@types/react-dom@19.1.1':
     resolution: {integrity: sha512-jFf/woGTVTjUJsl2O7hcopJ1r0upqoq/vIOoCj0yLh3RIXxWcljlpuZ+vEBRXsymD1jhfeJrlyTy/S1UW+4y1w==}
@@ -6614,6 +6643,24 @@ packages:
   zod@3.25.57:
     resolution: {integrity: sha512-6tgzLuwVST5oLUxXTmBqoinKMd3JeesgbgseXeFasKKj8Q1FCZrHnbqJOyiEvr4cVAlbug+CgIsmJ8cl/pU5FA==}
 
+  zustand@5.0.5:
+    resolution: {integrity: sha512-mILtRfKW9xM47hqxGIxCv12gXusoY/xTSHBYApXozR0HmQv299whhBeeAcRy+KrPPybzosvJBCOmVjq6x12fCg==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -7540,6 +7587,11 @@ snapshots:
     dependencies:
       hono: 4.7.11
       zod: 3.25.48
+
+  '@hookform/resolvers@5.1.1(react-hook-form@7.57.0(react@19.1.0))':
+    dependencies:
+      '@standard-schema/utils': 0.3.0
+      react-hook-form: 7.57.0(react@19.1.0)
 
   '@humanfs/core@0.19.1': {}
 
@@ -8949,6 +9001,8 @@ snapshots:
       '@smithy/types': 4.3.1
       tslib: 2.8.1
 
+  '@standard-schema/utils@0.3.0': {}
+
   '@stylistic/eslint-plugin@4.4.0(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.2)':
     dependencies:
       '@typescript-eslint/utils': 8.33.0(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.2)
@@ -9211,9 +9265,13 @@ snapshots:
 
   '@types/pg@8.15.4':
     dependencies:
-      '@types/node': 22.15.30
+      '@types/node': 20.17.57
       pg-protocol: 1.10.0
       pg-types: 2.2.0
+
+  '@types/react-beautiful-dnd@13.1.8':
+    dependencies:
+      '@types/react': 19.1.0
 
   '@types/react-dom@19.1.1(@types/react@19.1.0)':
     dependencies:
@@ -9686,7 +9744,7 @@ snapshots:
 
   bun-types@1.2.15:
     dependencies:
-      '@types/node': 22.15.3
+      '@types/node': 20.17.57
 
   bundle-require@5.1.0(esbuild@0.25.5):
     dependencies:
@@ -13588,5 +13646,11 @@ snapshots:
   zod@3.25.55: {}
 
   zod@3.25.57: {}
+
+  zustand@5.0.5(@types/react@19.1.0)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0)):
+    optionalDependencies:
+      '@types/react': 19.1.0
+      react: 19.1.0
+      use-sync-external-store: 1.5.0(react@19.1.0)
 
   zwitch@2.0.4: {}
