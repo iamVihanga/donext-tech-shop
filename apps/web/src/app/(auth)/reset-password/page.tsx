@@ -1,5 +1,10 @@
 import { ResetPasswordForm } from "@/features/auth/components/reset-password-form";
+import { Suspense } from "react";
 
-export default function SigninPage() {
-  return <ResetPasswordForm />;
+export default async function SigninPage() {
+  return (
+    <Suspense>
+      <ResetPasswordForm />
+    </Suspense>
+  );
 }

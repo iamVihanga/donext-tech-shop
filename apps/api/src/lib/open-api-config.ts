@@ -1,6 +1,6 @@
 import { apiReference } from "@scalar/hono-api-reference";
 
-import { AppOpenAPI } from "@/types";
+import { AppOpenAPI } from "@api/types";
 
 import packageJson from "../../package.json";
 import { BASE_PATH } from "./constants";

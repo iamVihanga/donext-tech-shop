@@ -2,9 +2,9 @@ import { desc, eq, ilike, sql } from "drizzle-orm";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
-import type { AppRouteHandler } from "@/types";
+import type { AppRouteHandler } from "@api/types";
 
-import { db } from "@/db";
+import { db } from "@api/db";
 import { categories, subcategories } from "@repo/database/schemas";
 
 import { toKebabCase } from "../../lib/helpers";
