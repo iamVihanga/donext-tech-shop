@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
         hostname: "avatars.githubusercontent.com",
         port: "",
         pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "donext.s3.ap-south-1.amazonaws.com",
+        port: "",
+        pathname: "/**"
       }
     ]
   },

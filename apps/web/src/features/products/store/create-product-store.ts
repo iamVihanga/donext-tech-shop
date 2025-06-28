@@ -318,5 +318,23 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
     }
 
     return isValid;
+  },
+
+  addUploadedImage: (image) => {
+    set((state) => ({
+      media: {
+        ...state.media,
+        images: [...state.media.images, image]
+      }
+    }));
+  },
+
+  removeUploadedImage: (url) => {
+    set((state) => ({
+      media: {
+        ...state.media,
+        images: state.media.images.filter((image) => image.url !== url)
+      }
+    }));
   }
 }));

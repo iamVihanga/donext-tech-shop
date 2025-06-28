@@ -1,5 +1,8 @@
 import type { BasicInformationsFormSchemaT } from "@/features/products/schemas/forms/basic-informations-form";
-import type { ImagesFormSchemaT } from "@/features/products/schemas/forms/images-form";
+import type {
+  CtxImageT,
+  ImagesFormSchemaT
+} from "@/features/products/schemas/forms/images-form";
 import type { InventoryFormSchemaT } from "@/features/products/schemas/forms/inventory-form";
 import type { PricingFormSchemaT } from "@/features/products/schemas/forms/pricing-form";
 import { AdditionalInfoFormSchemaT } from "../schemas/forms/additional-info-form";
@@ -35,6 +38,10 @@ export interface CreateProductStore_Actions {
   setPricing: (data: CreateProductStore_FormTypes["pricing"]) => void;
   setAdditional: (data: CreateProductStore_FormTypes["additional"]) => void;
   setActiveTab: (tabIndex: number) => void;
+
+  // Media actions
+  addUploadedImage: (image: CtxImageT) => void;
+  removeUploadedImage: (imageUrl: string) => void;
 
   // Variant-specific actions
   toggleHasVariants: (hasVariants: boolean) => void;

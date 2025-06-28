@@ -21,7 +21,7 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-2">
           <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
-            <Link href="/dashboard/notifications">
+            <Link href="/admin/notifications">
               <BellIcon />
             </Link>
           </Button>
