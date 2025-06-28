@@ -25,7 +25,7 @@ export default function ImageGridCard({ media }: { media: Media }) {
       }`}
     >
       {/* Select Button on hover and selected state */}
-      <div className="absolute top-2 left-2">
+      <div className="absolute top-2 left-2 gap-3 flex flex-col">
         {isSelected ? (
           <div className="flex size-6 rounded-full bg-primary items-center justify-center">
             <CheckIcon
