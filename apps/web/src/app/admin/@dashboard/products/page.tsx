@@ -2,6 +2,8 @@ import PageContainer from "@/components/dashboard/page-container";
 import { AppPageShell } from "@/components/dashboard/page-shell";
 import { Separator } from "@repo/ui/components/separator";
 
+import ProductsListing from "@/features/products/components/products-listing";
+import { ProductsTableActions } from "@/features/products/components/products-table/products-table-actions";
 import { Button } from "@repo/ui/components/button";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
@@ -21,6 +23,10 @@ export default function ProductsPage() {
         />
 
         <Separator />
+
+        <ProductsTableActions />
+
+        <ProductsListing />
       </div>
     </PageContainer>
   );

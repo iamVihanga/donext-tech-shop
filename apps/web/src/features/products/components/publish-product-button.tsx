@@ -16,6 +16,9 @@ import { useCreateProductStore } from "../store/create-product-store";
 import { getActiveTab, Tabs } from "../store/helpers";
 import { validateProductDetails, ValidatorResponseT } from "../store/validator";
 
+import { getClient } from "@/lib/rpc/client";
+import { useRouter } from "next/navigation";
+
 interface PreparedProductData {
   // Main product data
   product: {
@@ -64,6 +67,7 @@ export function PublishProductButton() {
   const activeTab = getActiveTab();
   const state = useCreateProductStore();
   const toastId = useId();
+  const router = useRouter();
 
   const [showValidationErrorsDialog, setShowValidationErrorsDialog] =
     useState<boolean>(false);
@@ -154,31 +158,35 @@ export function PublishProductButton() {
       }
 
       // Step 2: Prepare data for API
-      const preparedData = prepareData();
+      const { images, variants, ...productData } = prepareData();
 
-      console.log("Prepared data for API:", preparedData);
+      // Step 3: Make API Call through RPC
+      const rpcClient = await getClient();
 
-      // Step 3: Here you would make the API call
-      /*
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(preparedData),
+      const response = await rpcClient.api.products.$post({
+        json: {
+          images,
+          variants,
+          ...productData.product
+        } as any
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create product');
+        const errorData = await response.json();
+
+        toast.error(`Failed: ${errorData.message}`, { id: toastId });
+        return;
       }
 
-      const result = await response.json();
-      console.log('Product created successfully:', result);
+      const data = await response.json();
+      toast.success(`Congratulations..!`, {
+        id: toastId,
+        description: `${data.name} is live now !`
+      });
 
       // Clear form and redirect
       state.clearForm();
-      router.push('/admin/products');
-      */
+      router.push("/admin/products");
     } catch (error) {
       console.error("Error publishing product:", error);
       alert("Failed to publish product. Please try again.");
