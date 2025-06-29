@@ -7,10 +7,24 @@ export const ctxImageSchema = z.object({
   isThumbnail: z.boolean()
 });
 
-export const imagesFormSchema = z.object({
-  images: z.array(ctxImageSchema),
-  status: formStepStatus.default("pending")
-});
+export const imagesFormSchema = z
+  .object({
+    images: z.array(ctxImageSchema),
+    status: formStepStatus
+  })
+  .refine(
+    (data) => {
+      // If there are images, at least one must be marked as thumbnail
+      if (data.images.length > 0) {
+        return data.images.some((img) => img.isThumbnail);
+      }
+      return true; // No images is valid for now, but you can change this
+    },
+    {
+      message: "You must mark at least one image as thumbnail",
+      path: ["images"]
+    }
+  );
 
 export type CtxImageT = z.infer<typeof ctxImageSchema>;
 

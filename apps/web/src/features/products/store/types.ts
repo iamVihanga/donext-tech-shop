@@ -10,8 +10,9 @@ import { AdditionalInfoFormSchemaT } from "../schemas/forms/additional-info-form
 export interface CreateProductStore_FormTypes {
   // Form control
   activeTab: number;
-  validationErrors: Record<string, string[]>;
   isSubmitting: boolean;
+
+  validationErrors: Record<string, string[]>;
 
   // Form 01 -> Basic Information Form
   basicInformation: BasicInformationsFormSchemaT;
