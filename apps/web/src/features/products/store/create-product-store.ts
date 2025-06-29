@@ -48,12 +48,12 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
   },
 
   additional: {
-    weight: undefined,
-    dimensions: undefined,
-    requiresShipping: undefined,
-    metaTitle: undefined,
-    metaDescription: undefined,
-    tags: undefined,
+    weight: 0,
+    dimensions: "",
+    requiresShipping: false,
+    metaTitle: "",
+    metaDescription: "",
+    tags: "",
     status: "pending"
   },
 
@@ -193,12 +193,12 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
         status: "pending"
       },
       additional: {
-        weight: undefined,
-        dimensions: undefined,
-        requiresShipping: undefined,
-        metaTitle: undefined,
-        metaDescription: undefined,
-        tags: undefined,
+        weight: 0,
+        dimensions: "",
+        requiresShipping: false,
+        metaTitle: "",
+        metaDescription: "",
+        tags: "",
         status: "pending"
       }
     });

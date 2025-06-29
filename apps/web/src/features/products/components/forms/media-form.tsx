@@ -8,8 +8,8 @@ import { useAppForm } from "@repo/ui/components/tanstack-form";
 import { CheckIcon, PlusIcon, SaveIcon } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
-import { imagesFormSchema } from "../../../schemas/forms/images-form";
-import { setActiveTab, Tabs } from "../../../store/helpers";
+import { imagesFormSchema } from "../../schemas/forms/images-form";
+import { setActiveTab, Tabs } from "../../store/helpers";
 
 export function MediaForm() {
   const [showGallery, setShowGallery] = useState(false);
@@ -118,7 +118,10 @@ export function MediaForm() {
                     className="w-full group aspect-square p-0 flex items-center justify-center hover:border-card-foreground/40 transition-all ease-in-out cursor-pointer"
                   >
                     <div className="flex flex-col gap-3 items-center justify-center">
-                      <PlusIcon className="size-18 text-card-foreground/90" />
+                      <PlusIcon
+                        strokeWidth={0.5}
+                        className="size-18 text-card-foreground/90"
+                      />
                       <div className="text-sm text-foreground/60">
                         Add new Images
                       </div>

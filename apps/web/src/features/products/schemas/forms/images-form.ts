@@ -14,11 +14,23 @@ export const imagesFormSchema = z
   })
   .refine(
     (data) => {
+      if (data.images.length < 1) {
+        return false;
+      }
+
+      return true;
+    },
+    {
+      message: "You must upload at least one image",
+      path: ["images"]
+    }
+  )
+  .refine(
+    (data) => {
       // If there are images, at least one must be marked as thumbnail
       if (data.images.length > 0) {
         return data.images.some((img) => img.isThumbnail);
       }
-      return true; // No images is valid for now, but you can change this
     },
     {
       message: "You must mark at least one image as thumbnail",
