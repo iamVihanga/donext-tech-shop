@@ -5,6 +5,7 @@ import { BASE_PATH } from "../lib/constants";
 import categories from "./categories/categories.index";
 import index from "./index.route";
 import media from "./media/media.index";
+import products from "./products/product.index";
 import tasks from "./tasks/tasks.index";
 
 export function registerRoutes(app: AppOpenAPI) {
@@ -12,6 +13,7 @@ export function registerRoutes(app: AppOpenAPI) {
     .route("/", index)
     .route("/tasks", tasks)
     .route("/categories", categories)
+    .route("/products", products)
     .route("/media", media);
 }
 
