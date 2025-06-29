@@ -1,0 +1,102 @@
+// Create: product-actions.tsx
+"use client";
+
+import { Button } from "@repo/ui/components/button";
+import { useState } from "react";
+
+interface ProductActionsProps {
+  product: any;
+}
+
+export function ProductActions({ product }: ProductActionsProps) {
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+
+  // Group variants by attribute type
+  const variantGroups = product.variants?.reduce(
+    (groups: any, variant: any) => {
+      const attributes = JSON.parse(variant.attributes || "{}");
+      const type = attributes.type || "Variant";
+
+      if (!groups[type]) {
+        groups[type] = [];
+      }
+
+      groups[type].push(variant);
+      return groups;
+    },
+    {}
+  );
+
+  return (
+    <div className="space-y-6">
+      {Object.entries(variantGroups || {}).map(
+        ([type, variants]: [string, any]) => (
+          <div key={type} className="space-y-3">
+            <h3 className="text-lg font-semibold text-gray-200">{type}</h3>
+            <div className="flex flex-wrap gap-3">
+              {variants.map((variant: any) => (
+                <Button
+                  key={variant.id}
+                  onClick={() => setSelectedVariant(variant)}
+                  variant={
+                    selectedVariant?.id === variant.id ? "default" : "outline"
+                  }
+                  className={`border-gray-600 ${
+                    selectedVariant?.id === variant.id
+                      ? "bg-amber-500 text-gray-900 border-amber-500"
+                      : "hover:border-amber-500 hover:text-amber-400"
+                  }`}
+                  disabled={variant.stockQuantity <= 0}
+                >
+                  {variant.name}
+                  {variant.stockQuantity <= 0 && (
+                    <span className="ml-2 text-xs">(Out of stock)</span>
+                  )}
+                </Button>
+              ))}
+            </div>
+
+            {selectedVariant && (
+              <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-gray-200">
+                      Selected: {selectedVariant.name}
+                    </p>
+                    <p className="text-gray-400 text-sm font-mono">
+                      SKU: {selectedVariant.sku}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-gray-100">
+                      ${parseFloat(selectedVariant.price || "0").toFixed(2)}
+                    </p>
+                    {selectedVariant.comparePrice &&
+                      parseFloat(selectedVariant.comparePrice) > 0 && (
+                        <p className="text-gray-400 line-through text-sm">
+                          ${parseFloat(selectedVariant.comparePrice).toFixed(2)}
+                        </p>
+                      )}
+                  </div>
+                </div>
+                <div className="mt-2">
+                  <span
+                    className={`text-sm font-medium ${
+                      selectedVariant.stockQuantity > 0
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
+                    {selectedVariant.stockQuantity > 0
+                      ? `${selectedVariant.stockQuantity} in stock`
+                      : "Out of stock"}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      )}
+    </div>
+  );
+}
