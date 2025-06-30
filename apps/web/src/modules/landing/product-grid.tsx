@@ -1,3 +1,5 @@
+import { Product } from "@/features/products/schemas/products.zod";
+import { WishlistButton } from "@/features/wishlist/components/wishlist-button";
 import { getClient } from "@/lib/rpc/server";
 import Image from "next/image";
 import Link from "next/link";
@@ -57,7 +59,7 @@ export async function ProductGrid({}: Props) {
             if (product.variants?.length > 0) {
               const prices = product.variants
                 .map((v: any) => parseFloat(v.price || "0"))
-                .filter((p) => p > 0);
+                .filter((p: number) => p > 0);
               if (prices.length > 0) {
                 const minPrice = Math.min(...prices);
                 const maxPrice = Math.max(...prices);
@@ -142,42 +144,7 @@ export async function ProductGrid({}: Props) {
                   {/* Quick Actions */}
                   <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="flex flex-col gap-2">
-                      <button className="bg-secondary/90 hover:bg-gray-700 p-2 rounded-full shadow-lg border border-gray-600 transition-colors">
-                        <svg
-                          className="w-4 h-4 text-gray-300 hover:text-amber-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                          />
-                        </svg>
-                      </button>
-                      <button className="bg-secondary/90 hover:bg-gray-700 p-2 rounded-full shadow-lg border border-gray-600 transition-colors">
-                        <svg
-                          className="w-4 h-4 text-gray-300 hover:text-amber-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                          />
-                        </svg>
-                      </button>
+                      <WishlistButton product={product as Product} />
                     </div>
                   </div>
                 </div>

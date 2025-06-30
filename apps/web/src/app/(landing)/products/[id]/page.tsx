@@ -1,3 +1,4 @@
+import { WishlistButton } from "@/features/wishlist/components/wishlist-button";
 import { getClient } from "@/lib/rpc/server";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -5,7 +6,6 @@ import { Card, CardContent } from "@repo/ui/components/card";
 import { Separator } from "@repo/ui/components/separator";
 import {
   CheckCircleIcon,
-  HeartIcon,
   ShareIcon,
   ShoppingCartIcon,
   StarIcon,
@@ -97,7 +97,9 @@ export default async function ProductPage({ params }: Props) {
             <div className="aspect-square rounded-2xl overflow-hidden bg-neutral-800 border border-neutral-700">
               {product.images?.length > 0 ? (
                 <Image
-                  src={thumbnailImage?.imageUrl || product.images[0]?.imageUrl}
+                  src={
+                    thumbnailImage?.imageUrl! || product.images[0]?.imageUrl!
+                  }
                   alt={thumbnailImage?.altText || product.name}
                   width={600}
                   height={600}
@@ -228,13 +230,9 @@ export default async function ProductPage({ params }: Props) {
                   <ShoppingCartIcon className="w-5 h-5 mr-2" />
                   Add to Cart
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-neutral-600 hover:border-amber-500"
-                >
-                  <HeartIcon className="w-5 h-5" />
-                </Button>
+
+                <WishlistButton className="w-12 h-12" product={product} />
+
                 <Button
                   variant="outline"
                   size="lg"
@@ -262,7 +260,8 @@ export default async function ProductPage({ params }: Props) {
                     )}
                   </div>
                 ) : (
-                  product.stockQuantity > 0 && (
+                  product?.stockQuantity &&
+                  product?.stockQuantity > 0 && (
                     <div className="flex items-center gap-2">
                       <CheckCircleIcon className="w-5 h-5 text-green-400" />
                       <span className="text-green-400 font-medium">
@@ -307,7 +306,7 @@ export default async function ProductPage({ params }: Props) {
                       {product.sku}
                     </span>
                   </div>
-                  {product.weight > 0 && (
+                  {product?.weight && parseInt(product?.weight) > 0 && (
                     <div className="flex justify-between">
                       <span className="text-neutral-400">Weight:</span>
                       <span className="font-medium text-neutral-200">

@@ -1,9 +1,11 @@
 import { Logo } from "@/components/logo";
+import { Wishlist } from "@/features/wishlist/components/wishlist";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { SearchIcon } from "lucide-react";
 import { headers } from "next/headers";
+import Link from "next/link";
 
 export async function Navbar() {
   const session = await authClient.getSession({
@@ -16,7 +18,9 @@ export async function Navbar() {
     <nav className="w-full h-14 bg-muted shadow-lg">
       <div className="content-container mx-auto h-full flex items-center justify-between">
         {/* Logo */}
-        <Logo />
+        <Link href="/">
+          <Logo />
+        </Link>
 
         {/* Search */}
         <div className="relative h-11 w-96">
@@ -33,6 +37,8 @@ export async function Navbar() {
 
         {/* Nav Links */}
         <div className="flex items-center gap-3">
+          <Wishlist />
+
           {session.data ? (
             <div className="flex items-center gap-2">
               <Button variant="accent-outline">{`Cart (0)`}</Button>
