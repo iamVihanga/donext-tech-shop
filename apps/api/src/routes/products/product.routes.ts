@@ -8,7 +8,11 @@ import {
   queryParamsSchema,
   stringIdParamSchema
 } from "@api/lib/helpers";
-import { insertProductSchema, productSchema } from "./product.zod";
+import {
+  insertProductSchema,
+  productSchema,
+  updateProductSchema
+} from "./product.zod";
 
 const tags: string[] = ["Products"];
 
@@ -103,7 +107,7 @@ export const update = createRoute({
   request: {
     params: stringIdParamSchema,
     body: jsonContentRequired(
-      insertProductSchema,
+      updateProductSchema,
       "Product details to update exsisting product"
     )
   },
