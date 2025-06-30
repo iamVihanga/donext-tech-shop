@@ -1,11 +1,11 @@
-import { desc, eq, ilike, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, sql } from "drizzle-orm";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";
 
 import type { AppRouteHandler } from "@api/types";
 
 import { db } from "@api/db";
-import { categories, subcategories } from "@repo/database/schemas";
+import { categories, products, subcategories } from "@repo/database/schemas";
 
 import { toKebabCase } from "../../lib/helpers";
 import type {
@@ -14,6 +14,7 @@ import type {
   GetOneRoute,
   ListRoute,
   PatchRoute,
+  ProductsByCategoryRoute,
   RemoveRoute,
   RemoveSubcategoryRoute
 } from "./categories.routes";
@@ -334,6 +335,92 @@ export const removeSubcategory: AppRouteHandler<
   return c.json(
     {
       message: "Subcategory deleted successfully"
+    },
+    HttpStatusCodes.OK
+  );
+};
+
+export const productsByCategory: AppRouteHandler<
+  ProductsByCategoryRoute
+> = async (c) => {
+  const { id: categoryId } = c.req.valid("param");
+  const {
+    page = "1",
+    limit = "10",
+    sort = "asc",
+    search
+  } = c.req.valid("query");
+
+  // Convert to numbers and validate
+  const pageNum = Math.max(1, parseInt(page));
+  const limitNum = Math.max(1, Math.min(100, parseInt(limit))); // Cap at 100 items
+  const offset = (pageNum - 1) * limitNum;
+
+  // Build query conditions
+  const query = db.query.products.findMany({
+    with: { images: true, variants: true },
+    limit: limitNum,
+    offset,
+    where: (fields, { ilike, and }) => {
+      const conditions = [];
+
+      // Get category ID from request parameters
+      conditions.push(eq(fields.categoryId, categoryId));
+
+      // Add search condition if search parameter is provided
+      if (search) {
+        conditions.push(ilike(fields.name, `%${search}%`));
+      }
+
+      return conditions.length ? and(...conditions) : undefined;
+    },
+    orderBy: (fields) => {
+      if (sort.toLowerCase() === "asc") {
+        return fields.createdAt;
+      }
+
+      return desc(fields.createdAt);
+    }
+  });
+
+  const totalCountQuery = db
+    .select({ count: sql<number>`count(*)` })
+    .from(products)
+    .where(
+      search
+        ? and(
+            ilike(products.name, `%${search}%`),
+            eq(products.categoryId, categoryId)
+          )
+        : undefined
+    );
+
+  const [productsEntries, _totalCount] = await Promise.all([
+    query,
+    totalCountQuery
+  ]);
+
+  const totalCount = _totalCount[0]?.count || 0;
+
+  // Calculate pagination metadata
+  const totalPages = Math.ceil(totalCount / limitNum);
+
+  // Remove variants from products
+  const preparedProductsEntries = productsEntries.map((product) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { variants, ...productWithoutVariants } = product;
+    return productWithoutVariants;
+  });
+
+  return c.json(
+    {
+      data: preparedProductsEntries,
+      meta: {
+        currentPage: pageNum,
+        totalPages,
+        totalCount,
+        limit: limitNum
+      }
     },
     HttpStatusCodes.OK
   );
