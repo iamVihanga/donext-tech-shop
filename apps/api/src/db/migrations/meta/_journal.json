@@ -29,6 +29,20 @@
       "when": 1751128339161,
       "tag": "0003_silly_power_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1751344448161,
+      "tag": "0004_sudden_namorita",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1751352936241,
+      "tag": "0005_simple_tenebrous",
+      "breakpoints": true
     }
   ]
 }

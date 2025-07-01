@@ -69,3 +69,40 @@ export function getStockStatus(product: Product): StockStatus {
 
   return "out-of-stock";
 }
+
+// Discount Checker
+export type ProductDiscountT = {
+  discount: number;
+  hasDiscount: boolean;
+  variantId: string;
+};
+
+export function getProductDiscount(
+  product: Product
+): ProductDiscountT[] | false {
+  if (product.variants && product.variants.length > 0) {
+    const allVariants = product.variants.map((variant) => {
+      const price = variant.price ? parseInt(variant.price) : 0;
+      const comparePrice = variant.comparePrice
+        ? parseInt(variant.comparePrice)
+        : 0;
+
+      if (comparePrice > price) {
+        return {
+          discount: comparePrice - price,
+          hasDiscount: true,
+          variantId: variant.id
+        };
+      } else
+        return {
+          discount: 0,
+          hasDiscount: false,
+          variantId: variant.id
+        };
+    });
+
+    return allVariants;
+  }
+
+  return false;
+}

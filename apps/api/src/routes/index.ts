@@ -2,6 +2,7 @@ import { createRouter } from "@api/lib/create-app";
 import { AppOpenAPI } from "@api/types";
 
 import { BASE_PATH } from "../lib/constants";
+import cart from "./cart/cart.index";
 import categories from "./categories/categories.index";
 import index from "./index.route";
 import media from "./media/media.index";
@@ -14,6 +15,7 @@ export function registerRoutes(app: AppOpenAPI) {
     .route("/tasks", tasks)
     .route("/categories", categories)
     .route("/products", products)
+    .route("/cart", cart)
     .route("/media", media);
 }
 

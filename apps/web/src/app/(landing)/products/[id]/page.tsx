@@ -1,4 +1,6 @@
+import { ProductPrice } from "@/components/price";
 import { WishlistButton } from "@/features/wishlist/components/wishlist-button";
+import { getProductThumbnail } from "@/lib/helpers";
 import { getClient } from "@/lib/rpc/server";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -16,12 +18,14 @@ import { notFound } from "next/navigation";
 import { ProductActions } from "./product-actions";
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default async function ProductPage({ params }: Props) {
+export default async function ProductPage(props: Props) {
+  const params = await props.params;
+
   const rpcClient = await getClient();
 
   // Fetch single product by slug or ID
@@ -50,42 +54,13 @@ export default async function ProductPage({ params }: Props) {
   const product = await response.json();
 
   // Get thumbnail or first image
-  const thumbnailImage =
-    product.images?.find((img: any) => img.isThumbnail) || product.images?.[0];
-
-  // Calculate pricing
-  const getPrice = () => {
-    if (product.variants?.length > 0) {
-      const prices = product.variants
-        .map((v: any) => parseFloat(v.price || "0"))
-        .filter((p) => p > 0);
-      if (prices.length > 0) {
-        const minPrice = Math.min(...prices);
-        const maxPrice = Math.max(...prices);
-        return {
-          display:
-            minPrice === maxPrice
-              ? `$${minPrice.toFixed(2)}`
-              : `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`,
-          min: minPrice,
-          max: maxPrice
-        };
-      }
-    }
-    return {
-      display: `$${parseFloat(product.price || "0").toFixed(2)}`,
-      min: parseFloat(product.price || "0"),
-      max: parseFloat(product.price || "0")
-    };
-  };
+  const thumbnailImage = getProductThumbnail(product);
 
   const hasDiscount = product.variants?.some(
     (variant: any) =>
       variant.comparePrice &&
       parseFloat(variant.comparePrice) > parseFloat(variant.price || "0")
   );
-
-  const pricing = getPrice();
 
   return (
     <div className="min-h-screen bg-secondary/20 text-neutral-100">
@@ -95,12 +70,10 @@ export default async function ProductPage({ params }: Props) {
           <div className="space-y-6">
             {/* Main Image */}
             <div className="aspect-square rounded-2xl overflow-hidden bg-neutral-800 border border-neutral-700">
-              {product.images?.length > 0 ? (
+              {thumbnailImage ? (
                 <Image
-                  src={
-                    thumbnailImage?.imageUrl! || product.images[0]?.imageUrl!
-                  }
-                  alt={thumbnailImage?.altText || product.name}
+                  src={thumbnailImage}
+                  alt={product.name}
                   width={600}
                   height={600}
                   className="w-full h-full object-cover"
@@ -129,14 +102,14 @@ export default async function ProductPage({ params }: Props) {
             {/* Image Thumbnails */}
             {product.images?.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-2">
-                {product.images.map((image: any, index: number) => (
+                {product.images.map((image, index) => (
                   <div
                     key={index}
                     className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-neutral-600 hover:border-amber-500 transition-colors cursor-pointer"
                   >
                     <Image
                       src={image.imageUrl}
-                      alt={`${product.name} ${index + 1}`}
+                      alt={`${image.altText}`}
                       width={80}
                       height={80}
                       className="w-full h-full object-cover"
@@ -164,6 +137,7 @@ export default async function ProductPage({ params }: Props) {
                 ) : (
                   <Badge variant="destructive">Out of Stock</Badge>
                 )}
+
                 {hasDiscount && (
                   <Badge className="bg-red-500 text-white">Sale</Badge>
                 )}
@@ -200,9 +174,8 @@ export default async function ProductPage({ params }: Props) {
             {/* Price */}
             <div className="space-y-3">
               <div className="flex items-center gap-4">
-                <span className="text-4xl font-bold text-neutral-100">
-                  {pricing.display}
-                </span>
+                <ProductPrice product={product} className="text-4xl" />
+
                 {hasDiscount && (
                   <Badge className="bg-red-500 text-white text-sm">SALE</Badge>
                 )}
