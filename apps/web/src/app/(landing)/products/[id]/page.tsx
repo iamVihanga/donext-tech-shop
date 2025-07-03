@@ -1,4 +1,5 @@
 import { ProductPrice } from "@/components/price";
+import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { WishlistButton } from "@/features/wishlist/components/wishlist-button";
 import { getProductThumbnail } from "@/lib/helpers";
 import { getClient } from "@/lib/rpc/server";
@@ -195,14 +196,22 @@ export default async function ProductPage(props: Props) {
             {/* Actions */}
             <div className="space-y-6">
               <div className="flex gap-4">
-                <Button
-                  size="lg"
-                  className="flex-1 bg-amber-500 hover:bg-amber-600 text-neutral-900 font-semibold shadow-lg hover:shadow-amber-500/25"
-                  disabled={!product.isActive}
-                >
-                  <ShoppingCartIcon className="w-5 h-5 mr-2" />
-                  Add to Cart
-                </Button>
+                {product.variants && product.variants.length > 0 ? (
+                  <Button
+                    size="lg"
+                    className="flex-1 bg-amber-500 hover:bg-amber-600 text-neutral-900 font-semibold shadow-lg hover:shadow-amber-500/25"
+                    disabled={!product.isActive}
+                  >
+                    <ShoppingCartIcon className="w-5 h-5 mr-2" />
+                    Select Variant to Add
+                  </Button>
+                ) : (
+                  <AddToCartButton
+                    product={product}
+                    size="lg"
+                    className="flex-1 bg-amber-500 hover:bg-amber-600 text-neutral-900 font-semibold shadow-lg hover:shadow-amber-500/25"
+                  />
+                )}
 
                 <WishlistButton className="w-12 h-12" product={product} />
 

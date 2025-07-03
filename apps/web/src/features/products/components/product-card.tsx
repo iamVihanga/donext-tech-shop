@@ -1,4 +1,5 @@
 import { ProductPrice } from "@/components/price";
+import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { WishlistButton } from "@/features/wishlist/components/wishlist-button";
 import { getProductPrice, getProductThumbnail } from "@/lib/helpers";
 import { Button } from "@repo/ui/components/button";
@@ -93,9 +94,11 @@ export function ProductCard({ product }: Props) {
               <Link href={`/products/${product.id}`}>View Product</Link>
             </Button>
           ) : (
-            <Button variant={"accent"} className="flex-1 w-full rounded">
-              Add to Cart
-            </Button>
+            <AddToCartButton
+              product={product}
+              className="flex-1 w-full rounded"
+              variant="accent"
+            />
           )}
         </div>
       </CardFooter>

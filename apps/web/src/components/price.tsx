@@ -17,23 +17,23 @@ export function formatPrice(
   }).format(amount);
 }
 
-export function Price({
-  amount,
-  currency,
-  locale,
-  className
-}: {
-  amount: number;
-  currency: Currency;
-  locale?: string;
-  className?: string;
-}) {
-  return (
-    <span className={cn("", className)}>
-      {formatPrice(amount, currency, locale)}
-    </span>
-  );
-}
+// export function Price({
+//   amount,
+//   currency,
+//   locale,
+//   className
+// }: {
+//   amount: number;
+//   currency: Currency;
+//   locale?: string;
+//   className?: string;
+// }) {
+//   return (
+//     <span className={cn("", className)}>
+//       {formatPrice(amount, currency, locale)}
+//     </span>
+//   );
+// }
 
 interface ProductPriceProps {
   product: Product;

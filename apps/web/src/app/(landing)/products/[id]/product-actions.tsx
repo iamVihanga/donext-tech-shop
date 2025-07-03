@@ -1,6 +1,9 @@
 // Create: product-actions.tsx
 "use client";
 
+import { formatPrice } from "@/components/price";
+import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
+import { ProductVariant } from "@/features/products/schemas/products.zod";
 import { Button } from "@repo/ui/components/button";
 import { useState } from "react";
 
@@ -9,7 +12,9 @@ interface ProductActionsProps {
 }
 
 export function ProductActions({ product }: ProductActionsProps) {
-  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
+    null
+  );
 
   // Group variants by attribute type
   const variantGroups = product.variants?.reduce(
@@ -69,12 +74,18 @@ export function ProductActions({ product }: ProductActionsProps) {
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold text-gray-100">
-                      ${parseFloat(selectedVariant.price || "0").toFixed(2)}
+                      {formatPrice(
+                        parseFloat(selectedVariant.price || "0"),
+                        "LKR"
+                      )}
                     </p>
                     {selectedVariant.comparePrice &&
                       parseFloat(selectedVariant.comparePrice) > 0 && (
                         <p className="text-gray-400 line-through text-sm">
-                          ${parseFloat(selectedVariant.comparePrice).toFixed(2)}
+                          {formatPrice(
+                            parseFloat(selectedVariant.comparePrice),
+                            "LKR"
+                          )}
                         </p>
                       )}
                   </div>
@@ -82,15 +93,25 @@ export function ProductActions({ product }: ProductActionsProps) {
                 <div className="mt-2">
                   <span
                     className={`text-sm font-medium ${
-                      selectedVariant.stockQuantity > 0
+                      (selectedVariant?.stockQuantity || 0) > 0
                         ? "text-green-400"
                         : "text-red-400"
                     }`}
                   >
-                    {selectedVariant.stockQuantity > 0
+                    {(selectedVariant?.stockQuantity || 0) > 0
                       ? `${selectedVariant.stockQuantity} in stock`
                       : "Out of stock"}
                   </span>
+                </div>
+                <div className="mt-4">
+                  <AddToCartButton
+                    product={product}
+                    variantId={selectedVariant.id}
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-neutral-900 font-semibold"
+                    disabled={
+                      (selectedVariant?.stockQuantity || 0) < 1 ? true : false
+                    }
+                  />
                 </div>
               </div>
             )}

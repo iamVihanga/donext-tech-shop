@@ -6,6 +6,7 @@ import { Input } from "@repo/ui/components/input";
 import { SearchIcon } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
+import { NavbarCartSection } from "./navbar-cart-section";
 
 export async function Navbar() {
   const session = await authClient.getSession({
@@ -41,7 +42,7 @@ export async function Navbar() {
 
           {session.data ? (
             <div className="flex items-center gap-2">
-              <Button variant="accent-outline">{`Cart (0)`}</Button>
+              <NavbarCartSection />
               <Button variant="accent" className="w-32">
                 Account
               </Button>
