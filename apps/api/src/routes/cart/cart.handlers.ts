@@ -44,7 +44,16 @@ export const list: AppRouteHandler<ListRoute> = async (c) => {
 
   // Build query conditions
   const query = db.query.carts.findMany({
-    with: { items: { with: { product: true, variant: true } } },
+    with: {
+      items: {
+        with: {
+          product: {
+            with: { images: true, variants: true }
+          },
+          variant: true
+        }
+      }
+    },
     limit: limitNum,
     offset,
     orderBy: (fields) => {
@@ -107,7 +116,16 @@ export const getUserCart: AppRouteHandler<GetUserCartRoute> = async (c) => {
 
   const cartData = await db.query.carts.findFirst({
     where: (fields, { eq }) => eq(fields.id, userCart.id),
-    with: { items: { with: { product: true, variant: true } } }
+    with: {
+      items: {
+        with: {
+          product: {
+            with: { images: true, variants: true }
+          },
+          variant: true
+        }
+      }
+    }
   });
 
   return c.json(cartData, HttpStatusCodes.OK);

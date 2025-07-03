@@ -6,6 +6,7 @@ import cart from "./cart/cart.index";
 import categories from "./categories/categories.index";
 import index from "./index.route";
 import media from "./media/media.index";
+import orders from "./orders";
 import products from "./products/product.index";
 import tasks from "./tasks/tasks.index";
 
@@ -16,6 +17,7 @@ export function registerRoutes(app: AppOpenAPI) {
     .route("/categories", categories)
     .route("/products", products)
     .route("/cart", cart)
+    .route("/orders", orders)
     .route("/media", media);
 }
 
