@@ -1,5 +1,5 @@
 import rpc from "@nextplate/rpc";
 
-import { env } from "@/lib/env";
-
-export const client = rpc(env.NEXT_PUBLIC_BACKEND_URL!);
+export const client = rpc(
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.gamezonetech.lk"
+);

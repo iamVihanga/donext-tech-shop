@@ -1,11 +1,10 @@
 import { adminClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import { toast } from "sonner";
-import { env } from "./env";
 
 export const authClient = createAuthClient({
   // Domain Configurations
-  baseURL: env.NEXT_PUBLIC_APP_URL,
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "https://gamezonetech.lk",
 
   plugins: [adminClient()],
   fetchOptions: {
