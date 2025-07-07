@@ -26,8 +26,7 @@ export default async function authMiddleware(request: NextRequest) {
     const { data: session, error: sessionError } = await betterFetch<Session>(
       "/api/auth/get-session",
       {
-        baseURL:
-          process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.gamezonetech.lk",
+        baseURL: "https://api.gamezonetech.lk",
         headers: {
           //get the cookie from the request
           cookie: request.headers.get("cookie") || ""
