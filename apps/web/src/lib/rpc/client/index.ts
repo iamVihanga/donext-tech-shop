@@ -14,7 +14,7 @@ export const getClient = async () => {
     cookiesList = "";
   }
 
-  return rpc(process.env.NEXT_PUBLIC_APP_URL!, {
+  return rpc("https://gamezonetech.lk", {
     headers: {
       cookie: cookiesList
     }
