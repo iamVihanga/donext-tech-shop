@@ -8,8 +8,8 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]),
   DATABASE_URL: z.string(),
 
-  CLIENT_APP_URL: z.string().default("http://localhost:3000"),
-  BETTER_AUTH_URL: z.string().default("http://localhost:8000")
+  CLIENT_APP_URL: z.string().default("https://gamezonetech.lk"),
+  BETTER_AUTH_URL: z.string().default("https://api.gamezonetech.lk")
 });
 
 export type EnvSchema = z.infer<typeof envSchema>;
