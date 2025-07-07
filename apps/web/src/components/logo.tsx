@@ -9,9 +9,8 @@ export function Logo({}: Props) {
 
       <div className="flex flex-col gap-0">
         <span className="text-xs font-bold text-amber-500 font-heading uppercase">
-          Computer Shop
+          Game Zone Tech
         </span>
-        <span className="text-[9px] text-amber-500/80">by Donext</span>
       </div>
     </div>
   );
