@@ -9,9 +9,14 @@ export default async function AccountPageLayout({
   dashboard?: React.ReactNode;
   auth?: React.ReactNode;
 }) {
+  const headersList = await headers();
+  const cookieHeader = headersList.get("cookie");
+
   const session = await authClient.getSession({
     fetchOptions: {
-      headers: await headers()
+      headers: {
+        ...(cookieHeader && { cookie: cookieHeader })
+      }
     }
   });
 

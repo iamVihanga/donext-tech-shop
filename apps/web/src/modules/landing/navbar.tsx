@@ -4,11 +4,21 @@ import { authClient } from "@/lib/auth-client";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { SearchIcon } from "lucide-react";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { NavbarCartSection } from "./navbar-cart-section";
 
 export async function Navbar() {
-  const session = await authClient.getSession();
+  const headersList = await headers();
+  const cookieHeader = headersList.get("cookie");
+
+  const session = await authClient.getSession({
+    fetchOptions: {
+      headers: {
+        ...(cookieHeader && { cookie: cookieHeader })
+      }
+    }
+  });
 
   return (
     <nav className="w-full h-14 bg-muted shadow-lg">
