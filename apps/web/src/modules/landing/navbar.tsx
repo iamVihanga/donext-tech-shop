@@ -10,8 +10,6 @@ import { NavbarCartSection } from "./navbar-cart-section";
 export async function Navbar() {
   const session = await authClient.getSession();
 
-  console.log({ session });
-
   return (
     <nav className="w-full h-14 bg-muted shadow-lg">
       <div className="content-container mx-auto h-full flex items-center justify-between">
