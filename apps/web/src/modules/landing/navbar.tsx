@@ -9,10 +9,14 @@ import Link from "next/link";
 import { NavbarCartSection } from "./navbar-cart-section";
 
 export async function Navbar() {
+  const headersList = await headers();
+  const cookieHeader = headersList.get("cookie");
+
   const session = await authClient.getSession({
     fetchOptions: {
-      headers: await headers(),
-      credentials: "include"
+      headers: {
+        ...(cookieHeader && { cookie: cookieHeader })
+      }
     }
   });
 
