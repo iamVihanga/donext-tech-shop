@@ -39,7 +39,7 @@ export default function createApp(): OpenAPIHono<AppBindings> {
 
         // Handle null origin case
         if (!origin) {
-          return env.NODE_ENV === "development" ? origin : undefined;
+          return "https://gamezonetech.lk";
         }
 
         return allowedOrigins.includes(origin) ? origin : undefined;
