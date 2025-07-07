@@ -5,7 +5,7 @@ import { FaXTwitter } from "react-icons/fa6";
 
 import { FaCreditCard } from "react-icons/fa6";
 
-export const SITE_NAME = "COMPUTER SHOP";
+export const SITE_NAME = "GAME ZONE TECH";
 
 export const CONTACTS = {
   email: "admin@donext.org",
