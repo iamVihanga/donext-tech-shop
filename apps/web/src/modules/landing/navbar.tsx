@@ -16,6 +16,8 @@ export async function Navbar() {
     }
   });
 
+  console.log({ session });
+
   return (
     <nav className="w-full h-14 bg-muted shadow-lg">
       <div className="content-container mx-auto h-full flex items-center justify-between">
