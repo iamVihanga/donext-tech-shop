@@ -45,7 +45,16 @@ export const auth = betterAuth({
     // facebook: {
     // },
   },
-  plugins: [adminPlugin(), openAPI()]
+  plugins: [adminPlugin(), openAPI()],
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: true
+    },
+    defaultCookieAttributes: {
+      sameSite: "lax",
+      httpOnly: true
+    }
+  }
 });
 
 export type Session = typeof auth.$Infer.Session;
