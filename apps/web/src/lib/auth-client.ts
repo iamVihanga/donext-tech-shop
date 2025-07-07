@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 export const authClient = createAuthClient({
   // Domain Configurations
-  baseURL: "https://api.gamezonetech.lk",
+  baseURL: "https://gamezonetech.lk",
 
   plugins: [adminClient()],
   fetchOptions: {
