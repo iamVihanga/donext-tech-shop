@@ -14,7 +14,7 @@ export const auth = betterAuth({
     "https://gamezonetech.lk",
     "https://www.gamezonetech.lk"
   ],
-  baseURL: env.BETTER_AUTH_URL,
+  baseURL: "https://gamezonetech.lk",
 
   database: drizzleAdapter(db, {
     provider: "pg",
