@@ -10,7 +10,10 @@ export const authClient = createAuthClient({
   fetchOptions: {
     onError: (ctx) => {
       console.log("errorCtx", ctx);
-      toast.error(ctx.error.message);
+      // Only call toast on client-side
+      if (typeof window !== "undefined") {
+        toast.error(ctx.error.message || "Authentication error");
+      }
     }
   }
 });
