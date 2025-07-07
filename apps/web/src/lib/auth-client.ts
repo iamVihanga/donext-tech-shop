@@ -10,6 +10,7 @@ export const authClient = createAuthClient({
   plugins: [adminClient()],
   fetchOptions: {
     onError: (ctx) => {
+      console.log("errorCtx", ctx);
       toast.error(ctx.error.message);
     }
   }
