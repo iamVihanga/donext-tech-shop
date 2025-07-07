@@ -9,7 +9,11 @@ import * as schema from "@repo/database/schemas";
 
 export const auth = betterAuth({
   // Cross-Domain Features
-  trustedOrigins: [env.CLIENT_APP_URL],
+  trustedOrigins: [
+    env.CLIENT_APP_URL,
+    "https://gamezonetech.lk",
+    "https://www.gamezonetech.lk"
+  ],
   baseURL: env.BETTER_AUTH_URL,
 
   database: drizzleAdapter(db, {
