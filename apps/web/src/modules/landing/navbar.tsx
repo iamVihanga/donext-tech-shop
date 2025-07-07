@@ -11,7 +11,8 @@ import { NavbarCartSection } from "./navbar-cart-section";
 export async function Navbar() {
   const session = await authClient.getSession({
     fetchOptions: {
-      headers: await headers()
+      headers: await headers(),
+      credentials: "include"
     }
   });
 
