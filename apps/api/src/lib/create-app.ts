@@ -28,15 +28,18 @@ export default function createApp(): OpenAPIHono<AppBindings> {
   app.use(
     "*", // "*" enables cors for all routes
     cors({
-      origin: [
-        env.CLIENT_APP_URL,
-        "http://localhost:4000",
-        "http://localhost:8000",
-        "https://gamezonetech.lk",
-        "https://www.gamezonetech.lk",
-        "https://api.gamezonetech.lk"
-      ], // replace with your origin
-      allowHeaders: ["Content-Type", "Authorization"],
+      origin: (origin) => {
+        console.log("CORS origin:", origin); // Debug
+        const allowedOrigins = [
+          env.CLIENT_APP_URL,
+          "https://gamezonetech.lk",
+          "https://www.gamezonetech.lk",
+          "https://api.gamezonetech.lk"
+        ];
+
+        return allowedOrigins.includes(origin) ? origin : null;
+      }, // replace with your origin
+      allowHeaders: ["Content-Type", "Authorization", "x-url", "Cookie"],
       allowMethods: ["POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"],
       exposeHeaders: ["Content-Length"],
       maxAge: 600,
