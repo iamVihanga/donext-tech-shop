@@ -31,7 +31,10 @@ export default function createApp(): OpenAPIHono<AppBindings> {
       origin: [
         env.CLIENT_APP_URL,
         "http://localhost:4000",
-        "https://gamezonetech.lk"
+        "http://localhost:8000",
+        "https://gamezonetech.lk",
+        "https://www.gamezonetech.lk",
+        "https://api.gamezonetech.lk"
       ], // replace with your origin
       allowHeaders: ["Content-Type", "Authorization"],
       allowMethods: ["POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"],
