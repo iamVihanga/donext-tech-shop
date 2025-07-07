@@ -23,7 +23,7 @@ export default async function authMiddleware(request: NextRequest) {
 
   if (authRoutes.includes(pathname) || isProtectedPath) {
     // Fetch session
-    const { data: session } = await betterFetch<Session>(
+    const { data: session, error: sessionError } = await betterFetch<Session>(
       "/api/auth/get-session",
       {
         baseURL: request.nextUrl.origin,
@@ -33,6 +33,8 @@ export default async function authMiddleware(request: NextRequest) {
         }
       }
     );
+
+    console.log({ session, sessionError });
 
     // If Auth route and Already authenticated,
     // Redirect back
