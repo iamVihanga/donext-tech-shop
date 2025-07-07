@@ -12,6 +12,9 @@ const authRoutes = [
 
 const protectedRoutes = ["/admin", "/account"];
 
+// Harcoded request url
+const requestUrl = "https://gamezonetech.lk";
+
 export default async function authMiddleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isProtectedPath = protectedRoutes.some((route) =>
@@ -19,14 +22,14 @@ export default async function authMiddleware(request: NextRequest) {
   );
 
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-url", request.url);
+  requestHeaders.set("x-url", requestUrl);
 
   if (authRoutes.includes(pathname) || isProtectedPath) {
     // Fetch session
     const { data: session, error: sessionError } = await betterFetch<Session>(
       "/api/auth/get-session",
       {
-        baseURL: "https://gamezonetech.lk",
+        baseURL: requestUrl,
         headers: {
           //get the cookie from the request
           cookie: request.headers.get("cookie") || ""
