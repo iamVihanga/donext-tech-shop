@@ -52,11 +52,13 @@ export const auth = betterAuth({
   plugins: [adminPlugin(), openAPI()],
   advanced: {
     crossSubDomainCookies: {
-      enabled: true
+      enabled: true,
+      domain: ".gamezonetech.lk"
     },
     defaultCookieAttributes: {
       sameSite: "lax",
-      httpOnly: true
+      httpOnly: true,
+      secure: true
     }
   }
 });
