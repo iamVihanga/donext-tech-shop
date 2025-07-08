@@ -3,7 +3,6 @@
 import {
   IconCamera,
   IconDashboard,
-  IconFileAi,
   IconFileDescription,
   IconSettings
 } from "@tabler/icons-react";
@@ -56,26 +55,26 @@ const data = {
       isActive: false,
       url: "/admin/orders",
       items: []
-    },
-    {
-      title: "Inventory",
-      icon: IconFileAi,
-      url: "/admin/inventory",
-      isActive: false,
-      items: [
-        {
-          title: "Reserved",
-          url: "/admin/inventory/reserved"
-        }
-      ]
-    },
-    {
-      title: "Customers",
-      icon: IconFileDescription,
-      isActive: false,
-      url: "/admin/customers",
-      items: []
     }
+    // {
+    //   title: "Inventory",
+    //   icon: IconFileAi,
+    //   url: "/admin/inventory",
+    //   isActive: false,
+    //   items: [
+    //     {
+    //       title: "Reserved",
+    //       url: "/admin/inventory/reserved"
+    //     }
+    //   ]
+    // },
+    // {
+    //   title: "Customers",
+    //   icon: IconFileDescription,
+    //   isActive: false,
+    //   url: "/admin/customers",
+    //   items: []
+    // }
   ],
   navSecondary: [
     {
