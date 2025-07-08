@@ -51,6 +51,7 @@ export function useCheckout() {
 
       if (!response.ok) {
         const error = await response.json();
+        console.log(error);
         throw new Error(error.message || "Failed to create order");
       }
 

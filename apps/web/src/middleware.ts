@@ -60,6 +60,10 @@ export default async function authMiddleware(request: NextRequest) {
       if (session.user.role !== "admin") {
         return NextResponse.redirect(new URL("/404", request.url));
       }
+    } else if (pathname.startsWith("/account") && session) {
+      if (session.user.role === "admin") {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
     }
   }
 
