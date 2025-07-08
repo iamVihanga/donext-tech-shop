@@ -19,7 +19,7 @@ export function ProductCard({ product }: Props) {
 
   return (
     <Card className="group p-0 rounded-lg transition-all duration-300 overflow-hidden bg-secondary/90 border border-card hover:border-amber-500/50 transform  flex flex-col gap-0">
-      <div className="relative aspect-square overflow-hidden bg-gray-600">
+      <div className="relative aspect-square overflow-hidden bg-neutral-900">
         {/* Image Area */}
         {thumbnail ? (
           <Image

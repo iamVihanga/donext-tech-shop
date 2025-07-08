@@ -48,14 +48,18 @@ export async function Navbar() {
           {session.data ? (
             <div className="flex items-center gap-2">
               <NavbarCartSection />
-              <Button variant="accent" className="w-32">
-                Account
+              <Button asChild variant="accent" className="w-32">
+                <Link href="/account">Account</Link>
               </Button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant={"accent-outline"}>Login</Button>
-              <Button variant={"accent"}>Register</Button>
+              <Button asChild variant={"accent-outline"}>
+                <Link href="/signin">Login</Link>
+              </Button>
+              <Button asChild variant={"accent"}>
+                <Link href="/signup">Sign Up</Link>
+              </Button>
             </div>
           )}
         </div>

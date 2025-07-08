@@ -493,7 +493,8 @@ export const checkout: AppRouteHandler<CheckoutRoute> = async (c) => {
           await trx
             .update(productVariants)
             .set({
-              stockQuantity: sql`${productVariants.stockQuantity} - ${item.quantity}`
+              stockQuantity: sql`${productVariants.stockQuantity} - ${item.quantity}`,
+              updatedAt: new Date()
             })
             .where(eq(productVariants.id, item.variantId));
         } else {
@@ -501,7 +502,8 @@ export const checkout: AppRouteHandler<CheckoutRoute> = async (c) => {
           await trx
             .update(products)
             .set({
-              stockQuantity: sql`${products.stockQuantity} - ${item.quantity}`
+              stockQuantity: sql`${products.stockQuantity} - ${item.quantity}`,
+              updatedAt: new Date()
             })
             .where(eq(products.id, item.productId));
         }
@@ -767,13 +769,17 @@ export const cancelOrder: AppRouteHandler<CancelOrderRoute> = async (c) => {
 
 function calculateShippingCost(subtotal: number): number {
   // Simple shipping logic - free shipping over $100
-  if (subtotal >= 100) {
-    return 0;
-  }
-  return 10; // $10 flat rate
+  // if (subtotal >= 100) {
+  //   return 0;
+  // }
+  // return 10; // $10 flat rate
+
+  return subtotal;
 }
 
 function calculateTaxAmount(subtotal: number): number {
   // Simple tax calculation - 8.25% tax rate
-  return subtotal * 0.0825;
+  // return subtotal * 0.0825;
+
+  return subtotal;
 }
