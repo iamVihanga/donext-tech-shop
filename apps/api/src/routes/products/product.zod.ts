@@ -62,3 +62,12 @@ export const updateProductSchema = createInsertSchema(products)
   .partial();
 
 export type UpdateProduct = z.infer<typeof updateProductSchema>;
+
+// Stock adjustment schema
+export const stockAdjustmentSchema = z.object({
+  adjustmentType: z.enum(["increase", "decrease"]),
+  quantity: z.number().min(1, "Quantity must be at least 1"),
+  reason: z.string().optional()
+});
+
+export type StockAdjustment = z.infer<typeof stockAdjustmentSchema>;

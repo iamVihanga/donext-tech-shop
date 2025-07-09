@@ -16,7 +16,9 @@ import type {
   GetOneRoute,
   ListRoute,
   RemoveRoute,
-  UpdateRoute
+  UpdateRoute,
+  UpdateStockRoute,
+  UpdateVariantStockRoute
 } from "./product.routes";
 
 /**
@@ -278,4 +280,154 @@ export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
     { message: "Product deleted successfully" },
     HttpStatusCodes.OK
   );
+};
+
+/**
+ * Update product stock handler
+ */
+export const updateStock: AppRouteHandler<UpdateStockRoute> = async (c) => {
+  const user = c.get("user");
+  const { id } = c.req.valid("param");
+  const { adjustmentType, quantity } = c.req.valid("json");
+
+  if (!user) {
+    return c.json(
+      { message: "User must be authenticated" },
+      HttpStatusCodes.UNAUTHORIZED
+    );
+  }
+
+  if (user.role !== "admin") {
+    return c.json(
+      { message: "Only admins can update stock" },
+      HttpStatusCodes.FORBIDDEN
+    );
+  }
+
+  try {
+    // First, get the current product
+    const product = await db.query.products.findFirst({
+      where: eq(products.id, id)
+    });
+
+    if (!product) {
+      return c.json(
+        { message: "Product not found" },
+        HttpStatusCodes.NOT_FOUND
+      );
+    }
+
+    const currentStock = product.stockQuantity || 0;
+    let newStock: number;
+
+    if (adjustmentType === "increase") {
+      newStock = currentStock + quantity;
+    } else {
+      newStock = Math.max(0, currentStock - quantity);
+    }
+
+    // Update the product stock
+    const [updatedProduct] = await db
+      .update(products)
+      .set({
+        stockQuantity: newStock,
+        updatedAt: new Date()
+      })
+      .where(eq(products.id, id))
+      .returning();
+
+    if (!updatedProduct) {
+      return c.json({ message: "Failed to update product stock" }, 500);
+    }
+
+    // Get the updated product with relations
+    const fullProduct = await db.query.products.findFirst({
+      where: eq(products.id, id),
+      with: { images: true, variants: true }
+    });
+
+    return c.json(fullProduct, HttpStatusCodes.OK);
+  } catch (error) {
+    console.error("Error updating product stock:", error);
+    return c.json({ message: "Internal server error" }, 500);
+  }
+};
+
+/**
+ * Update variant stock handler
+ */
+export const updateVariantStock: AppRouteHandler<
+  UpdateVariantStockRoute
+> = async (c) => {
+  const user = c.get("user");
+  const { id } = c.req.valid("param");
+  const { adjustmentType, quantity } = c.req.valid("json");
+
+  if (!user) {
+    return c.json(
+      { message: "User must be authenticated" },
+      HttpStatusCodes.UNAUTHORIZED
+    );
+  }
+
+  if (user.role !== "admin") {
+    return c.json(
+      { message: "Only admins can update stock" },
+      HttpStatusCodes.FORBIDDEN
+    );
+  }
+
+  try {
+    // First, get the current variant
+    const variant = await db.query.productVariants.findFirst({
+      where: eq(productVariants.id, id)
+    });
+
+    if (!variant) {
+      return c.json(
+        { message: "Variant not found" },
+        HttpStatusCodes.NOT_FOUND
+      );
+    }
+
+    const currentStock = variant.stockQuantity || 0;
+    let newStock: number;
+
+    if (adjustmentType === "increase") {
+      newStock = currentStock + quantity;
+    } else {
+      newStock = Math.max(0, currentStock - quantity);
+    }
+
+    // Update the variant stock
+    const [updatedVariant] = await db
+      .update(productVariants)
+      .set({
+        stockQuantity: newStock,
+        updatedAt: new Date()
+      })
+      .where(eq(productVariants.id, id))
+      .returning();
+
+    if (!updatedVariant) {
+      return c.json(
+        { message: "Failed to update variant stock" },
+        HttpStatusCodes.INTERNAL_SERVER_ERROR
+      );
+    }
+
+    return c.json(
+      {
+        message: "Variant stock updated successfully",
+        variant: updatedVariant
+      },
+      HttpStatusCodes.OK
+    );
+  } catch (error) {
+    console.error("Error updating variant stock:", error);
+    return c.json(
+      { message: "Internal server error" },
+      HttpStatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
 };

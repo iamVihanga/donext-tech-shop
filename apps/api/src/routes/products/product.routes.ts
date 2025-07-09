@@ -11,6 +11,7 @@ import {
 import {
   insertProductSchema,
   productSchema,
+  stockAdjustmentSchema,
   updateProductSchema
 } from "./product.zod";
 
@@ -162,8 +163,93 @@ export const remove = createRoute({
   }
 });
 
+/**
+ * Update Product Stock
+ */
+export const updateStock = createRoute({
+  tags,
+  summary: "Update product stock quantity",
+  path: "/{id}/stock",
+  method: "patch",
+  request: {
+    params: stringIdParamSchema,
+    body: jsonContentRequired(stockAdjustmentSchema, "Stock adjustment details")
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      productSchema,
+      "Stock updated successfully"
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      errorMessageSchema,
+      "Product not found"
+    ),
+    [HttpStatusCodes.FORBIDDEN]: jsonContent(
+      errorMessageSchema,
+      "Request forbidden, you are not allowed to update stock"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      errorMessageSchema,
+      "Unauthorized access forbidden"
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      errorMessageSchema,
+      "Invalid stock adjustment"
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      errorMessageSchema,
+      "Something went wrong"
+    )
+  }
+});
+
+/**
+ * Update Variant Stock
+ */
+export const updateVariantStock = createRoute({
+  tags: ["Product Variants"],
+  summary: "Update product variant stock quantity",
+  path: "/variants/{id}/stock",
+  method: "patch",
+  request: {
+    params: stringIdParamSchema,
+    body: jsonContentRequired(
+      stockAdjustmentSchema,
+      "Variant stock adjustment details"
+    )
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      z.object({ message: z.string(), variant: z.any() }),
+      "Variant stock updated successfully"
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      errorMessageSchema,
+      "Variant not found"
+    ),
+    [HttpStatusCodes.FORBIDDEN]: jsonContent(
+      errorMessageSchema,
+      "Request forbidden, you are not allowed to update stock"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      errorMessageSchema,
+      "Unauthorized access forbidden"
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      errorMessageSchema,
+      "Invalid stock adjustment"
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      errorMessageSchema,
+      "Something went wrong"
+    )
+  }
+});
+
 export type ListRoute = typeof list;
 export type CreateRoute = typeof create;
 export type GetOneRoute = typeof getOne;
 export type UpdateRoute = typeof update;
 export type RemoveRoute = typeof remove;
+export type UpdateStockRoute = typeof updateStock;
+export type UpdateVariantStockRoute = typeof updateVariantStock;

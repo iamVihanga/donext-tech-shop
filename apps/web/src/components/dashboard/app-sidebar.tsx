@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  IconBox,
+  IconBuilding,
   IconCamera,
   IconDashboard,
-  IconFileDescription,
-  IconSettings
+  IconSettings,
+  IconUsers
 } from "@tabler/icons-react";
 import * as React from "react";
 
@@ -51,30 +53,30 @@ const data = {
     },
     {
       title: "Orders",
-      icon: IconFileDescription,
+      icon: IconBox,
       isActive: false,
       url: "/admin/orders",
       items: []
+    },
+    {
+      title: "Customers",
+      icon: IconUsers,
+      isActive: false,
+      url: "/admin/customers",
+      items: []
+    },
+    {
+      title: "Inventory",
+      icon: IconBuilding,
+      url: "/admin/inventory",
+      isActive: false,
+      items: [
+        // {
+        //   title: "Reserved",
+        //   url: "/admin/inventory/reserved"
+        // }
+      ]
     }
-    // {
-    //   title: "Inventory",
-    //   icon: IconFileAi,
-    //   url: "/admin/inventory",
-    //   isActive: false,
-    //   items: [
-    //     {
-    //       title: "Reserved",
-    //       url: "/admin/inventory/reserved"
-    //     }
-    //   ]
-    // },
-    // {
-    //   title: "Customers",
-    //   icon: IconFileDescription,
-    //   isActive: false,
-    //   url: "/admin/customers",
-    //   items: []
-    // }
   ],
   navSecondary: [
     {
