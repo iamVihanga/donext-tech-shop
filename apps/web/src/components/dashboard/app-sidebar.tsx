@@ -55,6 +55,13 @@ const data = {
       isActive: false,
       url: "/admin/orders",
       items: []
+    },
+    {
+      title: "Customers",
+      icon: IconFileDescription,
+      isActive: false,
+      url: "/admin/customers",
+      items: []
     }
     // {
     //   title: "Inventory",
@@ -68,13 +75,6 @@ const data = {
     //     }
     //   ]
     // },
-    // {
-    //   title: "Customers",
-    //   icon: IconFileDescription,
-    //   isActive: false,
-    //   url: "/admin/customers",
-    //   items: []
-    // }
   ],
   navSecondary: [
     {
