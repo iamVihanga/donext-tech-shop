@@ -1,6 +1,7 @@
 "use client";
 
 import { formatPrice } from "@/components/price";
+import { CancelOrder } from "@/features/orders/components/cancel-order";
 import { getProductThumbnail } from "@/lib/helpers";
 import { useGetOrderByID } from "@/modules/account/actions/use-get-order-by-id";
 import { Badge } from "@repo/ui/components/badge";
@@ -611,9 +612,11 @@ export default function SingleOrderPage() {
           {/* Action Buttons */}
           <div className="space-y-3">
             {order.orderStatus === "pending" && (
-              <Button variant="destructive" className="w-full">
-                Cancel Order
-              </Button>
+              <CancelOrder orderId={order.id}>
+                <Button variant="destructive" className="w-full">
+                  Cancel Order
+                </Button>
+              </CancelOrder>
             )}
 
             {order.trackingNumber && (
@@ -623,7 +626,7 @@ export default function SingleOrderPage() {
             )}
 
             <Button variant="outline" className="w-full">
-              Download Invoice
+              Download Quotation
             </Button>
 
             <Button variant="outline" className="w-full">
