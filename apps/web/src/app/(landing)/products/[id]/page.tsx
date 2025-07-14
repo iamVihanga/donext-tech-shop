@@ -11,7 +11,6 @@ import {
   CheckCircleIcon,
   ShareIcon,
   ShoppingCartIcon,
-  StarIcon,
   TruckIcon
 } from "lucide-react";
 import Image from "next/image";
@@ -149,7 +148,7 @@ export default async function ProductPage(props: Props) {
               </h1>
 
               {/* Rating */}
-              <div className="flex items-center gap-3">
+              {/* <div className="flex items-center gap-3">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <StarIcon
@@ -163,7 +162,7 @@ export default async function ProductPage(props: Props) {
                   ))}
                 </div>
                 <span className="text-neutral-400">(4.0) • 123 reviews</span>
-              </div>
+              </div> */}
 
               {product.shortDescription && (
                 <p className="text-neutral-300 text-lg leading-relaxed">

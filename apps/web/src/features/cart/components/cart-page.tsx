@@ -91,24 +91,24 @@ export function CartPage() {
                     return (
                       <div
                         key={item.id}
-                        className="flex items-center gap-4 p-4 border rounded-lg"
+                        className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border rounded-lg"
                       >
-                        <div className="relative h-20 w-20 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                        <div className="relative h-20 w-20 sm:h-16 sm:w-16 rounded-md overflow-hidden bg-muted flex-shrink-0 mx-auto sm:mx-0">
                           {thumbnail && (
                             <Image
                               src={thumbnail}
                               alt={item.product.name}
                               width={60}
                               height={60}
-                              className="object-cover h-20 w-20"
+                              className="object-cover h-full w-full"
                             />
                           )}
                         </div>
 
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 text-center sm:text-left">
                           <Link
                             href={`/products/${item.product.id}`}
-                            className="text-lg font-medium text-foreground hover:text-primary block"
+                            className="text-base sm:text-lg font-medium text-foreground hover:text-primary block"
                           >
                             {item.product.name}
                           </Link>
@@ -125,8 +125,8 @@ export function CartPage() {
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                          <div className="flex items-center gap-2 order-2 sm:order-1">
                             <Button
                               variant="outline"
                               size="icon"
@@ -152,21 +152,20 @@ export function CartPage() {
                             </Button>
                           </div>
 
-                          <div className="text-right">
+                          <div className="flex items-center justify-between w-full sm:w-auto sm:block order-1 sm:order-2">
                             <p className="text-lg font-semibold text-primary">
                               {formatPrice(parseFloat(item.totalPrice), "LKR")}
                             </p>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeFromCart(item.id)}
+                              disabled={isRemovingFromCart}
+                              className="text-muted-foreground hover:text-destructive sm:mt-2"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
-
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeFromCart(item.id)}
-                            disabled={isRemovingFromCart}
-                            className="text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
                         </div>
                       </div>
                     );

@@ -3,9 +3,11 @@ import { Wishlist } from "@/features/wishlist/components/wishlist";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
-import { SearchIcon } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@repo/ui/components/sheet";
+import { MenuIcon, SearchIcon } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
+import { SearchBar } from "../layouts/search-bar";
 import { NavbarCartSection } from "./navbar-cart-section";
 
 export async function Navbar() {
@@ -18,26 +20,58 @@ export async function Navbar() {
   return (
     <nav className="w-full h-14 bg-muted shadow-lg">
       <div className="content-container mx-auto h-full flex items-center justify-between">
+        {/* Mobile Menu Button */}
+        <div className="flex items-center gap-2 md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MenuIcon className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-80">
+              <div className="flex flex-col gap-4 mt-8">
+                {/* Mobile Search */}
+                <div className="relative">
+                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input className="pl-10" placeholder="Search products..." />
+                </div>
+
+                {/* Mobile Navigation Links */}
+                <div className="flex flex-col gap-2">
+                  <Wishlist />
+                  {session.data ? (
+                    <>
+                      <NavbarCartSection />
+                      <Button asChild variant="default" className="w-full">
+                        <Link href="/account">My Account</Link>
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button asChild variant="outline" className="w-full">
+                        <Link href="/signin">Sign In</Link>
+                      </Button>
+                      <Button asChild variant="default" className="w-full">
+                        <Link href="/signup">Sign Up</Link>
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
         {/* Logo */}
-        <Link href="/">
+        <Link href="/" className="flex-shrink-0">
           <Logo />
         </Link>
 
-        {/* Search */}
-        <div className="relative h-11 w-96">
-          {/* Search Icon */}
-          <div className="absolute h-full flex items-center left-2">
-            <SearchIcon className="size-5 text-muted-foreground" />
-          </div>
+        {/* Desktop Search - Hidden on mobile */}
+        <SearchBar />
 
-          <Input
-            className="h-full pl-10"
-            placeholder="iPhone 14 Pro Max, Gaming Laptop..."
-          />
-        </div>
-
-        {/* Nav Links */}
-        <div className="flex items-center gap-3">
+        {/* Desktop Nav Links - Hidden on mobile */}
+        <div className="hidden md:flex items-center gap-3">
           <Wishlist />
 
           {session.data ? (
@@ -57,6 +91,12 @@ export async function Navbar() {
               </Button>
             </div>
           )}
+        </div>
+
+        {/* Mobile Actions - Only show cart/wishlist on mobile */}
+        <div className="flex items-center gap-2 md:hidden">
+          <Wishlist />
+          <NavbarCartSection />
         </div>
       </div>
     </nav>

@@ -41,7 +41,7 @@ export default function GalleryView({
   if (modal) {
     return (
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="w-full min-w-5xl h-full max-h-[90vh]">
+        <DialogContent className="w-full max-w-6xl h-full max-h-[90vh] p-4 sm:p-6">
           <PageContainer scrollable={true}>
             <div className="flex flex-1 flex-col space-y-4 ">
               <AppPageShell
