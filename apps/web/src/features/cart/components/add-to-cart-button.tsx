@@ -1,9 +1,11 @@
 "use client";
 
 import { Product } from "@/features/products/schemas/products.zod";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@repo/ui/components/button";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "../hooks/use-cart";
 import type { AddCartItemT } from "../schemas/cart.zod";
@@ -41,11 +43,19 @@ export function AddToCartButton({
     getCartItemQuantity
   } = useCart();
   const [localQuantity, setLocalQuantity] = useState(1);
+  const session = authClient.useSession();
+  const router = useRouter();
 
   const inCart = isInCart(product.id, variantId);
   const currentQuantity = getCartItemQuantity(product.id, variantId);
 
   const handleAddToCart = async () => {
+    if (!session.data || session.error) {
+      // Redirect to sign-in if not authenticated
+      router.push("/signin");
+      return;
+    }
+
     const price = variantId
       ? product.variants?.find((v) => v.id === variantId)?.price ||
         product.price

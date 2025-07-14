@@ -19,18 +19,18 @@ export const columns: ColumnDef<Product>[] = [
       }
 
       return (
-        <div className="flex items-center gap-3 pl-1">
+        <div className="flex items-center gap-2 sm:gap-3 pl-1">
           <Image
             alt={thumbnail?.altText!}
             src={thumbnail?.imageUrl!}
             width={40}
             height={40}
-            className="rounded-md object-cover w-10 h-10"
+            className="rounded-md object-cover w-8 h-8 sm:w-10 sm:h-10"
           />
 
           <Link
             href={`/admin/products/${row.original.id}`}
-            className="hover:underline hover:font-semibold"
+            className="hover:underline hover:font-semibold text-sm sm:text-base truncate"
           >
             {row.original.name}
           </Link>
@@ -43,7 +43,7 @@ export const columns: ColumnDef<Product>[] = [
     header: "Description",
     cell: ({ row }) => {
       return (
-        <div className="max-w-[300px] truncate">
+        <div className="max-w-[120px] sm:max-w-[300px] truncate text-sm">
           {row.original.shortDescription || "No description available"}
         </div>
       );

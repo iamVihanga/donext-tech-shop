@@ -7,16 +7,11 @@ import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { Card, CardContent } from "@repo/ui/components/card";
 import { Separator } from "@repo/ui/components/separator";
-import {
-  CheckCircleIcon,
-  ShareIcon,
-  ShoppingCartIcon,
-  StarIcon,
-  TruckIcon
-} from "lucide-react";
-import Image from "next/image";
+import { CheckCircleIcon, ShoppingCartIcon, TruckIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { ProductActions } from "./product-actions";
+import { ProductImageGallery } from "./product-image-gallery";
+import { ShareButton } from "./share-button";
 
 interface Props {
   params: Promise<{
@@ -68,58 +63,11 @@ export default async function ProductPage(props: Props) {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Product Images */}
-          <div className="space-y-6">
-            {/* Main Image */}
-            <div className="aspect-square rounded-2xl overflow-hidden bg-neutral-800 border border-neutral-700">
-              {thumbnailImage ? (
-                <Image
-                  src={thumbnailImage}
-                  alt={product.name}
-                  width={600}
-                  height={600}
-                  className="w-full h-full object-cover"
-                  priority
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-neutral-500">
-                  <div className="text-center">
-                    <svg
-                      className="w-16 h-16 mx-auto mb-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="text-lg">No Image Available</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Image Thumbnails */}
-            {product.images?.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {product.images.map((image, index) => (
-                  <div
-                    key={index}
-                    className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-neutral-600 hover:border-amber-500 transition-colors cursor-pointer"
-                  >
-                    <Image
-                      src={image.imageUrl}
-                      alt={`${image.altText}`}
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <ProductImageGallery
+            images={product.images || []}
+            productName={product.name}
+            thumbnailImage={thumbnailImage}
+          />
 
           {/* Product Information */}
           <div className="space-y-8">
@@ -149,7 +97,7 @@ export default async function ProductPage(props: Props) {
               </h1>
 
               {/* Rating */}
-              <div className="flex items-center gap-3">
+              {/* <div className="flex items-center gap-3">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <StarIcon
@@ -163,7 +111,7 @@ export default async function ProductPage(props: Props) {
                   ))}
                 </div>
                 <span className="text-neutral-400">(4.0) • 123 reviews</span>
-              </div>
+              </div> */}
 
               {product.shortDescription && (
                 <p className="text-neutral-300 text-lg leading-relaxed">
@@ -215,13 +163,7 @@ export default async function ProductPage(props: Props) {
 
                 <WishlistButton className="w-12 h-12" product={product} />
 
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-neutral-600 hover:border-amber-500"
-                >
-                  <ShareIcon className="w-5 h-5" />
-                </Button>
+                <ShareButton />
               </div>
 
               {/* Stock Info */}

@@ -31,7 +31,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
     header: "Customer",
     cell: ({ row }) => {
       return (
-        <div className="max-w-[300px] truncate">
+        <div className="max-w-[150px] sm:max-w-[300px] truncate">
           {row.original.customerName || "No customer name available"}
         </div>
       );
@@ -42,7 +42,7 @@ export const columns: ColumnDef<OrderWithItems>[] = [
     header: "Email",
     cell: ({ row }) => {
       return (
-        <div className="max-w-[300px] truncate">
+        <div className="max-w-[150px] sm:max-w-[300px] truncate">
           {row.original.customerEmail || "No customer email available"}
         </div>
       );

@@ -1,6 +1,7 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
+import { UserStats } from "@/modules/account/components/stats";
 import {
   Avatar,
   AvatarFallback,
@@ -23,16 +24,14 @@ import {
   Calendar,
   CheckCircle,
   Clock,
-  CreditCard,
-  Heart,
   Mail,
-  MapPin,
   Package,
+  PackageIcon,
   Settings,
   Shield,
   ShoppingBag,
-  User,
-  UserCircle
+  ShoppingCartIcon,
+  User
 } from "lucide-react";
 import Link from "next/link";
 
@@ -63,16 +62,20 @@ export default function AccountPage({}: Props) {
           </CardContent>
         </Card>
 
-        {/* Quick Stats Skeleton */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i}>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <Skeleton className="h-8 w-8 rounded" />
-                  <div className="space-y-1">
-                    <Skeleton className="h-4 w-16" />
-                    <Skeleton className="h-6 w-8" />
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Card
+              key={index}
+              className="p-0 hover:shadow-md transition-shadow cursor-pointer"
+            >
+              <CardContent className="p-4 animate-pulse">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <PackageIcon className="h-6 w-6 text-gray-400" />
+                  </div>
+                  <div className="w-full">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="mt-1 h-6 w-full" />
                   </div>
                 </div>
               </CardContent>
@@ -258,79 +261,7 @@ export default function AccountPage({}: Props) {
       </Card>
 
       {/* Quick Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <Link href="/account/orders">
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                  <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Total Orders
-                  </p>
-                  <p className="text-2xl font-bold">12</p>
-                </div>
-              </div>
-            </CardContent>
-          </Link>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <Link href="/account/orders?status=pending">
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-                  <Clock className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Pending Orders
-                  </p>
-                  <p className="text-2xl font-bold">3</p>
-                </div>
-              </div>
-            </CardContent>
-          </Link>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <Link href="/account/wishlist">
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-                  <Heart className="h-6 w-6 text-red-600 dark:text-red-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Wishlist Items
-                  </p>
-                  <p className="text-2xl font-bold">8</p>
-                </div>
-              </div>
-            </CardContent>
-          </Link>
-        </Card>
-
-        <Card className="hover:shadow-md transition-shadow cursor-pointer">
-          <Link href="/account/addresses">
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                  <MapPin className="h-6 w-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Saved Addresses
-                  </p>
-                  <p className="text-2xl font-bold">2</p>
-                </div>
-              </div>
-            </CardContent>
-          </Link>
-        </Card>
-      </div>
+      <UserStats />
 
       {/* Quick Actions & Recent Activity */}
       <div className="grid gap-6 lg:grid-cols-2">
@@ -358,44 +289,14 @@ export default function AccountPage({}: Props) {
               </div>
             </Link>
 
-            <Link href="/account/addresses" className="block">
+            <Link href="/cart" className="block">
               <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-3">
-                  <MapPin className="h-5 w-5 text-muted-foreground" />
+                  <ShoppingCartIcon className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="font-medium">Manage Addresses</p>
+                    <p className="font-medium">Manage Cart</p>
                     <p className="text-sm text-muted-foreground">
-                      Update shipping info
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </Link>
-
-            <Link href="/account/payment-methods" className="block">
-              <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <CreditCard className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">Payment Methods</p>
-                    <p className="text-sm text-muted-foreground">
-                      Manage your cards
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </Link>
-
-            <Link href="/account/profile" className="block">
-              <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <UserCircle className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">Account Settings</p>
-                    <p className="text-sm text-muted-foreground">
-                      Update your profile
+                      View all items in your cart
                     </p>
                   </div>
                 </div>
@@ -429,11 +330,11 @@ export default function AccountPage({}: Props) {
                   </p>
                 </div>
               </div>
-              {!user.emailVerified && (
+              {/* {!user.emailVerified && (
                 <Button variant="outline" size="sm">
                   Verify
                 </Button>
-              )}
+              )} */}
             </div>
 
             {/* Profile Completion */}
@@ -447,9 +348,9 @@ export default function AccountPage({}: Props) {
                   </p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" asChild>
+              {/* <Button variant="outline" size="sm" asChild>
                 <Link href="/account/profile">Update</Link>
-              </Button>
+              </Button> */}
             </div>
 
             {/* Security Status */}
@@ -464,9 +365,9 @@ export default function AccountPage({}: Props) {
                   </p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" asChild>
+              {/* <Button variant="outline" size="sm" asChild>
                 <Link href="/account/security">Manage</Link>
-              </Button>
+              </Button> */}
             </div>
 
             {/* Session Info */}
@@ -488,7 +389,7 @@ export default function AccountPage({}: Props) {
       </div>
 
       {/* Welcome Message for New Users */}
-      {!user.name && (
+      {/* {!user.name && (
         <Card className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
@@ -510,7 +411,7 @@ export default function AccountPage({}: Props) {
             </div>
           </CardContent>
         </Card>
-      )}
+      )} */}
     </div>
   );
 }
