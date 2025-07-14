@@ -12,8 +12,12 @@ import {
   CardHeader,
   CardTitle
 } from "@repo/ui/components/card";
+import { AdditionalInfoForm } from "./forms/additional-form";
 import { BasicInformationsForm } from "./forms/basic-informations";
+import { InventoryForm } from "./forms/inventory-form";
 import { MediaForm } from "./forms/media-form";
+import { PricingForm } from "./forms/pricing-form";
+import { SummaryView } from "./forms/summary-view";
 
 export function NewProductFormLayout() {
   const activeTab = useActiveTab();
@@ -30,6 +34,10 @@ export function NewProductFormLayout() {
         <CardContent>
           {activeTab === Tabs.BASIC_INFORMATION && <BasicInformationsForm />}
           {activeTab === Tabs.MEDIA && <MediaForm />}
+          {activeTab === Tabs.INVENTORY && <InventoryForm />}
+          {activeTab === Tabs.PRICING && <PricingForm />}
+          {activeTab === Tabs.ADDITIONAL && <AdditionalInfoForm />}
+          {activeTab === Tabs.SUMMARY && <SummaryView />}
         </CardContent>
       </Card>
     </div>

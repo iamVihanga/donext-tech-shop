@@ -8,6 +8,7 @@ import {
   queryParamsSchema,
   stringIdParamSchema
 } from "@api/lib/helpers";
+import { productSchema } from "../products/product.zod";
 import {
   categorySchema,
   categoryWithSubCategories,
@@ -227,6 +228,32 @@ export const removeSubcategory = createRoute({
   }
 });
 
+// Get products by category route definition
+export const getProductsByCategory = createRoute({
+  tags,
+  summary: "Get Products by Category",
+  method: "get",
+  path: "/{id}/products",
+  request: {
+    params: stringIdParamSchema,
+    query: queryParamsSchema
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      getPaginatedSchema(z.array(productSchema.omit({ variants: true }))),
+      "Requested products by category (without variants)"
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      errorMessageSchema,
+      "Category not found"
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      errorMessageSchema,
+      "Invalid ID format"
+    )
+  }
+});
+
 export type ListRoute = typeof list;
 export type CreateRoute = typeof create;
 export type GetOneRoute = typeof getOne;
@@ -234,3 +261,6 @@ export type PatchRoute = typeof patch;
 export type RemoveRoute = typeof remove;
 export type AddSubcategoryRoute = typeof addSubcategory;
 export type RemoveSubcategoryRoute = typeof removeSubcategory;
+
+// Products
+export type ProductsByCategoryRoute = typeof getProductsByCategory;

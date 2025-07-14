@@ -21,7 +21,7 @@ export const inventoryFormSchema = z.object({
       )
     })
   ),
-  status: formStepStatus.default("pending")
+  status: formStepStatus
 });
 
 export type InventoryFormSchemaT = z.infer<typeof inventoryFormSchema>;

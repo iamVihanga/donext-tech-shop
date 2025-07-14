@@ -101,3 +101,34 @@ export const getTabStatus = (tab: Tabs): "valid" | "pending" | "invalid" => {
       return "pending";
   }
 };
+
+/*
+  - Generate SKU from product name
+  - A Product have two types of SKUs:
+    - Main SKU: The main SKU for the product
+    - Variant SKUs: SKUs for each variant of the product
+
+  - SKU Example:
+    Product Name: "Apple iPhone 14 Pro Max"
+    Main SKU: "IPHONE-14-PRO-MAX"
+    Variant SKUs:
+    - Color: "IPHONE-14-PRO-MAX-C-BLACK", "IPHONE-14-PRO-MAX-C-WHITE"
+
+  * Always should be in uppercase
+  * For variants, append the variant type's first letter and value to the end of main SKU
+*/
+export const generateSku = (
+  productName: string,
+  variantType?: string,
+  variantValue?: string
+): string => {
+  // Normalize product name to uppercase and replace spaces with dashes
+  const baseSku = productName.toUpperCase().replace(/\s+/g, "-");
+
+  if (variantType && variantValue) {
+    // Append variant type and value to the SKU
+    return `${baseSku}-${variantType.charAt(0).toUpperCase()}-${variantValue.toUpperCase()}`;
+  }
+
+  return baseSku;
+};

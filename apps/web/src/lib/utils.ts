@@ -8,8 +8,8 @@ export function cn(...inputs: ClassValue[]) {
 export function toKebabCase(str: string) {
   return (
     str
-      // Add hyphen before capital letters and convert to lowercase
-      .replace(/([A-Z])/g, "-$1")
+      // Add hyphen before capital letters that follow lowercase letters or digits
+      .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
       // Replace spaces and underscores with hyphens
       .replace(/[\s_]+/g, "-")
       // Remove any non-alphanumeric characters (except hyphens)

@@ -1,5 +1,5 @@
 import { categories, subcategories } from "@repo/database";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Categories schema definitions and type definitions
@@ -40,12 +40,10 @@ export const newCategorySchema = z.object({
 
 export type NewCategoryT = z.infer<typeof newCategorySchema>;
 
-export const newSubcategorySchema = createInsertSchema(subcategories).omit({
-  id: true,
-  slug: true,
-  parentCategoryId: true,
-  createdAt: true,
-  updatedAt: true
+export const newSubcategorySchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string(),
+  isActive: z.boolean()
 });
 
 export type NewSubcategoryT = z.infer<typeof newSubcategorySchema>;

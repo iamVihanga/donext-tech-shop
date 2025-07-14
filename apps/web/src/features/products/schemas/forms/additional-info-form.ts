@@ -3,16 +3,16 @@ import { z } from "zod";
 import { formStepStatus } from "./shared";
 
 export const additionalInfoFormSchema = z.object({
-  weight: z.number().min(0).optional(),
-  dimensions: z.string().optional(),
-  requiresShipping: z.boolean().optional(),
+  weight: z.number(),
+  dimensions: z.string(),
+  requiresShipping: z.boolean(),
 
   // SEO
-  metaTitle: z.string().max(60).optional(),
-  metaDescription: z.string().max(160).optional(),
-  tags: z.string().max(100).optional(),
+  metaTitle: z.string().max(60),
+  metaDescription: z.string().max(160),
+  tags: z.string().max(100),
 
-  status: formStepStatus.default("pending")
+  status: formStepStatus
 });
 
 export type AdditionalInfoFormSchemaT = z.infer<

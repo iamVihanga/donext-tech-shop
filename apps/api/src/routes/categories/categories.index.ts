@@ -10,6 +10,7 @@ const router = createRouter()
   .openapi(routes.patch, handlers.patch)
   .openapi(routes.remove, handlers.remove)
   .openapi(routes.addSubcategory, handlers.addSubcategory)
-  .openapi(routes.removeSubcategory, handlers.removeSubcategory);
+  .openapi(routes.removeSubcategory, handlers.removeSubcategory)
+  .openapi(routes.getProductsByCategory, handlers.productsByCategory);
 
 export default router;

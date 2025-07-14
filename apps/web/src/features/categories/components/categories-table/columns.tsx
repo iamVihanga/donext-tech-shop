@@ -22,7 +22,7 @@ export const columns: ColumnDef<CategoryWithSubcategories>[] = [
             })}
           />
           <Link
-            href={`/admin/categories/${row.original.id}`}
+            href={`/admin/products/categories/${row.original.id}`}
             className="hover:underline hover:font-semibold"
           >
             {row.original.name}

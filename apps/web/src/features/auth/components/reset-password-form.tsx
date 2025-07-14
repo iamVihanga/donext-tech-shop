@@ -64,7 +64,7 @@ export function ResetPasswordForm({
         },
         onSuccess(ctx) {
           toast.success("Password updated successfully!", { id: toastId });
-          router.push("/dashboard");
+          router.push("/");
         },
         onError(ctx) {
           toast.error(`Failed: ${ctx.error.message}`, { id: toastId });
