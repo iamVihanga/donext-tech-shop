@@ -1,6 +1,7 @@
 "use client";
 
 import { formatPrice } from "@/components/price";
+import { CancelOrder } from "@/features/orders/components/cancel-order";
 import { getProductThumbnail } from "@/lib/helpers";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -413,9 +414,11 @@ export function AccountOrdersList() {
                   <Link href={`/account/orders/${order.id}`}>View Details</Link>
                 </Button>
                 {order.orderStatus === "pending" && (
-                  <Button variant="outline" size="sm">
-                    Cancel Order
-                  </Button>
+                  <CancelOrder orderId={order.id}>
+                    <Button variant="outline" size="sm">
+                      Cancel Order
+                    </Button>
+                  </CancelOrder>
                 )}
                 {order.trackingNumber && (
                   <Button variant="outline" size="sm">

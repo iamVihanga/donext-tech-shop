@@ -25,16 +25,18 @@ export function ImagePreview({ url }: Props) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-w-[95vw] max-h-[80vh]">
         <DialogTitle>Image Preview</DialogTitle>
-        <Image
-          src={url}
-          alt="Preview"
-          layout="responsive"
-          width={600}
-          height={300}
-          className="object-contain w-full h-full rounded-md"
-        />
+        <div className="relative w-full">
+          <Image
+            src={url}
+            alt="Preview"
+            layout="responsive"
+            width={600}
+            height={300}
+            className="object-contain w-full h-full rounded-md"
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );

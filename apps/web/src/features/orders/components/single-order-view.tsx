@@ -139,16 +139,16 @@ export default function SingleOrderView({ order }: Props) {
   return (
     <div className="space-y-6">
       {/* Order Header */}
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+      <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-start md:justify-between">
+        <div className="space-y-1 min-w-0">
+          <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:items-center md:gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               <span>Created {formatDate(order.createdAt)}</span>
             </div>
             <div className="flex items-center gap-1">
               <User className="h-4 w-4" />
-              <span>{order.customerName}</span>
+              <span className="truncate">{order.customerName}</span>
             </div>
             <div className="flex items-center gap-1">
               <DollarSign className="h-4 w-4" />
@@ -157,8 +157,8 @@ export default function SingleOrderView({ order }: Props) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex gap-2">
+        <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:items-center md:gap-3 w-full md:w-auto">
+          <div className="flex items-center gap-2 w-full md:w-auto justify-center md:justify-start">
             <Badge
               variant={getStatusBadgeVariant(order.orderStatus)}
               className="capitalize"
@@ -176,13 +176,13 @@ export default function SingleOrderView({ order }: Props) {
           {!isEditing ? (
             <Button
               onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full md:w-auto"
             >
               <Edit className="h-4 w-4" />
               Edit Order
             </Button>
           ) : (
-            <div className="flex gap-2">
+            <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:gap-2 w-full md:w-auto">
               <Button
                 onClick={handleSaveChanges}
                 className="flex items-center gap-2"
@@ -221,9 +221,9 @@ export default function SingleOrderView({ order }: Props) {
 
                   return (
                     <div key={item.id}>
-                      <div className="flex items-start gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                         {/* Product Image */}
-                        <div className="relative h-20 w-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                        <div className="relative h-20 w-20 sm:h-16 sm:w-16 rounded-lg overflow-hidden bg-muted flex-shrink-0 mx-auto sm:mx-0">
                           {thumbnail ? (
                             <Image
                               src={thumbnail}
@@ -239,15 +239,15 @@ export default function SingleOrderView({ order }: Props) {
                         </div>
 
                         {/* Product Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="font-semibold text-lg">
+                        <div className="flex-1 min-w-0 text-center sm:text-left">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                            <div className="min-w-0">
+                              <h3 className="font-semibold text-lg break-words">
                                 {item.productName}
                               </h3>
 
                               {item.product.shortDescription && (
-                                <p className="text-sm text-muted-foreground mt-1">
+                                <p className="text-sm text-muted-foreground mt-1 break-words">
                                   {item.product.shortDescription}
                                 </p>
                               )}

@@ -146,8 +146,8 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-end gap-2 space-x-2 py-2 sm:flex-row">
-        <div className="flex w-full items-center justify-between">
+      <div className="flex flex-col items-center justify-end gap-4 py-4 sm:flex-row sm:gap-2">
+        <div className="flex w-full items-center justify-between sm:justify-start">
           <div className="flex-1 text-sm text-muted-foreground">
             {totalItems > 0 ? (
               <>
@@ -163,33 +163,57 @@ export function DataTable<TData, TValue>({
               "No entries found"
             )}
           </div>
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
-            <div className="flex items-center space-x-2">
-              <p className="whitespace-nowrap text-sm font-medium">
-                Rows per page
-              </p>
-              <Select
-                value={`${paginationState.pageSize}`}
-                onValueChange={(value) => {
-                  table.setPageSize(Number(value));
-                }}
-              >
-                <SelectTrigger className="h-8 w-[70px]">
-                  <SelectValue placeholder={paginationState.pageSize} />
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {pageSizeOptions.map((pageSize) => (
-                    <SelectItem key={pageSize} value={`${pageSize}`}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+
+          {/* Mobile page size selector */}
+          <div className="flex items-center space-x-2 sm:hidden">
+            <p className="text-sm text-muted-foreground">Rows</p>
+            <Select
+              value={`${paginationState.pageSize}`}
+              onValueChange={(value) => {
+                table.setPageSize(Number(value));
+              }}
+            >
+              <SelectTrigger className="h-8 w-[60px]">
+                <SelectValue placeholder={paginationState.pageSize} />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {pageSizeOptions.map((pageSize) => (
+                  <SelectItem key={pageSize} value={`${pageSize}`}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
-        <div className="flex w-full items-center justify-between gap-2 sm:justify-end">
-          <div className="flex w-[150px] items-center justify-center text-sm font-medium">
+
+        <div className="flex items-center justify-between w-full sm:w-auto sm:space-x-6 lg:space-x-8">
+          {/* Desktop page size selector */}
+          <div className="hidden sm:flex items-center space-x-2">
+            <p className="whitespace-nowrap text-sm font-medium">
+              Rows per page
+            </p>
+            <Select
+              value={`${paginationState.pageSize}`}
+              onValueChange={(value) => {
+                table.setPageSize(Number(value));
+              }}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue placeholder={paginationState.pageSize} />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {pageSizeOptions.map((pageSize) => (
+                  <SelectItem key={pageSize} value={`${pageSize}`}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Page info */}
+          <div className="flex w-[120px] items-center justify-center text-sm font-medium">
             {totalItems > 0 ? (
               <>
                 Page {paginationState.pageIndex + 1} of {table.getPageCount()}
@@ -198,6 +222,8 @@ export function DataTable<TData, TValue>({
               "No pages"
             )}
           </div>
+
+          {/* Pagination controls */}
           <div className="flex items-center space-x-2">
             <Button
               aria-label="Go to first page"
