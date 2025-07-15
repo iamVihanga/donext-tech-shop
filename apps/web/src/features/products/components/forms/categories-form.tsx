@@ -1,11 +1,19 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGetCategories } from "@/features/categories/actions/use-get-category";
 import { cn } from "@/lib/utils";
+import { Button } from "@repo/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from "@repo/ui/components/card";
+import {
+  Collapsible,
+  CollapsibleTrigger
+} from "@repo/ui/components/collapsible";
+import { ScrollArea } from "@repo/ui/components/scroll-area";
 import { CheckIcon, ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useCreateProductStore } from "../../store/create-product-store";
@@ -14,9 +22,15 @@ interface CategoryTreeNode {
   id: string;
   name: string;
   slug: string;
+  description?: string | null;
+  parentId?: string | null;
+  path?: string | null;
+  level?: number | null;
+  sortOrder?: number | null;
+  isActive?: boolean | null;
+  createdAt?: string;
+  updatedAt?: string | null;
   children?: CategoryTreeNode[];
-  path?: string;
-  level?: number;
 }
 
 interface CategoryNodeProps {

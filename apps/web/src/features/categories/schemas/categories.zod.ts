@@ -1,13 +1,9 @@
-import { categories, subcategories } from "@repo/database";
+import { categories } from "@repo/database";
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Categories schema definitions and type definitions
-export const categorySchema = createSelectSchema(categories);
-
-export type Category = z.infer<typeof categorySchema>;
-
-export const subcategorySchema = createSelectSchema(subcategories).extend({
+export const categorySchema = createSelectSchema(categories).extend({
   createdAt: z.date().transform((date) => date && date.toISOString()),
   updatedAt: z
     .date()
@@ -15,15 +11,19 @@ export const subcategorySchema = createSelectSchema(subcategories).extend({
     .nullable()
 });
 
-export type SubCategory = z.infer<typeof subcategorySchema>;
+export type Category = z.infer<typeof categorySchema>;
 
+// Category with children for infinite nesting (simplified for frontend)
+export const categoryWithChildrenSchema = categorySchema.extend({
+  children: z.array(z.lazy(() => categorySchema)).optional()
+});
+
+export type CategoryWithChildren = z.infer<typeof categoryWithChildrenSchema>;
+
+// For backward compatibility
 export const categoryWithSubCategories = categorySchema.extend({
-  createdAt: z.date().transform((date) => date && date.toISOString()),
-  updatedAt: z
-    .date()
-    .transform((date) => date && date.toISOString())
-    .nullable(),
-  subcategories: z.array(subcategorySchema)
+  children: z.array(categorySchema).optional(),
+  subcategories: z.array(categorySchema).optional() // Add subcategories alias for backward compatibility
 });
 
 export type CategoryWithSubcategories = z.infer<
@@ -35,7 +35,8 @@ export type CategoryWithSubcategories = z.infer<
 export const newCategorySchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string(),
-  isActive: z.boolean()
+  isActive: z.boolean(),
+  parentId: z.string().optional()
 });
 
 export type NewCategoryT = z.infer<typeof newCategorySchema>;

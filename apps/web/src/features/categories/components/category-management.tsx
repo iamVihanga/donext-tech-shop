@@ -47,8 +47,9 @@ interface CategoryTreeNode {
   description?: string | null;
   children?: CategoryTreeNode[];
   parentId?: string | null;
-  level?: number;
-  sortOrder?: number;
+  path?: string | null;
+  level?: number | null;
+  sortOrder?: number | null;
   isActive?: boolean | null;
   createdAt?: string;
   updatedAt?: string | null;
@@ -493,7 +494,11 @@ export default function CategoryManagement() {
         </DndContext>
 
         {/* Add Category Modal */}
-        <AddNewCategory />
+        <AddNewCategory
+          open={showAddCategory}
+          setOpen={setShowAddCategory}
+          parentId={addingChildTo}
+        />
 
         {/* Edit Category Modal */}
         {editingCategory && (

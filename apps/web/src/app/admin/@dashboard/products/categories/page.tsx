@@ -11,6 +11,7 @@ export default function ProductCategoriesPage() {
         <AppPageShell
           title="Product Categories"
           description="Manage your product categories with drag and drop functionality."
+          actionComponent={<></>}
         />
 
         <Separator />

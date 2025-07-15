@@ -79,7 +79,14 @@ export function PublishProductButton() {
   }
 
   const prepareData = (): PreparedProductData => {
-    const { basicInformation, media, inventory, pricing, additional } = state;
+    const {
+      basicInformation,
+      categories,
+      media,
+      inventory,
+      pricing,
+      additional
+    } = state;
 
     // Prepare main product data
     const product = {
@@ -94,8 +101,8 @@ export function PublishProductButton() {
       minStockLevel: inventory.minStockLevel,
       weight: additional.weight > 0 ? additional.weight.toFixed(2) : null,
       dimensions: additional.dimensions.trim() || null,
-      categoryId: basicInformation.categoryId,
-      subcategoryId: basicInformation.subcategoryId || null,
+      categoryId: categories.selectedCategoryId,
+      subcategoryId: null, // Remove subcategoryId as we're using infinite nested categories
       isActive: basicInformation.isActive,
       isFeatured: basicInformation.isFeatured,
       requiresShipping: additional.requiresShipping,

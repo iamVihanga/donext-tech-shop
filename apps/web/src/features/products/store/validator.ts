@@ -54,7 +54,7 @@ export const validateProductDetails = (): ValidatorResponseT => {
     errors.push("Product slug is required");
   }
 
-  if (!basicInformation.categoryId) {
+  if (!categories.selectedCategoryId) {
     errors.push("Category is required");
   }
 
