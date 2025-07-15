@@ -7,6 +7,12 @@ import type { InventoryFormSchemaT } from "@/features/products/schemas/forms/inv
 import type { PricingFormSchemaT } from "@/features/products/schemas/forms/pricing-form";
 import { AdditionalInfoFormSchemaT } from "../schemas/forms/additional-info-form";
 
+export interface CategoriesFormSchemaT {
+  selectedCategoryId: string;
+  categoryPath: Array<{ id: string; name: string; slug: string }>;
+  status: "pending" | "valid" | "invalid";
+}
+
 export interface CreateProductStore_FormTypes {
   // Form control
   activeTab: number;
@@ -17,16 +23,19 @@ export interface CreateProductStore_FormTypes {
   // Form 01 -> Basic Information Form
   basicInformation: BasicInformationsFormSchemaT;
 
-  // Form 02 -> Media Form
+  // Form 02 -> Categories Form
+  categories: CategoriesFormSchemaT;
+
+  // Form 03 -> Media Form
   media: ImagesFormSchemaT;
 
-  // Form 03 -> Inventory
+  // Form 04 -> Inventory
   inventory: InventoryFormSchemaT;
 
-  // Form 04 -> Pricing
+  // Form 05 -> Pricing
   pricing: PricingFormSchemaT;
 
-  // Form 05 -> Additional Details
+  // Form 06 -> Additional Details
   additional: AdditionalInfoFormSchemaT;
 }
 
@@ -34,6 +43,7 @@ export interface CreateProductStore_Actions {
   setBasicInformation: (
     data: CreateProductStore_FormTypes["basicInformation"]
   ) => void;
+  setCategories: (data: CreateProductStore_FormTypes["categories"]) => void;
   setMedia: (data: CreateProductStore_FormTypes["media"]) => void;
   setInventory: (data: CreateProductStore_FormTypes["inventory"]) => void;
   setPricing: (data: CreateProductStore_FormTypes["pricing"]) => void;

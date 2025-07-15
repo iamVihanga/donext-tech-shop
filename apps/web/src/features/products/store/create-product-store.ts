@@ -20,10 +20,14 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
     slug: "",
     shortDescription: "",
     description: "",
-    categoryId: "",
-    subcategoryId: "",
     isActive: true,
     isFeatured: false,
+    status: "pending"
+  },
+
+  categories: {
+    selectedCategoryId: "",
+    categoryPath: [],
     status: "pending"
   },
 
@@ -59,6 +63,10 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
 
   setBasicInformation: (data) => {
     set({ basicInformation: { ...data } });
+  },
+
+  setCategories: (data) => {
+    set({ categories: { ...data } });
   },
 
   setMedia: (data) => {
