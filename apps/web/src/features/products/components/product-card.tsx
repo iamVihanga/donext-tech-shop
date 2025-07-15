@@ -1,3 +1,4 @@
+// components/product-card.tsx
 import { ProductPrice } from "@/components/price";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { WishlistButton } from "@/features/wishlist/components/wishlist-button";
@@ -18,9 +19,12 @@ export function ProductCard({ product }: Props) {
   const productPrice = getProductPrice(product);
 
   return (
-    <Card className="group p-0 rounded-lg transition-all duration-300 overflow-hidden bg-secondary/90 border border-card hover:border-amber-500/50 transform  flex flex-col gap-0">
-      <div className="relative aspect-square overflow-hidden bg-neutral-900">
-        {/* Image Area */}
+    <Card className="group p-0 rounded-lg transition-all duration-300 overflow-hidden bg-secondary/90 border border-card hover:border-amber-500/50 transform flex flex-col gap-0">
+      {/* Product Image */}
+      <Link
+        href={`/products/${product.id}`}
+        className="relative aspect-square overflow-hidden bg-neutral-900 block"
+      >
         {thumbnail ? (
           <Image
             src={thumbnail}
@@ -47,8 +51,7 @@ export function ProductCard({ product }: Props) {
             </div>
           </div>
         )}
-
-        {/* Badges */}
+        {/* Featured Badge */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {product.isFeatured && (
             <span className="bg-amber-500 text-gray-900 text-xs font-semibold px-2 py-1 rounded-full shadow-lg">
@@ -56,9 +59,9 @@ export function ProductCard({ product }: Props) {
             </span>
           )}
         </div>
-      </div>
+      </Link>
 
-      <CardContent className="px-4 py-3">
+      <CardContent className="px-4 py-3 flex-grow">
         <div className="space-y-1">
           {/* Product Name */}
           <Link
@@ -81,7 +84,8 @@ export function ProductCard({ product }: Props) {
         </div>
       </CardContent>
 
-      <CardFooter className="px-4 py-3 w-full">
+      <CardFooter className="px-4 py-3 w-full mt-auto">
+        {" "}
         <div className="flex items-center gap-2 w-full">
           <WishlistButton className="rounded h-10 w-10" product={product} />
 
