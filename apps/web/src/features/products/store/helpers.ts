@@ -2,6 +2,7 @@ import { useCreateProductStore } from "./create-product-store";
 
 export enum Tabs {
   BASIC_INFORMATION = "BASIC_INFORMATION",
+  CATEGORIES = "CATEGORIES",
   MEDIA = "MEDIA",
   INVENTORY = "INVENTORY",
   PRICING = "PRICING",
@@ -12,6 +13,7 @@ export enum Tabs {
 // Map enum values to display names
 export const TAB_NAMES: Record<Tabs, string> = {
   [Tabs.BASIC_INFORMATION]: "Basic Information",
+  [Tabs.CATEGORIES]: "Categories",
   [Tabs.MEDIA]: "Media",
   [Tabs.INVENTORY]: "Inventory",
   [Tabs.PRICING]: "Pricing",
@@ -22,21 +24,23 @@ export const TAB_NAMES: Record<Tabs, string> = {
 // Map enum values to indices for store usage
 export const TAB_INDICES: Record<Tabs, number> = {
   [Tabs.BASIC_INFORMATION]: 0,
-  [Tabs.MEDIA]: 1,
-  [Tabs.INVENTORY]: 2,
-  [Tabs.PRICING]: 3,
-  [Tabs.ADDITIONAL]: 4,
-  [Tabs.SUMMARY]: 5
+  [Tabs.CATEGORIES]: 1,
+  [Tabs.MEDIA]: 2,
+  [Tabs.INVENTORY]: 3,
+  [Tabs.PRICING]: 4,
+  [Tabs.ADDITIONAL]: 5,
+  [Tabs.SUMMARY]: 6
 };
 
 // Map indices back to enum values
 export const INDICES_TO_TAB: Record<number, Tabs> = {
   0: Tabs.BASIC_INFORMATION,
-  1: Tabs.MEDIA,
-  2: Tabs.INVENTORY,
-  3: Tabs.PRICING,
-  4: Tabs.ADDITIONAL,
-  5: Tabs.SUMMARY
+  1: Tabs.CATEGORIES,
+  2: Tabs.MEDIA,
+  3: Tabs.INVENTORY,
+  4: Tabs.PRICING,
+  5: Tabs.ADDITIONAL,
+  6: Tabs.SUMMARY
 };
 
 // Get tab indices by tab name

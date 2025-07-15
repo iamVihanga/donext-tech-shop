@@ -6,7 +6,7 @@ import { NewCategoryT } from "../schemas/categories.zod";
 
 import { getClient } from "@/lib/rpc/client";
 
-export const useCreateClass = () => {
+export const useCreateCategory = () => {
   const queryClient = useQueryClient();
   const toastId = useId();
 

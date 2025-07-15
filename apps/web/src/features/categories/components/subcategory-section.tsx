@@ -38,7 +38,7 @@ export function SubcategorySection({ id }: Props) {
     );
   }
 
-  if (!data?.subcategories || data.subcategories.length === 0) {
+  if (!data?.children || data.children.length === 0) {
     return (
       <div className="space-y-4">
         {/* Header */}
@@ -77,7 +77,7 @@ export function SubcategorySection({ id }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">
-          Subcategories ({data.subcategories.length})
+          Subcategories ({data.children.length})
         </h3>
 
         <AddNewSubcategory
@@ -108,7 +108,7 @@ export function SubcategorySection({ id }: Props) {
             </tr>
           </thead>
           <tbody>
-            {data.subcategories.map((subcategory, index) => (
+            {data.children.map((subcategory, index) => (
               <tr
                 key={subcategory.id}
                 className={index % 2 === 0 ? "bg-muted/25" : ""}
@@ -155,8 +155,7 @@ export function SubcategorySection({ id }: Props) {
 
       {/* Footer Info */}
       <p className="text-sm text-muted-foreground">
-        Showing {data.subcategories.length} subcategories for category "
-        {data.name}".
+        Showing {data.children.length} subcategories for category "{data.name}".
       </p>
     </div>
   );

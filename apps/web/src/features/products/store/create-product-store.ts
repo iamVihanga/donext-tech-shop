@@ -20,10 +20,14 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
     slug: "",
     shortDescription: "",
     description: "",
-    categoryId: "",
-    subcategoryId: "",
     isActive: true,
     isFeatured: false,
+    status: "pending"
+  },
+
+  categories: {
+    selectedCategoryId: "",
+    categoryPath: [],
     status: "pending"
   },
 
@@ -59,6 +63,10 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
 
   setBasicInformation: (data) => {
     set({ basicInformation: { ...data } });
+  },
+
+  setCategories: (data) => {
+    set({ categories: { ...data } });
   },
 
   setMedia: (data) => {
@@ -169,10 +177,13 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
         slug: "",
         shortDescription: "",
         description: "",
-        categoryId: "",
-        subcategoryId: "",
         isActive: true,
         isFeatured: false,
+        status: "pending"
+      },
+      categories: {
+        selectedCategoryId: "",
+        categoryPath: [],
         status: "pending"
       },
       media: {
@@ -217,19 +228,32 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
         formData = state.basicInformation;
         validationSchema = basicInformationsFormSchema;
         break;
-      case 1: // Media
+
+      // case 1: // Categories
+      //   // For categories, we'll do a simple validation
+      //   isValid = !!state.categories.selectedCategoryId;
+      //   if (isValid) {
+      //     set({ categories: { ...state.categories, status: "valid" } });
+      //   } else {
+      //     set({ categories: { ...state.categories, status: "invalid" } });
+      //   }
+      //   return;
+      case 1:
+        break;
+
+      case 2: // Media
         formData = state.media;
         validationSchema = imagesFormSchema;
         break;
-      case 2: // Inventory
+      case 3: // Inventory
         formData = state.inventory;
         validationSchema = inventoryFormSchema;
         break;
-      case 3: // Pricing
+      case 4: // Pricing
         formData = state.pricing;
         validationSchema = pricingFormSchema;
         break;
-      case 4: // Additional
+      case 5: // Additional
         formData = state.additional;
         validationSchema = additionalInfoFormSchema;
         break;
@@ -239,7 +263,7 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
 
     try {
       // Validate against schema
-      validationSchema.parse(formData);
+      validationSchema!.parse(formData);
 
       // Update status to valid for the validated step
       switch (activeTab) {
@@ -249,15 +273,18 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
           });
           break;
         case 1:
-          set({ media: { ...state.media, status: "valid" } });
+          set({ categories: { ...state.categories, status: "valid" } });
           break;
         case 2:
-          set({ inventory: { ...state.inventory, status: "valid" } });
+          set({ media: { ...state.media, status: "valid" } });
           break;
         case 3:
-          set({ pricing: { ...state.pricing, status: "valid" } });
+          set({ inventory: { ...state.inventory, status: "valid" } });
           break;
         case 4:
+          set({ pricing: { ...state.pricing, status: "valid" } });
+          break;
+        case 5:
           set({ additional: { ...state.additional, status: "valid" } });
           break;
       }
@@ -301,16 +328,19 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
               basicInformation: { ...state.basicInformation, status: "invalid" }
             });
             break;
-          case 1:
+          // case 1:
+          //   // Categories validation handled above
+          //   break;
+          case 2:
             set({ media: { ...state.media, status: "invalid" } });
             break;
-          case 2:
+          case 3:
             set({ inventory: { ...state.inventory, status: "invalid" } });
             break;
-          case 3:
+          case 4:
             set({ pricing: { ...state.pricing, status: "invalid" } });
             break;
-          case 4:
+          case 5:
             set({ additional: { ...state.additional, status: "invalid" } });
             break;
         }

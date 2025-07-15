@@ -11,7 +11,9 @@ import {
 import { productSchema } from "../products/product.zod";
 import {
   categorySchema,
+  categoryTreeSchema,
   categoryWithSubCategories,
+  moveCategorySchema,
   newCategorySchema,
   newSubcategorySchema,
   subcategorySchema,
@@ -33,6 +35,20 @@ export const list = createRoute({
     [HttpStatusCodes.OK]: jsonContent(
       getPaginatedSchema(z.array(categoryWithSubCategories)),
       "The list of all product categories (Populated with all Subcategories per each)"
+    )
+  }
+});
+
+// Get category tree (nested structure)
+export const getCategoryTree = createRoute({
+  tags,
+  summary: "Get category tree",
+  path: "/tree",
+  method: "get",
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      categoryTreeSchema,
+      "The nested category tree structure"
     )
   }
 });
@@ -194,6 +210,35 @@ export const addSubcategory = createRoute({
   }
 });
 
+// Move category (for drag and drop)
+export const moveCategory = createRoute({
+  tags,
+  summary: "Move category to new parent/position",
+  path: "/move",
+  method: "post",
+  request: {
+    body: jsonContentRequired(moveCategorySchema, "Category move details")
+  },
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(
+      categoryTreeSchema,
+      "Updated category tree after move"
+    ),
+    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      errorMessageSchema,
+      "Unauthenticated requests are forbidden"
+    ),
+    [HttpStatusCodes.BAD_REQUEST]: jsonContent(
+      errorMessageSchema,
+      "Invalid move operation"
+    ),
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
+      errorMessageSchema,
+      "Something went wrong"
+    )
+  }
+});
+
 export const removeSubcategory = createRoute({
   tags,
   summary: "Remove a Product Subcategory",
@@ -255,10 +300,12 @@ export const getProductsByCategory = createRoute({
 });
 
 export type ListRoute = typeof list;
+export type GetCategoryTreeRoute = typeof getCategoryTree;
 export type CreateRoute = typeof create;
 export type GetOneRoute = typeof getOne;
 export type PatchRoute = typeof patch;
 export type RemoveRoute = typeof remove;
+export type MoveCategoryRoute = typeof moveCategory;
 export type AddSubcategoryRoute = typeof addSubcategory;
 export type RemoveSubcategoryRoute = typeof removeSubcategory;
 

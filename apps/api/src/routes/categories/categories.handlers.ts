@@ -5,421 +5,427 @@ import * as HttpStatusPhrases from "stoker/http-status-phrases";
 import type { AppRouteHandler } from "@api/types";
 
 import { db } from "@api/db";
-import { categories, products, subcategories } from "@repo/database/schemas";
+import {
+  buildCategoryTree,
+  calculateCategoryLevel,
+  categories,
+  generateCategoryPath,
+  productImages,
+  products
+} from "@repo/database";
 
 import { toKebabCase } from "../../lib/helpers";
 import type {
   AddSubcategoryRoute,
   CreateRoute,
+  GetCategoryTreeRoute,
   GetOneRoute,
   ListRoute,
+  MoveCategoryRoute,
   PatchRoute,
   ProductsByCategoryRoute,
   RemoveRoute,
   RemoveSubcategoryRoute
 } from "./categories.routes";
 
-// List products route handler
+// List categories route handler
 export const list: AppRouteHandler<ListRoute> = async (c) => {
   const {
     page = "1",
     limit = "10",
-    sort = "asc",
-    search
+    search = "",
+    sort = "desc"
   } = c.req.valid("query");
 
-  // Convert to numbers and validate
-  const pageNum = Math.max(1, parseInt(page));
-  const limitNum = Math.max(1, Math.min(100, parseInt(limit))); // Cap at 100 items
-  const offset = (pageNum - 1) * limitNum;
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
+  const offset = (pageNumber - 1) * limitNumber;
 
-  // Build query conditions
-  const query = db.query.categories.findMany({
-    with: { subcategories: true },
-    limit: limitNum,
-    offset,
-    where: (fields, { ilike, and }) => {
-      const conditions = [];
+  const whereClause = search
+    ? ilike(categories.name, `%${search}%`)
+    : undefined;
 
-      // Add search condition if search parameter is provided
-      if (search) {
-        conditions.push(ilike(fields.name, `%${search}%`));
-      }
-
-      return conditions.length ? and(...conditions) : undefined;
-    },
-    orderBy: (fields) => {
-      if (sort.toLowerCase() === "asc") {
-        return fields.createdAt;
-      }
-      return desc(fields.createdAt);
-    }
-  });
-
-  // Get total count for pagination metadata
-  const totalCountQuery = db
-    .select({ count: sql<number>`count(*)` })
-    .from(categories)
-    .where(search ? ilike(categories.name, `%${search}%`) : undefined);
-
-  const [categoryEntries, _totalCount] = await Promise.all([
-    query,
-    totalCountQuery
+  const [categoriesData, totalCount] = await Promise.all([
+    db
+      .select()
+      .from(categories)
+      .where(whereClause)
+      .orderBy(sort === "asc" ? categories.name : desc(categories.name))
+      .limit(limitNumber)
+      .offset(offset),
+    db
+      .select({ count: sql`count(*)` })
+      .from(categories)
+      .where(whereClause)
   ]);
 
-  const totalCount = _totalCount[0]?.count || 0;
+  const total = Number(totalCount[0]?.count) || 0;
+  const totalPages = Math.ceil(total / limitNumber);
 
-  // Calculate pagination metadata
-  const totalPages = Math.ceil(totalCount / limitNum);
+  // Build nested structure
+  const tree = buildCategoryTree(categoriesData);
 
-  return c.json(
-    {
-      data: categoryEntries,
-      meta: {
-        currentPage: pageNum,
-        totalPages,
-        totalCount,
-        limit: limitNum
-      }
-    },
-    HttpStatusCodes.OK
-  );
+  return c.json({
+    data: tree,
+    meta: {
+      currentPage: pageNumber,
+      limit: limitNumber,
+      totalCount: total,
+      totalPages
+    }
+  });
 };
 
-// Create product route handler
+// Get category tree handler
+export const getCategoryTree: AppRouteHandler<GetCategoryTreeRoute> = async (
+  c
+) => {
+  const categoriesData = await db
+    .select()
+    .from(categories)
+    .where(eq(categories.isActive, true))
+    .orderBy(categories.level, categories.sortOrder, categories.name);
+
+  const tree = buildCategoryTree(categoriesData);
+  return c.json(tree);
+};
+
+// Create category route handler
 export const create: AppRouteHandler<CreateRoute> = async (c) => {
-  // Validate Authentication
-  const session = c.get("session");
-
-  if (!session) {
-    return c.json(
-      {
-        message: HttpStatusPhrases.UNAUTHORIZED
-      },
-      HttpStatusCodes.UNAUTHORIZED
-    );
-  }
-
-  // Handle Product Category Creation
   const body = c.req.valid("json");
   const slug = toKebabCase(body.name);
 
-  const [inserted] = await db
-    .insert(categories)
-    .values({ ...body, slug })
-    .returning();
+  // Calculate path and level if parent is provided
+  let path = `/${slug}`;
+  let level = 0;
 
-  if (!inserted) {
-    return c.json(
-      {
-        message: "Category creation failed"
-      },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
+  if (body.parentId) {
+    const allCategories = await db.select().from(categories);
+    path = generateCategoryPath(allCategories, body.parentId) + `/${slug}`;
+    level = calculateCategoryLevel(allCategories, body.parentId) + 1;
   }
 
-  return c.json(inserted, HttpStatusCodes.CREATED);
+  const [category] = await db
+    .insert(categories)
+    .values({
+      ...body,
+      slug,
+      path,
+      level
+    })
+    .returning();
+
+  return c.json(category, HttpStatusCodes.CREATED);
 };
 
-// Get product category by ID route handler
+// Get one category route handler
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
   const { id } = c.req.valid("param");
 
-  const categoryWithSubCategories = await db.query.categories.findFirst({
-    with: { subcategories: true },
-    where: (fields, { eq }) => eq(fields.id, id)
-  });
+  const [category] = await db
+    .select()
+    .from(categories)
+    .where(eq(categories.id, id));
 
-  if (!categoryWithSubCategories) {
+  if (!category) {
     return c.json(
-      {
-        message: "Category not found"
-      },
+      { message: HttpStatusPhrases.NOT_FOUND },
       HttpStatusCodes.NOT_FOUND
     );
   }
 
-  return c.json(categoryWithSubCategories, HttpStatusCodes.OK);
-};
+  // Get all categories to build the tree for this category
+  const allCategories = await db.select().from(categories);
 
-// Update product category by ID route handler
-export const patch: AppRouteHandler<PatchRoute> = async (c) => {
-  const session = c.get("session");
+  // Find all children of this category
+  const childCategories = allCategories.filter((cat) => cat.parentId === id);
+  const children = buildCategoryTree(childCategories);
 
-  if (!session) {
-    return c.json(
-      {
-        message: HttpStatusPhrases.UNAUTHORIZED
-      },
-      HttpStatusCodes.UNAUTHORIZED
-    );
-  }
-
-  const { id } = c.req.valid("param");
-  const body = c.req.valid("json");
-
-  const existingCategory = await db.query.categories.findFirst({
-    where: (fields, { eq }) => eq(fields.id, id)
-  });
-
-  if (!existingCategory) {
-    return c.json(
-      {
-        message: "Category not found"
-      },
-      HttpStatusCodes.NOT_FOUND
-    );
-  }
-
-  const [updated] = await db
-    .update(categories)
-    .set({ ...body, updatedAt: new Date() })
-    .where(eq(categories.id, id))
-    .returning();
-
-  if (!updated) {
-    return c.json(
-      {
-        message: "Category update failed"
-      },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
-  }
-
-  return c.json(updated, HttpStatusCodes.OK);
-};
-
-// Delete product category by ID route handler
-export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
-  const session = c.get("session");
-
-  if (!session) {
-    return c.json(
-      {
-        message: HttpStatusPhrases.UNAUTHORIZED
-      },
-      HttpStatusCodes.UNAUTHORIZED
-    );
-  }
-
-  const { id } = c.req.valid("param");
-
-  const existingCategory = await db.query.categories.findFirst({
-    where: (fields, { eq }) => eq(fields.id, id)
-  });
-
-  if (!existingCategory) {
-    return c.json(
-      {
-        message: "Category not found"
-      },
-      HttpStatusCodes.NOT_FOUND
-    );
-  }
-
-  const [deleted] = await db
-    .delete(categories)
-    .where(eq(categories.id, id))
-    .returning();
-
-  if (!deleted) {
-    return c.json(
-      {
-        message: "Category deletion failed"
-      },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
-  }
-
+  // Return with proper typing
   return c.json(
     {
-      message: "Category deleted successfully"
+      ...category,
+      children
     },
     HttpStatusCodes.OK
   );
 };
 
-// Add subcategory route handler
+// Update category route handler
+export const patch: AppRouteHandler<PatchRoute> = async (c) => {
+  const { id } = c.req.valid("param");
+  const body = c.req.valid("json");
+
+  // Check if category exists
+  const [existingCategory] = await db
+    .select()
+    .from(categories)
+    .where(eq(categories.id, id));
+
+  if (!existingCategory) {
+    return c.json(
+      { message: HttpStatusPhrases.NOT_FOUND },
+      HttpStatusCodes.NOT_FOUND
+    );
+  }
+
+  // Calculate new path and level if parent is changing
+  let updateData: any = { ...body };
+
+  if (body.parentId !== existingCategory.parentId) {
+    const allCategories = await db.select().from(categories);
+    const slug = body.name ? toKebabCase(body.name) : existingCategory.slug;
+
+    if (body.parentId) {
+      updateData.path =
+        generateCategoryPath(allCategories, body.parentId) + `/${slug}`;
+      updateData.level =
+        calculateCategoryLevel(allCategories, body.parentId) + 1;
+    } else {
+      updateData.path = `/${slug}`;
+      updateData.level = 0;
+    }
+  } else if (body.name) {
+    // Update slug if name changed but parent didn't
+    const slug = toKebabCase(body.name);
+    updateData.slug = slug;
+
+    // Update path with new slug
+    if (existingCategory.parentId) {
+      const allCategories = await db.select().from(categories);
+      updateData.path =
+        generateCategoryPath(allCategories, existingCategory.parentId) +
+        `/${slug}`;
+    } else {
+      updateData.path = `/${slug}`;
+    }
+  }
+
+  const [updatedCategory] = await db
+    .update(categories)
+    .set(updateData)
+    .where(eq(categories.id, id))
+    .returning();
+
+  return c.json(updatedCategory);
+};
+
+// Remove category route handler
+export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
+  const { id } = c.req.valid("param");
+
+  const [category] = await db
+    .select()
+    .from(categories)
+    .where(eq(categories.id, id));
+
+  if (!category) {
+    return c.json(
+      { message: HttpStatusPhrases.NOT_FOUND },
+      HttpStatusCodes.NOT_FOUND
+    );
+  }
+
+  await db.delete(categories).where(eq(categories.id, id));
+
+  return c.json(
+    { message: "Category deleted successfully" },
+    HttpStatusCodes.OK
+  );
+};
+
+// Move category handler (for drag and drop)
+export const moveCategory: AppRouteHandler<MoveCategoryRoute> = async (c) => {
+  const { categoryId, newParentId, newSortOrder } = c.req.valid("json");
+
+  const allCategories = await db.select().from(categories);
+
+  // Calculate new path and level
+  const categoryToMove = allCategories.find((cat) => cat.id === categoryId);
+  if (!categoryToMove) {
+    return c.json(
+      { message: "Category not found" },
+      HttpStatusCodes.BAD_REQUEST
+    );
+  }
+
+  const newPath = newParentId
+    ? generateCategoryPath(allCategories, newParentId) +
+      `/${categoryToMove.slug}`
+    : `/${categoryToMove.slug}`;
+
+  const newLevel = newParentId
+    ? calculateCategoryLevel(allCategories, newParentId) + 1
+    : 0;
+
+  const [updatedCategory] = await db
+    .update(categories)
+    .set({
+      parentId: newParentId,
+      sortOrder: newSortOrder,
+      path: newPath,
+      level: newLevel
+    })
+    .where(eq(categories.id, categoryId))
+    .returning();
+
+  return c.json(updatedCategory);
+};
+
+// Legacy subcategory handlers (for backward compatibility)
 export const addSubcategory: AppRouteHandler<AddSubcategoryRoute> = async (
   c
 ) => {
-  const session = c.get("session");
-
-  if (!session) {
-    return c.json(
-      {
-        message: HttpStatusPhrases.UNAUTHORIZED
-      },
-      HttpStatusCodes.UNAUTHORIZED
-    );
-  }
-
-  const { id } = c.req.valid("param");
+  const { id: parentId } = c.req.valid("param");
   const body = c.req.valid("json");
+
+  // This is now just creating a child category
   const slug = toKebabCase(body.name);
+  const allCategories = await db.select().from(categories);
+  const path = generateCategoryPath(allCategories, parentId) + `/${slug}`;
+  const level = calculateCategoryLevel(allCategories, parentId) + 1;
 
-  const existingCategory = await db.query.categories.findFirst({
-    where: (fields, { eq }) => eq(fields.id, id)
-  });
-
-  if (!existingCategory) {
-    return c.json(
-      {
-        message: "Category not found"
-      },
-      HttpStatusCodes.NOT_FOUND
-    );
-  }
-
-  const [inserted] = await db
-    .insert(subcategories)
-    .values({ ...body, slug, parentCategoryId: id })
+  const [subcategory] = await db
+    .insert(categories)
+    .values({
+      ...body,
+      slug,
+      path,
+      level,
+      parentId
+    })
     .returning();
 
-  if (!inserted) {
-    return c.json(
-      {
-        message: "Subcategory creation failed"
-      },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
-  }
-
-  return c.json(inserted, HttpStatusCodes.CREATED);
+  return c.json(subcategory, HttpStatusCodes.CREATED);
 };
 
-// Remove subcategory route handler
 export const removeSubcategory: AppRouteHandler<
   RemoveSubcategoryRoute
 > = async (c) => {
-  const session = c.get("session");
+  const { id: parentId, subcategoryId } = c.req.valid("param");
 
-  if (!session) {
-    return c.json(
-      {
-        message: HttpStatusPhrases.UNAUTHORIZED
-      },
-      HttpStatusCodes.UNAUTHORIZED
+  // Check if subcategory exists and belongs to parent
+  const [subcategory] = await db
+    .select()
+    .from(categories)
+    .where(
+      and(eq(categories.id, subcategoryId), eq(categories.parentId, parentId))
     );
-  }
 
-  const { id, subcategoryId } = c.req.valid("param");
-
-  const existingCategory = await db.query.categories.findFirst({
-    where: (fields, { eq }) => eq(fields.id, id)
-  });
-
-  if (!existingCategory) {
+  if (!subcategory) {
     return c.json(
-      {
-        message: "Category not found"
-      },
+      { message: HttpStatusPhrases.NOT_FOUND },
       HttpStatusCodes.NOT_FOUND
     );
   }
 
-  const [deleted] = await db
-    .delete(subcategories)
-    .where(eq(subcategories.id, subcategoryId))
-    .returning();
-
-  if (!deleted) {
-    return c.json(
-      {
-        message: "Subcategory deletion failed"
-      },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
-  }
+  await db.delete(categories).where(eq(categories.id, subcategoryId));
 
   return c.json(
-    {
-      message: "Subcategory deleted successfully"
-    },
+    { message: "Subcategory deleted successfully" },
     HttpStatusCodes.OK
   );
 };
 
+// Products by category handler
 export const productsByCategory: AppRouteHandler<
   ProductsByCategoryRoute
 > = async (c) => {
-  const { id: categoryId } = c.req.valid("param");
+  const { id } = c.req.valid("param");
   const {
     page = "1",
     limit = "10",
-    sort = "asc",
-    search
+    search = "",
+    sort = "desc"
   } = c.req.valid("query");
 
-  // Convert to numbers and validate
-  const pageNum = Math.max(1, parseInt(page));
-  const limitNum = Math.max(1, Math.min(100, parseInt(limit))); // Cap at 100 items
-  const offset = (pageNum - 1) * limitNum;
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
+  const offset = (pageNumber - 1) * limitNumber;
 
-  // Build query conditions
-  const query = db.query.products.findMany({
-    with: { images: true, variants: true },
-    limit: limitNum,
-    offset,
-    where: (fields, { ilike, and }) => {
-      const conditions = [];
+  const whereClause = and(
+    eq(products.categoryId, id),
+    search ? ilike(products.name, `%${search}%`) : undefined
+  );
 
-      // Get category ID from request parameters
-      conditions.push(eq(fields.categoryId, categoryId));
-
-      // Add search condition if search parameter is provided
-      if (search) {
-        conditions.push(ilike(fields.name, `%${search}%`));
-      }
-
-      return conditions.length ? and(...conditions) : undefined;
-    },
-    orderBy: (fields) => {
-      if (sort.toLowerCase() === "asc") {
-        return fields.createdAt;
-      }
-
-      return desc(fields.createdAt);
-    }
-  });
-
-  const totalCountQuery = db
-    .select({ count: sql<number>`count(*)` })
-    .from(products)
-    .where(
-      search
-        ? and(
-            ilike(products.name, `%${search}%`),
-            eq(products.categoryId, categoryId)
+  const [productsData, totalCount] = await Promise.all([
+    db
+      .select({
+        id: products.id,
+        name: products.name,
+        slug: products.slug,
+        description: products.description,
+        shortDescription: products.shortDescription,
+        price: products.price,
+        sku: products.sku,
+        stockQuantity: products.stockQuantity,
+        reservedQuantity: products.reservedQuantity,
+        minStockLevel: products.minStockLevel,
+        weight: products.weight,
+        dimensions: products.dimensions,
+        categoryId: products.categoryId,
+        isActive: products.isActive,
+        isFeatured: products.isFeatured,
+        requiresShipping: products.requiresShipping,
+        metaTitle: products.metaTitle,
+        metaDescription: products.metaDescription,
+        tags: products.tags,
+        createdAt: products.createdAt,
+        updatedAt: products.updatedAt,
+        images: sql<
+          Array<{
+            id: string;
+            productId: string;
+            imageUrl: string;
+            altText: string | null;
+            sortOrder: number | null;
+            isThumbnail: boolean | null;
+            createdAt: string;
+            updatedAt: string | null;
+          }>
+        >`
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'id', ${productImages.id},
+                'productId', ${productImages.productId},
+                'imageUrl', ${productImages.imageUrl},
+                'altText', ${productImages.altText},
+                'sortOrder', ${productImages.sortOrder},
+                'isThumbnail', ${productImages.isThumbnail},
+                'createdAt', ${productImages.createdAt},
+                'updatedAt', ${productImages.updatedAt}
+              )
+              ORDER BY ${productImages.sortOrder}
+            ) FILTER (WHERE ${productImages.id} IS NOT NULL),
+            '[]'::json
           )
-        : undefined
-    );
-
-  const [productsEntries, _totalCount] = await Promise.all([
-    query,
-    totalCountQuery
+        `
+      })
+      .from(products)
+      .leftJoin(productImages, eq(products.id, productImages.productId))
+      .where(whereClause)
+      .groupBy(products.id)
+      .orderBy(sort === "asc" ? products.name : desc(products.name))
+      .limit(limitNumber)
+      .offset(offset),
+    db
+      .select({ count: sql`count(*)` })
+      .from(products)
+      .where(whereClause)
   ]);
 
-  const totalCount = _totalCount[0]?.count || 0;
-
-  // Calculate pagination metadata
-  const totalPages = Math.ceil(totalCount / limitNum);
-
-  // Remove variants from products
-  const preparedProductsEntries = productsEntries.map((product) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { variants, ...productWithoutVariants } = product;
-    return productWithoutVariants;
-  });
+  const total = Number(totalCount[0]?.count) || 0;
+  const totalPages = Math.ceil(total / limitNumber);
 
   return c.json(
     {
-      data: preparedProductsEntries,
+      data: productsData,
       meta: {
-        currentPage: pageNum,
-        totalPages,
-        totalCount,
-        limit: limitNum
+        currentPage: pageNumber,
+        limit: limitNumber,
+        totalCount: total,
+        totalPages
       }
     },
     HttpStatusCodes.OK

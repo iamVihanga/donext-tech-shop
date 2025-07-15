@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1749580876397,
-      "tag": "0000_flawless_deadpool",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1750836753022,
-      "tag": "0001_overrated_sentinel",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1750866731264,
-      "tag": "0002_regular_sandman",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1751128339161,
-      "tag": "0003_silly_power_pack",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1751344448161,
-      "tag": "0004_sudden_namorita",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1751352936241,
-      "tag": "0005_simple_tenebrous",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1751541573830,
-      "tag": "0006_real_shiver_man",
+      "when": 1752609995352,
+      "tag": "0000_strange_randall_flagg",
       "breakpoints": true
     }
   ]

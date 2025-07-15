@@ -383,7 +383,6 @@ export const checkout: AppRouteHandler<CheckoutRoute> = async (c) => {
         weight: string | null;
         dimensions: string | null;
         categoryId: string;
-        subcategoryId: string | null;
         isActive: boolean | null;
         isFeatured: boolean | null;
         requiresShipping: boolean | null;

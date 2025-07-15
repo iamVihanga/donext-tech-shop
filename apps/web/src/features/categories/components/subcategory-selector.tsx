@@ -46,7 +46,7 @@ export function SubcategorySelector({ categoryId, value, onChange }: Props) {
         {!categoryError && (
           <SelectGroup>
             <SelectLabel>Categories</SelectLabel>
-            {category?.subcategories?.map((category) => (
+            {category?.children?.map((category) => (
               <SelectItem key={category.id} value={category.id}>
                 {category.name}
               </SelectItem>
