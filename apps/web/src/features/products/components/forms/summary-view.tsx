@@ -10,7 +10,7 @@ import {
   ShareIcon,
   ShoppingCartIcon,
   StarIcon,
-  TruckIcon
+  TruckIcon,
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -161,12 +161,12 @@ export function SummaryView() {
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <span className="text-3xl font-bold text-foreground">
-                ${currentPrice.toFixed(2)}
+                LKR {currentPrice.toLocaleString()}
               </span>
               {hasDiscount && (
                 <>
                   <span className="text-xl text-foreground/50 line-through">
-                    ${comparePrice.toFixed(2)}
+                    LKR {comparePrice.toLocaleString()}
                   </span>
                   <Badge variant="destructive">
                     {Math.round(

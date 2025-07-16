@@ -6,7 +6,7 @@ import { Button } from "@repo/ui/components/button";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger
+  PopoverTrigger,
 } from "@repo/ui/components/popover";
 import { ScrollArea } from "@repo/ui/components/scroll-area";
 import { Separator } from "@repo/ui/components/separator";
@@ -131,7 +131,7 @@ export function Wishlist({}: Props) {
                             {product.name}
                           </Link>
                           <p className="text-sm text-amber-600 dark:text-amber-400 font-semibold mt-1">
-                            ${product.price}
+                            LKR {product.price}
                           </p>
                           {product.description && (
                             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
