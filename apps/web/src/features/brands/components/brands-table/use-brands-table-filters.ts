@@ -1,52 +1,60 @@
-import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
+"use client";
 
-export const useBrandsTableFilters = () => {
-  const [searchParams, setSearchParams] = useQueryStates(
-    {
-      page: parseAsInteger.withDefault(1),
-      limit: parseAsInteger.withDefault(10),
-      sort: parseAsString.withDefault("desc"),
-      search: parseAsString.withDefault("")
-    },
-    {
-      clearOnDefault: true
-    }
+import { useQueryState } from "nuqs";
+import { useCallback, useMemo } from "react";
+
+import { searchParams, Sort } from "@/lib/searchparams";
+
+export function useBrandsTableFilters() {
+  const [searchQuery, setSearchQuery] = useQueryState(
+    "q",
+    searchParams.q
+      .withOptions({ shallow: false, throttleMs: 1000 })
+      .withDefault("")
   );
 
-  const { page, limit, sort, search: searchQuery } = searchParams;
+  const [page, setPage] = useQueryState(
+    "page",
+    searchParams.page.withDefault(1)
+  );
 
-  const setPage = (page: number) => {
-    setSearchParams({ page });
-  };
+  const [limit, setLimit] = useQueryState(
+    "limit",
+    searchParams.limit.withDefault(10)
+  );
 
-  const setSort = (sort: "asc" | "desc") => {
-    setSearchParams({ sort });
-  };
+  const [sort, setSort] = useQueryState(
+    "sort",
+    searchParams.sort.withDefault(Sort.desc)
+  );
 
-  const setSearchQuery = (search: string) => {
-    setSearchParams({ search });
-  };
+  const resetFilters = useCallback(() => {
+    setSearchQuery(null);
+    setPage(1);
+    setLimit(10);
+  }, [setSearchQuery, setPage, setLimit]);
 
-  const resetFilters = () => {
-    setSearchParams({
-      page: 1,
-      limit: 10,
-      sort: "desc",
-      search: ""
-    });
-  };
-
-  const isAnyFilterActive = searchQuery !== "";
+  const isAnyFilterActive = useMemo(() => {
+    return !!searchQuery;
+  }, [searchQuery]);
 
   return {
-    page: page.toString(),
-    limit: limit.toString(),
-    sort,
+    // Search
     searchQuery,
-    setPage,
-    setSort,
     setSearchQuery,
+
+    // Pagination
+    page,
+    setPage,
+
+    limit,
+    setLimit,
+
+    sort,
+    setSort,
+
+    // Reset
     resetFilters,
     isAnyFilterActive
   };
-};
+}

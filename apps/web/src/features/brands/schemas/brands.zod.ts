@@ -6,21 +6,17 @@ export const brandSchema = z.object({
   slug: z.string(),
   description: z.string().nullable(),
   imageUrl: z.string().nullable(),
-  isActive: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date()
+  isActive: z.boolean().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable()
 });
 
 export type Brand = z.infer<typeof brandSchema>;
 
 export const insertBrandSchema = z.object({
   name: z.string().min(1, "Brand name is required"),
-  description: z.string().optional(),
-  imageUrl: z
-    .string()
-    .url("Please enter a valid URL")
-    .optional()
-    .or(z.literal("")),
+  description: z.string(),
+  imageUrl: z.string().url("Please enter a valid URL").or(z.literal("")),
   isActive: z.boolean()
 });
 

@@ -1,7 +1,10 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { ImageIcon, Loader2, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+
 import { Button } from "@repo/ui/components/button";
+import { Checkbox } from "@repo/ui/components/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -12,25 +15,21 @@ import {
 } from "@repo/ui/components/dialog";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
-import { Switch } from "@repo/ui/components/switch";
+import { useAppForm } from "@repo/ui/components/tanstack-form";
 import { Textarea } from "@repo/ui/components/textarea";
-import { useForm } from "react-hook-form";
 
 import {
   useCreateBrand,
   useUpdateBrand
 } from "@/features/brands/actions/use-brands";
-import {
-  Brand,
-  InsertBrand,
-  insertBrandSchema
-} from "@/features/brands/schemas/brands.zod";
-import { useEffect } from "react";
+import { Brand, insertBrandSchema } from "@/features/brands/schemas/brands.zod";
+import GalleryView from "@/modules/media/components/gallery-view";
+import { Media } from "@/modules/media/types";
 
 interface CreateBrandDialogProps {
   brand?: Brand;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function CreateBrandDialog({
@@ -38,28 +37,76 @@ export function CreateBrandDialog({
   open,
   onOpenChange
 }: CreateBrandDialogProps) {
+  const [internalOpen, setInternalOpen] = useState<boolean>(false);
+  const [showGallery, setShowGallery] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string>("");
+
   const isEditing = !!brand;
   const { mutate: createBrand, isPending: isCreating } = useCreateBrand();
   const { mutate: updateBrand, isPending: isUpdating } = useUpdateBrand();
 
-  const form = useForm<InsertBrand>({
-    resolver: zodResolver(insertBrandSchema),
+  // Use external open state if provided, otherwise use internal state
+  const isOpen = open !== undefined ? open : internalOpen;
+  const handleOpenChange = onOpenChange || setInternalOpen;
+  const form = useAppForm({
+    validators: { onChange: insertBrandSchema },
     defaultValues: {
       name: "",
       description: "",
       imageUrl: "",
       isActive: true
+    },
+    onSubmit: async ({ value }) => {
+      const payload = {
+        ...value,
+        imageUrl: selectedImageUrl || value.imageUrl
+      };
+
+      if (isEditing) {
+        updateBrand(
+          { id: brand.id, ...payload },
+          {
+            onSuccess: () => {
+              handleOpenChange(false);
+              form.reset();
+              setSelectedImageUrl("");
+            }
+          }
+        );
+      } else {
+        createBrand(payload, {
+          onSuccess: () => {
+            handleOpenChange(false);
+            form.reset();
+            setSelectedImageUrl("");
+          }
+        });
+      }
     }
   });
 
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      form.handleSubmit();
+    },
+    [form]
+  );
+
+  // Reset form when dialog closes or brand changes
   useEffect(() => {
-    if (brand) {
+    if (!isOpen) {
+      form.reset();
+      setSelectedImageUrl("");
+    } else if (brand) {
       form.reset({
         name: brand.name,
         description: brand.description || "",
         imageUrl: brand.imageUrl || "",
-        isActive: brand.isActive
+        isActive: brand.isActive || false
       });
+      setSelectedImageUrl(brand.imageUrl || "");
     } else {
       form.reset({
         name: "",
@@ -67,122 +114,190 @@ export function CreateBrandDialog({
         imageUrl: "",
         isActive: true
       });
+      setSelectedImageUrl("");
     }
-  }, [brand, form]);
-
-  const onSubmit = (data: InsertBrand) => {
-    if (isEditing) {
-      updateBrand(
-        { id: brand.id, ...data },
-        {
-          onSuccess: () => {
-            onOpenChange(false);
-            form.reset();
-          }
-        }
-      );
-    } else {
-      createBrand(data, {
-        onSuccess: () => {
-          onOpenChange(false);
-          form.reset();
-        }
-      });
-    }
-  };
+  }, [isOpen, brand, form]);
 
   const handleClose = () => {
-    onOpenChange(false);
+    handleOpenChange(false);
     form.reset();
+    setSelectedImageUrl("");
+  };
+
+  const handleImageSelect = (selectedFiles: Media[]) => {
+    if (selectedFiles.length > 0) {
+      const selectedFile = selectedFiles[0];
+      if (selectedFile) {
+        setSelectedImageUrl(selectedFile.url);
+        form.setFieldValue("imageUrl", selectedFile.url);
+      }
+    }
+    setShowGallery(false);
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImageUrl("");
+    form.setFieldValue("imageUrl", "");
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+    <>
+      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? "Edit Brand" : "Create New Brand"}
+              {isEditing ? "Edit Brand" : "Create Brand"}
             </DialogTitle>
             <DialogDescription>
               {isEditing
-                ? "Make changes to the brand information."
-                : "Add a new brand to your store."}
+                ? "Edit the brand information below."
+                : "Create a new brand by filling out the form below."}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                className="col-span-3"
-                {...form.register("name")}
-                placeholder="Brand name"
-              />
-            </div>
-            {form.formState.errors.name && (
-              <p className="text-sm text-red-500 col-span-4">
-                {form.formState.errors.name.message}
-              </p>
-            )}
+          <form.AppForm>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <form.AppField
+                  name="name"
+                  children={(field) => (
+                    <field.FormItem>
+                      <field.FormLabel>Name</field.FormLabel>
+                      <field.FormControl>
+                        <Input
+                          placeholder="Enter brand name"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          disabled={isCreating || isUpdating}
+                        />
+                      </field.FormControl>
+                      <field.FormMessage />
+                    </field.FormItem>
+                  )}
+                />
+              </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
-                Description
-              </Label>
-              <Textarea
-                id="description"
-                className="col-span-3"
-                {...form.register("description")}
-                placeholder="Brand description (optional)"
-                rows={3}
-              />
-            </div>
+              <div className="space-y-2">
+                <form.AppField
+                  name="description"
+                  children={(field) => (
+                    <field.FormItem>
+                      <field.FormLabel>Description</field.FormLabel>
+                      <field.FormControl>
+                        <Textarea
+                          placeholder="Enter brand description"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          disabled={isCreating || isUpdating}
+                          rows={3}
+                        />
+                      </field.FormControl>
+                      <field.FormMessage />
+                    </field.FormItem>
+                  )}
+                />
+              </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="imageUrl" className="text-right">
-                Image URL
-              </Label>
-              <Input
-                id="imageUrl"
-                className="col-span-3"
-                {...form.register("imageUrl")}
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
-            {form.formState.errors.imageUrl && (
-              <p className="text-sm text-red-500 col-span-4">
-                {form.formState.errors.imageUrl.message}
-              </p>
-            )}
+              <div className="space-y-2">
+                <Label>Brand Image</Label>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowGallery(true)}
+                    disabled={isCreating || isUpdating}
+                  >
+                    <ImageIcon className="h-4 w-4 mr-2" />
+                    Choose from Gallery
+                  </Button>
+                  {selectedImageUrl && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRemoveImage}
+                      disabled={isCreating || isUpdating}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Remove
+                    </Button>
+                  )}
+                </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="isActive" className="text-right">
-                Active
-              </Label>
-              <Switch
-                id="isActive"
-                checked={form.watch("isActive")}
-                onCheckedChange={(checked) =>
-                  form.setValue("isActive", checked)
-                }
-              />
-            </div>
-          </div>
+                {selectedImageUrl && (
+                  <div className="mt-2">
+                    <img
+                      src={selectedImageUrl}
+                      alt="Brand preview"
+                      className="w-20 h-20 object-cover rounded-md border"
+                    />
+                  </div>
+                )}
+              </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isCreating || isUpdating}>
-              {isEditing ? "Update Brand" : "Create Brand"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+              <div className="space-y-2">
+                <form.AppField
+                  name="isActive"
+                  children={(field) => (
+                    <field.FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <field.FormLabel>Is Active</field.FormLabel>
+                        <field.FormDescription>
+                          Toggle to set the brand as active or inactive.
+                        </field.FormDescription>
+                      </div>
+                      <field.FormControl>
+                        <Checkbox
+                          checked={field.state.value}
+                          onCheckedChange={(checked: boolean) =>
+                            field.handleChange(checked)
+                          }
+                          disabled={isCreating || isUpdating}
+                        />
+                      </field.FormControl>
+                      <field.FormMessage />
+                    </field.FormItem>
+                  )}
+                />
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClose}
+                  disabled={isCreating || isUpdating}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isCreating || isUpdating}>
+                  {isCreating || isUpdating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {isEditing ? "Updating..." : "Creating..."}
+                    </>
+                  ) : (
+                    <>{isEditing ? "Update Brand" : "Create Brand"}</>
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </form.AppForm>
+        </DialogContent>
+      </Dialog>
+
+      {showGallery && (
+        <GalleryView
+          modal
+          modalOpen={showGallery}
+          setModalOpen={setShowGallery}
+          onUseSelected={handleImageSelect}
+          activeTab="library"
+        />
+      )}
+    </>
   );
 }

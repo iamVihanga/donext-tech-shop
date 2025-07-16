@@ -97,7 +97,7 @@ export const columns: ColumnDef<Brand>[] = [
     accessorKey: "isActive",
     header: "Status",
     cell: ({ row }) => {
-      const isActive = row.getValue("isActive") as boolean;
+      const isActive = row.getValue("isActive") as boolean | null;
       return (
         <Badge variant={isActive ? "default" : "secondary"}>
           {isActive ? "Active" : "Inactive"}
@@ -109,7 +109,7 @@ export const columns: ColumnDef<Brand>[] = [
     accessorKey: "createdAt",
     header: "Created",
     cell: ({ row }) => {
-      const date = row.getValue("createdAt") as Date;
+      const date = row.getValue("createdAt") as string;
       return (
         <div className="text-sm text-muted-foreground">
           {format(new Date(date), "MMM dd, yyyy")}

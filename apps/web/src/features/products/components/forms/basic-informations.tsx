@@ -9,6 +9,7 @@ import { useCallback } from "react";
 import { basicInformationsFormSchema } from "../../schemas/forms/basic-informations-form";
 import { useCreateProductStore } from "../../store/create-product-store";
 import { setActiveTab, Tabs } from "../../store/helpers";
+import { BrandSelector } from "../brand-selector";
 
 type Props = {};
 
@@ -23,6 +24,7 @@ export function BasicInformationsForm({}: Props) {
       slug: ctx.slug || "",
       shortDescription: ctx.shortDescription || "",
       description: ctx.description || "",
+      brandId: ctx.brandId || "",
       isActive: ctx.isActive ? ctx.isActive : false,
       isFeatured: ctx.isFeatured ? ctx.isFeatured : false,
       status: ctx.status || "pending"
@@ -122,6 +124,27 @@ export function BasicInformationsForm({}: Props) {
                   onBlur={field.handleBlur}
                 />
               </field.FormControl>
+              <field.FormMessage />
+            </field.FormItem>
+          )}
+        />
+
+        <form.AppField
+          name="brandId"
+          children={(field) => (
+            <field.FormItem>
+              <field.FormLabel>Brand *</field.FormLabel>
+              <field.FormControl>
+                <BrandSelector
+                  value={field.state.value}
+                  onValueChange={field.handleChange}
+                  placeholder="Select a brand..."
+                  required={true}
+                />
+              </field.FormControl>
+              <field.FormDescription>
+                Choose the brand for this product.
+              </field.FormDescription>
               <field.FormMessage />
             </field.FormItem>
           )}

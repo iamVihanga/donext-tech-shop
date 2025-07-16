@@ -20,6 +20,7 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
     slug: "",
     shortDescription: "",
     description: "",
+    brandId: "",
     isActive: true,
     isFeatured: false,
     status: "pending"
@@ -177,6 +178,7 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
         slug: "",
         shortDescription: "",
         description: "",
+        brandId: "",
         isActive: true,
         isFeatured: false,
         status: "pending"

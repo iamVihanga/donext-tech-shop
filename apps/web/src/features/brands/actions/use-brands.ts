@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { InferRequestType, InferResponseType } from "hono";
 import { toast } from "sonner";
 
-import { client } from "@/lib/rpc";
+import { getClient } from "@/lib/rpc/client";
 
 // List brands
 export const useGetBrands = ({
@@ -19,6 +18,8 @@ export const useGetBrands = ({
   return useQuery({
     queryKey: ["brands", { page, limit, sort, search }],
     queryFn: async () => {
+      const client = await getClient();
+
       const response = await client.api.brands.$get({
         query: {
           page,
@@ -32,7 +33,9 @@ export const useGetBrands = ({
         throw new Error("Failed to fetch brands");
       }
 
-      return response.json();
+      const brandsRes = response.json();
+
+      return brandsRes;
     }
   });
 };
@@ -42,6 +45,8 @@ export const useGetBrand = (id: string) => {
   return useQuery({
     queryKey: ["brand", id],
     queryFn: async () => {
+      const client = await getClient();
+
       const response = await client.api.brands[":id"].$get({
         param: { id }
       });
@@ -57,16 +62,22 @@ export const useGetBrand = (id: string) => {
 };
 
 // Create brand
-type CreateBrandRequest = InferRequestType<
-  typeof client.api.brands.$post
->["json"];
-type CreateBrandResponse = InferResponseType<typeof client.api.brands.$post>;
-
 export const useCreateBrand = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<CreateBrandResponse, Error, CreateBrandRequest>({
+  return useMutation<
+    any,
+    Error,
+    {
+      name: string;
+      description?: string;
+      imageUrl?: string;
+      isActive?: boolean;
+    }
+  >({
     mutationFn: async (data) => {
+      const client = await getClient();
+
       const response = await client.api.brands.$post({
         json: data
       });
@@ -89,22 +100,23 @@ export const useCreateBrand = () => {
 };
 
 // Update brand
-type UpdateBrandRequest = InferRequestType<
-  typeof client.api.brands[":id"].$patch
->["json"];
-type UpdateBrandResponse = InferResponseType<
-  typeof client.api.brands[":id"].$patch
->;
-
 export const useUpdateBrand = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
-    UpdateBrandResponse,
+    any,
     Error,
-    UpdateBrandRequest & { id: string }
+    {
+      id: string;
+      name?: string;
+      description?: string;
+      imageUrl?: string;
+      isActive?: boolean;
+    }
   >({
     mutationFn: async ({ id, ...data }) => {
+      const client = await getClient();
+
       const response = await client.api.brands[":id"].$patch({
         param: { id },
         json: data
@@ -133,6 +145,8 @@ export const useDeleteBrand = () => {
 
   return useMutation<void, Error, string>({
     mutationFn: async (id) => {
+      const client = await getClient();
+
       const response = await client.api.brands[":id"].$delete({
         param: { id }
       });

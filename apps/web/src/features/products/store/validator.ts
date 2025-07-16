@@ -54,6 +54,10 @@ export const validateProductDetails = (): ValidatorResponseT => {
     errors.push("Product slug is required");
   }
 
+  if (!basicInformation.brandId.trim()) {
+    errors.push("Brand is required");
+  }
+
   if (!categories.selectedCategoryId) {
     errors.push("Category is required");
   }
