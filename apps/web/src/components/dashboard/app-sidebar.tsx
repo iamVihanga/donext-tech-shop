@@ -48,6 +48,10 @@ const data = {
         {
           title: "Categories",
           url: "/admin/products/categories"
+        },
+        {
+          title: "Brands",
+          url: "/admin/brands"
         }
       ]
     },
