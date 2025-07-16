@@ -3,11 +3,14 @@ import { Wishlist } from "@/features/wishlist/components/wishlist";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
+import { Separator } from "@repo/ui/components/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@repo/ui/components/sheet";
 import { MenuIcon, SearchIcon } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { SearchBar } from "../layouts/search-bar";
+import { CategoryDropdown } from "./category-dropdown";
+import { MobileCategoryMenu } from "./mobile-category-menu";
 import { NavbarCartSection } from "./navbar-cart-section";
 
 export async function Navbar() {
@@ -35,6 +38,13 @@ export async function Navbar() {
                   <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input className="pl-10" placeholder="Search products..." />
                 </div>
+
+                <Separator />
+
+                {/* Mobile Categories */}
+                <MobileCategoryMenu />
+
+                <Separator />
 
                 {/* Mobile Navigation Links */}
                 <div className="flex flex-col gap-2">
@@ -67,8 +77,13 @@ export async function Navbar() {
           <Logo />
         </Link>
 
-        {/* Desktop Search - Hidden on mobile */}
-        <SearchBar />
+        {/* Desktop Navigation - Categories + Search */}
+        <div className="hidden md:flex items-center gap-4 flex-1 max-w-2xl mx-4">
+          <CategoryDropdown />
+          <div className="flex-1">
+            <SearchBar />
+          </div>
+        </div>
 
         {/* Desktop Nav Links - Hidden on mobile */}
         <div className="hidden md:flex items-center gap-3">
