@@ -203,7 +203,7 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 
   const [updatedCategory] = await db
     .update(categories)
-    .set(updateData)
+    .set({ ...updateData, updatedAt: new Date() })
     .where(eq(categories.id, id))
     .returning();
 
@@ -364,6 +364,7 @@ export const productsByCategory: AppRouteHandler<
         weight: products.weight,
         dimensions: products.dimensions,
         categoryId: products.categoryId,
+        brandId: products.brandId,
         isActive: products.isActive,
         isFeatured: products.isFeatured,
         requiresShipping: products.requiresShipping,

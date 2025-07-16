@@ -9,6 +9,7 @@ import {
   varchar
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../utils/helpers";
+import { brands } from "./brand.schema";
 
 export const categories = pgTable(
   "categories",
@@ -62,6 +63,7 @@ export const products = pgTable(
     categoryId: text("category_id")
       .notNull()
       .references(() => categories.id),
+    brandId: text("brand_id").references(() => brands.id),
     isActive: boolean("is_active").default(true),
     isFeatured: boolean("is_featured").default(false),
 
@@ -77,6 +79,7 @@ export const products = pgTable(
     index("products_slug_idx").on(table.slug),
     index("products_sku_idx").on(table.sku),
     index("products_category_idx").on(table.categoryId),
+    index("products_brand_idx").on(table.brandId),
     index("products_active_idx").on(table.isActive),
     index("products_featured_idx").on(table.isFeatured),
     index("products_price_idx").on(table.price),
@@ -156,6 +159,10 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   category: one(categories, {
     fields: [products.categoryId],
     references: [categories.id]
+  }),
+  brand: one(brands, {
+    fields: [products.brandId],
+    references: [brands.id]
   }),
   images: many(productImages),
   variants: many(productVariants)

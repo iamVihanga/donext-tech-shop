@@ -7,6 +7,7 @@ export const basicInformationsFormSchema = z
     slug: z.string().min(2).max(100),
     shortDescription: z.string().max(200),
     description: z.string().max(1000),
+    brandId: z.string(),
     isActive: z.boolean(),
     isFeatured: z.boolean(),
     status: formStepStatus
