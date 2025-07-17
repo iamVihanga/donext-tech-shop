@@ -1,7 +1,7 @@
-export { BrandsGrid } from "./brands-grid";
 export { BrandsSection } from "./brands-section";
-export { CategoryDropdown } from "./category-dropdown";
+export { CategoryDropdown } from "./category-dropdown-button";
 export { CategoryGrid } from "./category-grid";
+export { CategoryNavbar } from "./category-navbar";
 export { Hero } from "./hero";
 export { MobileCategoryMenu } from "./mobile-category-menu";
 export { Navbar } from "./navbar";
