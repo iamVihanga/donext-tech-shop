@@ -1,4 +1,5 @@
 import { CartInitializer } from "@/features/cart/components/cart-initializer";
+import { Footer } from "@/modules/landing/footer";
 import { Navbar } from "@/modules/landing/navbar";
 import { Topbar } from "@/modules/landing/topbar";
 import React from "react";
@@ -12,9 +13,12 @@ export default function HomepageLayout({ children }: Props) {
     <div>
       <CartInitializer />
       <Topbar />
+
       <Navbar />
 
       {children}
+
+      <Footer />
     </div>
   );
 }

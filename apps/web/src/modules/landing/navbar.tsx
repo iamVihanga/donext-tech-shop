@@ -9,7 +9,7 @@ import { MenuIcon, SearchIcon } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { SearchBar } from "../layouts/search-bar";
-import { CategoryDropdown } from "./category-dropdown";
+import { CategoryDropdown } from "./category-dropdown-button";
 import { MobileCategoryMenu } from "./mobile-category-menu";
 import { NavbarCartSection } from "./navbar-cart-section";
 
@@ -31,6 +31,7 @@ export async function Navbar() {
                 <MenuIcon className="h-5 w-5" />
               </Button>
             </SheetTrigger>
+
             <SheetContent side="left" className="w-80">
               <div className="flex flex-col gap-4 mt-8">
                 {/* Mobile Search */}
@@ -80,6 +81,7 @@ export async function Navbar() {
         {/* Desktop Navigation - Categories + Search */}
         <div className="hidden md:flex items-center gap-4 flex-1 max-w-2xl mx-4">
           <CategoryDropdown />
+
           <div className="flex-1">
             <SearchBar />
           </div>
