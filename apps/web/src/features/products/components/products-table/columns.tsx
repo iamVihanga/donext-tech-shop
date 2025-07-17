@@ -8,6 +8,14 @@ import { Badge } from "@repo/ui/components/badge";
 import Image from "next/image";
 import Link from "next/link";
 
+const formatPrice = (price: number, currency: string) => {
+  return new Intl.NumberFormat("en-LK", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+    minimumFractionDigits: 2,
+  }).format(price);
+};
+
 export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: "name",
@@ -36,7 +44,7 @@ export const columns: ColumnDef<Product>[] = [
           </Link>
         </div>
       );
-    }
+    },
   },
   {
     accessorKey: "shortDescription",
@@ -47,7 +55,7 @@ export const columns: ColumnDef<Product>[] = [
           {row.original.shortDescription || "No description available"}
         </div>
       );
-    }
+    },
   },
   {
     accessorKey: "price",
@@ -56,25 +64,26 @@ export const columns: ColumnDef<Product>[] = [
       if (row.original.variants.length > 0) {
         return (
           <Badge variant={"outline"}>
-            From LKR {parseInt(row.original?.variants[0]?.price!).toFixed(2)}
+            From{" "}
+            {formatPrice(parseFloat(row.original?.variants[0]?.price!), "LKR")}
           </Badge>
         );
       }
 
       return (
         <Badge variant={"outline"}>
-          LKR {parseInt(row.original.price).toFixed(2)}
+          {formatPrice(parseFloat(row.original.price), "LKR")}
         </Badge>
       );
-    }
+    },
   },
   {
     accessorKey: "createdAt",
     header: "Created At",
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString()
+    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
   },
   {
     id: "actions",
-    cell: ({ row }) => <CellAction data={row.original} />
-  }
+    cell: ({ row }) => <CellAction data={row.original} />,
+  },
 ];
