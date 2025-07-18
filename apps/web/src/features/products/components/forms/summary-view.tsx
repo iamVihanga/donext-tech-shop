@@ -1,5 +1,6 @@
 "use client";
 
+import { useGetBrands } from "@/features/brands/actions/use-brands";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { Card, CardContent } from "@repo/ui/components/card";
@@ -22,6 +23,19 @@ export function SummaryView() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const { basicInformation, media, inventory, pricing, additional } = state;
+
+  // Get brands data to display brand name
+  const { data: brandsData } = useGetBrands({
+    page: "1",
+    limit: "100",
+    sort: "asc",
+    search: ""
+  });
+
+  // Find the selected brand
+  const selectedBrand = brandsData?.data.find(
+    (brand) => brand.id === basicInformation.brandId
+  );
 
   // Get current price based on selected variant or base price
   const getCurrentPrice = () => {
@@ -134,6 +148,15 @@ export function SummaryView() {
             <h1 className="text-3xl font-bold text-primary font-heading">
               {basicInformation.name}
             </h1>
+
+            {selectedBrand && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">by</span>
+                <Badge variant="outline" className="font-medium">
+                  {selectedBrand.name}
+                </Badge>
+              </div>
+            )}
 
             {/* Rating (dummy) */}
             <div className="flex items-center gap-2">

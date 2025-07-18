@@ -22,13 +22,12 @@ export function getPaginatedSchema<T>(data: z.ZodType<T>) {
     data,
     meta: z.object({
       currentPage: z.number(),
-      totalPages: z.number(),
+      limit: z.number(),
       totalCount: z.number(),
-      limit: z.number()
+      totalPages: z.number()
     })
   });
 }
-
 
 export function toKebabCase(str: string) {
   return (

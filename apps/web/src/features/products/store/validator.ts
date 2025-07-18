@@ -9,11 +9,22 @@ export const validateProductDetails = (): ValidatorResponseT => {
   const state = useCreateProductStore.getState();
   let isValid: boolean = true;
   const errors: string[] = [];
-  const { basicInformation, media, inventory, pricing, additional } = state;
+  const {
+    basicInformation,
+    categories,
+    media,
+    inventory,
+    pricing,
+    additional
+  } = state;
 
   // 1. Check if all form steps are valid
   if (basicInformation.status !== "valid") {
     errors.push("Basic Information form is not valid");
+  }
+
+  if (categories.status !== "valid") {
+    errors.push("Categories form is not valid");
   }
 
   if (media.status !== "valid") {
@@ -43,7 +54,11 @@ export const validateProductDetails = (): ValidatorResponseT => {
     errors.push("Product slug is required");
   }
 
-  if (!basicInformation.categoryId) {
+  if (!basicInformation.brandId.trim()) {
+    errors.push("Brand is required");
+  }
+
+  if (!categories.selectedCategoryId) {
     errors.push("Category is required");
   }
 

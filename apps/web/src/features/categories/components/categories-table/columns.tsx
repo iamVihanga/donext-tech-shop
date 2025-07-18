@@ -36,14 +36,14 @@ export const columns: ColumnDef<CategoryWithSubcategories>[] = [
     header: "Description"
   },
   {
-    accessorKey: "subcategories",
+    accessorKey: "children",
     header: "Sub Categories",
     cell: ({ row }) => {
-      return (
-        <Badge variant={"outline"}>
-          {row.original.subcategories.length} Sub Categories
-        </Badge>
-      );
+      const childrenCount =
+        row.original.children?.length ||
+        row.original.subcategories?.length ||
+        0;
+      return <Badge variant={"outline"}>{childrenCount} Sub Categories</Badge>;
     }
   },
   {

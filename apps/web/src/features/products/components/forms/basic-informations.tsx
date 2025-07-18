@@ -1,5 +1,3 @@
-import { CategorySelector } from "@/features/categories/components/category-selector";
-import { SubcategorySelector } from "@/features/categories/components/subcategory-selector";
 import { toKebabCase } from "@/lib/utils";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
@@ -11,6 +9,7 @@ import { useCallback } from "react";
 import { basicInformationsFormSchema } from "../../schemas/forms/basic-informations-form";
 import { useCreateProductStore } from "../../store/create-product-store";
 import { setActiveTab, Tabs } from "../../store/helpers";
+import { BrandSelector } from "../brand-selector";
 
 type Props = {};
 
@@ -25,15 +24,14 @@ export function BasicInformationsForm({}: Props) {
       slug: ctx.slug || "",
       shortDescription: ctx.shortDescription || "",
       description: ctx.description || "",
-      categoryId: ctx.categoryId || "",
-      subcategoryId: ctx.subcategoryId || "",
+      brandId: ctx.brandId || "",
       isActive: ctx.isActive ? ctx.isActive : false,
       isFeatured: ctx.isFeatured ? ctx.isFeatured : false,
       status: ctx.status || "pending"
     },
     onSubmit: ({ value }) => {
       updateCtx({ ...value, status: "valid" });
-      setActiveTab(Tabs.MEDIA);
+      setActiveTab(Tabs.CATEGORIES);
     }
   });
 
@@ -49,12 +47,6 @@ export function BasicInformationsForm({}: Props) {
   const onNameChange = (value: string) => {
     const generatedSlug = toKebabCase(value);
     form.setFieldValue("slug", generatedSlug);
-  };
-
-  const onCategoryChange = (categoryId: string) => {
-    // When category changes, reset subcategoryId to empty string
-    form.setFieldValue("categoryId", categoryId);
-    form.setFieldValue("subcategoryId", "");
   };
 
   return (
@@ -137,41 +129,26 @@ export function BasicInformationsForm({}: Props) {
           )}
         />
 
-        <div className="grid grid-cols-2 gap-3">
-          <form.AppField
-            name="categoryId"
-            children={(field) => (
-              <field.FormItem>
-                <field.FormLabel>Category</field.FormLabel>
-                <field.FormControl>
-                  <CategorySelector
-                    value={field.state.value}
-                    onChange={(value) => {
-                      onCategoryChange(value);
-                    }}
-                  />
-                </field.FormControl>
-                <field.FormMessage />
-              </field.FormItem>
-            )}
-          />
-          <form.AppField
-            name="subcategoryId"
-            children={(field) => (
-              <field.FormItem>
-                <field.FormLabel>Sub Category</field.FormLabel>
-                <field.FormControl>
-                  <SubcategorySelector
-                    categoryId={form.getFieldValue("categoryId")}
-                    value={field.state.value}
-                    onChange={(value) => field.handleChange(value)}
-                  />
-                </field.FormControl>
-                <field.FormMessage />
-              </field.FormItem>
-            )}
-          />
-        </div>
+        <form.AppField
+          name="brandId"
+          children={(field) => (
+            <field.FormItem>
+              <field.FormLabel>Brand *</field.FormLabel>
+              <field.FormControl>
+                <BrandSelector
+                  value={field.state.value}
+                  onValueChange={field.handleChange}
+                  placeholder="Select a brand..."
+                  required={true}
+                />
+              </field.FormControl>
+              <field.FormDescription>
+                Choose the brand for this product.
+              </field.FormDescription>
+              <field.FormMessage />
+            </field.FormItem>
+          )}
+        />
 
         <div className="grid grid-cols-2 gap-3">
           <form.AppField

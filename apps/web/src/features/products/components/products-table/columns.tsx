@@ -37,7 +37,7 @@ export const columns: ColumnDef<Product>[] = [
           />
 
           <Link
-            href={`/admin/products/${row.original.id}`}
+            href={`/products/${row.original.id}`}
             className="hover:underline hover:font-semibold text-sm sm:text-base truncate"
           >
             {row.original.name}

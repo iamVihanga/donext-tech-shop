@@ -9,6 +9,7 @@ import {
   varchar
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../utils/helpers";
+import { brands } from "./brand.schema";
 
 export const categories = pgTable(
   "categories",
@@ -19,35 +20,22 @@ export const categories = pgTable(
     name: varchar("name", { length: 100 }).notNull(),
     slug: varchar("slug", { length: 100 }).notNull().unique(),
     description: text("description"),
+    parentId: text("parent_id").references((): any => categories.id, {
+      onDelete: "cascade"
+    }), // Self-referencing for infinite nesting
+    path: varchar("path", { length: 500 }), // Materialized path for efficient querying (e.g., "/electronics/computers/laptops")
+    level: integer("level").default(0), // Depth level for easy querying
+    sortOrder: integer("sort_order").default(0), // For drag and drop ordering
     isActive: boolean("is_active").default(true),
     ...timestamps
   },
   (table) => [
     index("categories_slug_idx").on(table.slug),
-    index("categories_name_idx").on(table.name)
-  ]
-);
-
-export const subcategories = pgTable(
-  "subcategories",
-  {
-    id: text("id")
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    name: varchar("name", { length: 100 }).notNull(),
-    slug: varchar("slug", { length: 100 }).notNull().unique(),
-    description: text("description"),
-    parentCategoryId: text("parent_category_id")
-      .notNull()
-      .references(() => categories.id, { onDelete: "cascade" }),
-    isActive: boolean("is_active").default(true),
-
-    ...timestamps
-  },
-  (table) => [
-    index("subcategories_slug_idx").on(table.slug),
-    index("subcategories_parent_category_idx").on(table.parentCategoryId),
-    index("subcategories_name_idx").on(table.name)
+    index("categories_name_idx").on(table.name),
+    index("categories_parent_idx").on(table.parentId),
+    index("categories_path_idx").on(table.path),
+    index("categories_level_idx").on(table.level),
+    index("categories_sort_order_idx").on(table.sortOrder)
   ]
 );
 
@@ -75,7 +63,7 @@ export const products = pgTable(
     categoryId: text("category_id")
       .notNull()
       .references(() => categories.id),
-    subcategoryId: text("subcategory_id").references(() => subcategories.id),
+    brandId: text("brand_id").references(() => brands.id),
     isActive: boolean("is_active").default(true),
     isFeatured: boolean("is_featured").default(false),
 
@@ -91,7 +79,7 @@ export const products = pgTable(
     index("products_slug_idx").on(table.slug),
     index("products_sku_idx").on(table.sku),
     index("products_category_idx").on(table.categoryId),
-    index("products_subcategory_idx").on(table.subcategoryId),
+    index("products_brand_idx").on(table.brandId),
     index("products_active_idx").on(table.isActive),
     index("products_featured_idx").on(table.isFeatured),
     index("products_price_idx").on(table.price),
@@ -155,30 +143,26 @@ export const productVariants = pgTable(
 );
 
 // Define relations
-export const categoriesRelations = relations(categories, ({ many }) => ({
-  subcategories: many(subcategories),
+export const categoriesRelations = relations(categories, ({ one, many }) => ({
+  parent: one(categories, {
+    fields: [categories.parentId],
+    references: [categories.id],
+    relationName: "parent"
+  }),
+  children: many(categories, {
+    relationName: "parent"
+  }),
   products: many(products)
 }));
-
-export const subcategoriesRelations = relations(
-  subcategories,
-  ({ one, many }) => ({
-    category: one(categories, {
-      fields: [subcategories.parentCategoryId],
-      references: [categories.id]
-    }),
-    products: many(products)
-  })
-);
 
 export const productsRelations = relations(products, ({ one, many }) => ({
   category: one(categories, {
     fields: [products.categoryId],
     references: [categories.id]
   }),
-  subcategory: one(subcategories, {
-    fields: [products.subcategoryId],
-    references: [subcategories.id]
+  brand: one(brands, {
+    fields: [products.brandId],
+    references: [brands.id]
   }),
   images: many(productImages),
   variants: many(productVariants)

@@ -1,4 +1,5 @@
 "use client";
+
 import { PlusCircleIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 
@@ -17,12 +18,27 @@ import { Input } from "@repo/ui/components/input";
 import { Switch } from "@repo/ui/components/switch";
 import { useAppForm } from "@repo/ui/components/tanstack-form";
 
-import { useCreateClass } from "../actions/use-create-category";
+import { useEffect } from "react";
+import { useCreateCategory } from "../actions/use-create-category";
 import { newCategorySchema } from "../schemas/categories.zod";
 
-export function AddNewCategory() {
-  const [open, setOpen] = useState<boolean>(false);
-  const { mutate, isPending } = useCreateClass();
+interface AddNewCategoryProps {
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
+  parentId?: string | null;
+}
+
+export function AddNewCategory({
+  open,
+  setOpen,
+  parentId
+}: AddNewCategoryProps) {
+  const [internalOpen, setInternalOpen] = useState<boolean>(false);
+  const { mutate, isPending } = useCreateCategory();
+
+  // Use external open state if provided, otherwise use internal state
+  const isOpen = open !== undefined ? open : internalOpen;
+  const handleOpenChange = setOpen || setInternalOpen;
 
   const form = useAppForm({
     validators: { onChange: newCategorySchema },
@@ -32,9 +48,10 @@ export function AddNewCategory() {
       isActive: false
     },
     onSubmit: async ({ value }) => {
-      mutate(value, {
+      const payload = parentId ? { ...value, parentId } : value;
+      mutate(payload, {
         onSuccess: () => {
-          setOpen(false);
+          handleOpenChange(false);
           form.reset();
         }
       });
@@ -50,19 +67,28 @@ export function AddNewCategory() {
     [form]
   );
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button icon={<PlusCircleIcon />}>Add new Category</Button>
-      </DialogTrigger>
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset();
+    }
+  }, [isOpen, form]);
 
+  const DialogComponent = (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <form.AppForm>
           <form className="space-y-6" onSubmit={handleSubmit}>
             <DialogHeader>
-              <DialogTitle>Create new Product Category</DialogTitle>
+              <DialogTitle>
+                {parentId
+                  ? "Create new Subcategory"
+                  : "Create new Product Category"}
+              </DialogTitle>
               <DialogDescription>
-                Create a new category by filling out the details below.
+                {parentId
+                  ? "Create a new subcategory under the selected parent category."
+                  : "Create a new category by filling out the details below."}
               </DialogDescription>
             </DialogHeader>
 
@@ -136,6 +162,21 @@ export function AddNewCategory() {
           </form>
         </form.AppForm>
       </DialogContent>
+    </Dialog>
+  );
+
+  // If external control is provided, return just the dialog without trigger
+  if (open !== undefined) {
+    return DialogComponent;
+  }
+
+  // If no external control, return with trigger button
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button icon={<PlusCircleIcon />}>Add new Category</Button>
+      </DialogTrigger>
+      {DialogComponent}
     </Dialog>
   );
 }

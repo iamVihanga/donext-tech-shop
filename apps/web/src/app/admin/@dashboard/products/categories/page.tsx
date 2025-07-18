@@ -2,9 +2,7 @@ import PageContainer from "@/components/dashboard/page-container";
 import { AppPageShell } from "@/components/dashboard/page-shell";
 import { Separator } from "@repo/ui/components/separator";
 
-import { AddNewCategory } from "@/features/categories/components/add-new-category";
-import { CategoriesTableActions } from "@/features/categories/components/categories-table/categories-table-actions";
-import CategoriesListing from "@/features/categories/components/category-listing";
+import CategoryManagement from "@/features/categories/components/category-management";
 
 export default function ProductCategoriesPage() {
   return (
@@ -12,15 +10,13 @@ export default function ProductCategoriesPage() {
       <div className="flex flex-1 flex-col space-y-4">
         <AppPageShell
           title="Product Categories"
-          description="Manage your product categories here."
-          actionComponent={<AddNewCategory />}
+          description="Manage your product categories with drag and drop functionality."
+          actionComponent={<></>}
         />
 
         <Separator />
 
-        <CategoriesTableActions />
-
-        <CategoriesListing />
+        <CategoryManagement />
       </div>
     </PageContainer>
   );

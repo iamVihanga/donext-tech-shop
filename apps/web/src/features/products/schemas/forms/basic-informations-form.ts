@@ -7,8 +7,7 @@ export const basicInformationsFormSchema = z
     slug: z.string().min(2).max(100),
     shortDescription: z.string().max(200),
     description: z.string().max(1000),
-    categoryId: z.string().uuid(),
-    subcategoryId: z.string().uuid().or(z.literal("")),
+    brandId: z.string(),
     isActive: z.boolean(),
     isFeatured: z.boolean(),
     status: formStepStatus
