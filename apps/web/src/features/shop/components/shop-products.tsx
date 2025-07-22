@@ -11,7 +11,7 @@ import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger,
+  AccordionTrigger
 } from "@repo/ui/components/accordion";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -20,7 +20,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@repo/ui/components/card";
 import { Input } from "@repo/ui/components/input";
 import {
@@ -28,7 +28,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@repo/ui/components/select";
 import { Separator } from "@repo/ui/components/separator";
 import {
@@ -37,7 +37,7 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
+  SheetTrigger
 } from "@repo/ui/components/sheet";
 import {
   ArrowDownAZ,
@@ -45,7 +45,7 @@ import {
   Filter,
   Search,
   SlidersHorizontal,
-  X,
+  X
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useShopFilters } from "../hooks/use-shop-filters";
@@ -77,7 +77,7 @@ export default function ShopProducts() {
     brandId,
     setBrandId,
     resetFilters,
-    isAnyFilterActive,
+    isAnyFilterActive
   } = useShopFilters();
 
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery || "");
@@ -90,21 +90,19 @@ export default function ShopProducts() {
   // Fetch brands
   const { data: brandsData, isLoading: brandsLoading } = useGetBrands({
     limit: "100", // Get a reasonable number of brands
-    sort: "asc",
+    sort: "asc"
   });
 
   // Fetch products with all filters
   const {
     data: productsData,
     isLoading: productsLoading,
-    error,
+    error
   } = useGetProducts({
     page,
     limit,
     search: searchQuery || undefined,
-    sort,
-    categoryId: categoryId || undefined,
-    brandId: brandId || undefined, // Add brandId to the query
+    sort
   });
 
   // Handle search input change with debounce
@@ -226,8 +224,8 @@ export default function ShopProducts() {
                 children: cat.children?.map((child) => ({
                   ...child,
                   createdAt: new Date(child.createdAt),
-                  updatedAt: child.updatedAt ? new Date(child.updatedAt) : null,
-                })),
+                  updatedAt: child.updatedAt ? new Date(child.updatedAt) : null
+                }))
               }))}
               isLoading={categoriesLoading}
               onSelect={handleCategorySelect}
