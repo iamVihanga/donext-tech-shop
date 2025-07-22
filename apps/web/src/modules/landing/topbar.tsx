@@ -8,7 +8,7 @@ export function Topbar() {
         <Socials />
 
         <div className="text-xs text-accent-foreground font-semibold tracking-widest">
-          <span>WORLDWIDE DELIVERY IS AVAILABLE</span>
+          <span>ISLANDWIDE DELIVERY IS AVAILABLE</span>
         </div>
 
         <div className="flex items-center gap-3 text-sm text-accent-foreground">

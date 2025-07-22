@@ -30,10 +30,12 @@ export default function Socials({ size, className, text = false }: Props) {
           </Link>
         ))}
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-sm font-semibold">
           {"|"}
           <RiCustomerService2Line />
-          <p>{process.env.NEXT_PUBLIC_CONTACT_NUMBER || "+94 755 1234"}</p>
+
+          {/* <p>{process.env.NEXT_PUBLIC_CONTACT_NUMBER || "+94 755 1234"}</p> */}
+          <p>{"+9476 023 0340" + " | " + "+9471 930 8389"}</p>
           {/* <p>+94 755 1234</p> */}
         </div>
       </div>

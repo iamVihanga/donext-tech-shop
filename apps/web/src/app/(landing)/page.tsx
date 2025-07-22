@@ -6,7 +6,9 @@ import Link from "next/link";
 export default async function Homepage() {
   return (
     <div>
-      <Hero />
+      <div>
+        <Hero />
+      </div>
 
       {/* Brands Section */}
       <div className="mt-6 content-container">
