@@ -20,8 +20,14 @@ export function Footer({}: Props) {
 
         <div className="flex flex-col gap-2">
           <h3 className="text-lg font-bold text-background">Contact Us</h3>
-          <p className="text-sm text-background">Email: info@gamezonetech.lk</p>
+          <p className="text-sm text-background">gamezonetechinfo@gmail.com</p>
+          <p className="text-sm text-background">
+            gamezonetechhorana@gmail.com
+          </p>
           <p className="text-sm text-background">Phone: +94 123 456 789</p>
+          <p className="text-sm text-background">
+            No.20 Suderis Silva Mawatha, Horana, Sri Lanka
+          </p>
         </div>
 
         <div className="flex flex-col gap-2">
