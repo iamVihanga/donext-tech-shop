@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@repo/ui/components/dialog";
 import { ScrollArea } from "@repo/ui/components/scroll-area";
 import { Separator } from "@repo/ui/components/separator";
@@ -116,7 +116,7 @@ export function WishlistDialog({ open, onOpenChange }: Props) {
 
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-semibold text-amber-600 dark:text-amber-400">
-                            ${product.price}
+                            LKR {product.price}
                           </span>
                           {product.variants && product.variants.length > 0 && (
                             <span className="text-xs text-muted-foreground">

@@ -1,7 +1,6 @@
 import React from "react";
 import { type IconType } from "react-icons";
-import { FaFacebook, FaInstagram } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
+import { FaFacebook, FaTiktok } from "react-icons/fa";
 
 import { FaCreditCard } from "react-icons/fa6";
 
@@ -21,18 +20,13 @@ export const SOCIALS: {
 }[] = [
   {
     social: "Facebook",
-    href: "#",
+    href: "https://www.facebook.com/share/1BjJWUdUNS/?mibextid=wwXIfr",
     icon: FaFacebook
   },
   {
-    social: "Instagram",
-    href: "#",
-    icon: FaInstagram
-  },
-  {
-    social: "Twitter / X",
-    href: "#",
-    icon: FaXTwitter
+    social: "TikTok",
+    href: "https://www.tiktok.com/@game.zone.tech?_t=ZS-8yEVVFWKfB4&_r=1",
+    icon: FaTiktok
   }
 ];
 

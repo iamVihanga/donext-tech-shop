@@ -1,3 +1,6 @@
+import { SOCIALS } from "@/lib/constants";
+import Link from "next/link";
+
 type Props = {};
 
 export function Footer({}: Props) {
@@ -26,6 +29,21 @@ export function Footer({}: Props) {
           <p className="text-sm text-background">
             Stay connected with us on social media.
           </p>
+
+          <div className="mt-2 flex items-center gap-3">
+            {SOCIALS.map((item, i) => (
+              <Link
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                key={i}
+                className="space-x-2 text-background hover:underline transition-all duration-200"
+              >
+                <item.icon className="inline-block" />
+                {item.social}
+              </Link>
+            ))}
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">

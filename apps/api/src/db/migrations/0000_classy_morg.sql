@@ -15,6 +15,18 @@ CREATE TABLE "account" (
 	"updated_at" timestamp NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "brands" (
+	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" varchar(100) NOT NULL,
+	"slug" varchar(100) NOT NULL,
+	"description" text,
+	"image_url" varchar(500),
+	"is_active" boolean DEFAULT true,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now(),
+	CONSTRAINT "brands_slug_unique" UNIQUE("slug")
+);
+--> statement-breakpoint
 CREATE TABLE "cart_items" (
 	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"cart_id" text NOT NULL,
@@ -155,6 +167,7 @@ CREATE TABLE "products" (
 	"weight" numeric(8, 2),
 	"dimensions" varchar(50),
 	"category_id" text NOT NULL,
+	"brand_id" text,
 	"is_active" boolean DEFAULT true,
 	"is_featured" boolean DEFAULT false,
 	"requires_shipping" boolean DEFAULT true,
@@ -227,7 +240,11 @@ ALTER TABLE "orders" ADD CONSTRAINT "orders_user_id_user_id_fk" FOREIGN KEY ("us
 ALTER TABLE "product_images" ADD CONSTRAINT "product_images_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_variants" ADD CONSTRAINT "product_variants_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "products" ADD CONSTRAINT "products_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "products" ADD CONSTRAINT "products_brand_id_brands_id_fk" FOREIGN KEY ("brand_id") REFERENCES "public"."brands"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "brands_slug_idx" ON "brands" USING btree ("slug");--> statement-breakpoint
+CREATE INDEX "brands_name_idx" ON "brands" USING btree ("name");--> statement-breakpoint
+CREATE INDEX "brands_active_idx" ON "brands" USING btree ("is_active");--> statement-breakpoint
 CREATE INDEX "cart_items_cart_idx" ON "cart_items" USING btree ("cart_id");--> statement-breakpoint
 CREATE INDEX "cart_items_product_idx" ON "cart_items" USING btree ("product_id");--> statement-breakpoint
 CREATE INDEX "cart_items_variant_idx" ON "cart_items" USING btree ("variant_id");--> statement-breakpoint
@@ -259,6 +276,7 @@ CREATE INDEX "product_variants_active_idx" ON "product_variants" USING btree ("i
 CREATE INDEX "products_slug_idx" ON "products" USING btree ("slug");--> statement-breakpoint
 CREATE INDEX "products_sku_idx" ON "products" USING btree ("sku");--> statement-breakpoint
 CREATE INDEX "products_category_idx" ON "products" USING btree ("category_id");--> statement-breakpoint
+CREATE INDEX "products_brand_idx" ON "products" USING btree ("brand_id");--> statement-breakpoint
 CREATE INDEX "products_active_idx" ON "products" USING btree ("is_active");--> statement-breakpoint
 CREATE INDEX "products_featured_idx" ON "products" USING btree ("is_featured");--> statement-breakpoint
 CREATE INDEX "products_price_idx" ON "products" USING btree ("price");--> statement-breakpoint

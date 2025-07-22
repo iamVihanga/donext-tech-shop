@@ -27,14 +27,14 @@ export function PricingForm() {
     validators: { onChange: pricingFormSchema },
     defaultValues: {
       basePrice: ctx.basePrice || 0,
-      status: ctx.status || "pending"
+      status: ctx.status || "pending",
     },
     onSubmit: ({ value }) => {
       // If has variants, force base price to 0
       const finalValue = hasVariants ? { ...value, basePrice: 0 } : value;
       updateCtx({ ...finalValue, status: "valid" });
       setActiveTab(Tabs.ADDITIONAL);
-    }
+    },
   });
 
   // Sync form with store changes
@@ -75,15 +75,15 @@ export function PricingForm() {
               if (variantValue.name === valueName) {
                 return {
                   ...variantValue,
-                  [field]: numericValue
+                  [field]: numericValue,
                 };
               }
               return variantValue;
-            })
+            }),
           };
         }
         return variant;
-      })
+      }),
     });
   };
 
@@ -96,7 +96,7 @@ export function PricingForm() {
             name="basePrice"
             children={(field) => (
               <field.FormItem>
-                <field.FormLabel>Base Price ($)</field.FormLabel>
+                <field.FormLabel>Base Price (LKR)</field.FormLabel>
                 <field.FormControl>
                   <Input
                     type="number"
@@ -144,9 +144,11 @@ export function PricingForm() {
                       <tr>
                         <th className="text-left p-3 font-medium">Variant</th>
                         <th className="text-left p-3 font-medium">SKU</th>
-                        <th className="text-left p-3 font-medium">Price ($)</th>
                         <th className="text-left p-3 font-medium">
-                          Compare Price ($)
+                          Price (LKR)
+                        </th>
+                        <th className="text-left p-3 font-medium">
+                          Compare Price (LKR)
                         </th>
                       </tr>
                     </thead>

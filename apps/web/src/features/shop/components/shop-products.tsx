@@ -3,55 +3,64 @@
 import { useGetBrands } from "@/features/brands/actions/use-brands";
 import { useGetCategoryTree } from "@/features/categories/actions/use-get-category-tree";
 
-import { useGetProductsByCategory } from "@/features/products/actions/use-get-products-by-category";
 import { useGetProducts } from "@/features/products/actions/use-get-products";
 
 import { ProductCard } from "@/features/products/components/product-card";
-import { Product } from "@/features/products/schemas/products.zod";
 import { cn } from "@/lib/utils";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@repo/ui/components/accordion";
+import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@repo/ui/components/card";
 import { Input } from "@repo/ui/components/input";
-import { Separator } from "@repo/ui/components/separator";
-import {
-  ArrowDownAZ,
-  ArrowUpAZ,
-  Filter,
-  Search,
-  SlidersHorizontal,
-  X
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { useShopFilters } from "../hooks/use-shop-filters";
-import { ShopPagination } from "./shop-pagination";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@repo/ui/components/select";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from "@repo/ui/components/accordion";
+import { Separator } from "@repo/ui/components/separator";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger
+  SheetTrigger,
 } from "@repo/ui/components/sheet";
-import { Badge } from "@repo/ui/components/badge";
+import {
+  ArrowDownAZ,
+  ArrowUpAZ,
+  Filter,
+  Search,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useShopFilters } from "../hooks/use-shop-filters";
+import { CategoryFilter } from "./category-filter";
+import { ShopPagination } from "./shop-pagination";
+
+function getAllChildCategoryIds(category: any): string[] {
+  let ids = [category.id];
+  if (category.children && category.children.length > 0) {
+    category.children.forEach((child: any) => {
+      ids = [...ids, ...getAllChildCategoryIds(child)];
+    });
+  }
+  return ids;
+}
 
 export default function ShopProducts() {
   const {
@@ -68,7 +77,7 @@ export default function ShopProducts() {
     brandId,
     setBrandId,
     resetFilters,
-    isAnyFilterActive
+    isAnyFilterActive,
   } = useShopFilters();
 
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery || "");
@@ -81,25 +90,22 @@ export default function ShopProducts() {
   // Fetch brands
   const { data: brandsData, isLoading: brandsLoading } = useGetBrands({
     limit: "100", // Get a reasonable number of brands
-    sort: "asc"
+    sort: "asc",
   });
 
-  // Fetch products (by category or all)
+  // Fetch products with all filters
   const {
     data: productsData,
     isLoading: productsLoading,
-    error
-  } = categoryId
-    ? useGetProductsByCategory(categoryId, {
-        page,
-        limit
-      })
-    : useGetProducts({
-        page,
-        limit,
-        search: searchQuery || undefined,
-        sort
-      });
+    error,
+  } = useGetProducts({
+    page,
+    limit,
+    search: searchQuery || undefined,
+    sort,
+    categoryId: categoryId || undefined,
+    brandId: brandId || undefined, // Add brandId to the query
+  });
 
   // Handle search input change with debounce
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,9 +124,42 @@ export default function ShopProducts() {
 
   // Filter products by brand if brandId is set
   const products = productsData?.data || [];
-  const filteredProducts = brandId
-    ? products.filter((product: any) => product.brandId === brandId)
-    : products;
+  const filteredProducts = useMemo(() => {
+    if (!productsData?.data) return [];
+
+    return productsData.data.filter((product) => {
+      // Category filtering
+      let categoryMatch = true;
+      if (categoryId && categories) {
+        const selectedCategory = categories.find(
+          (cat) => cat.id === categoryId
+        );
+        if (selectedCategory) {
+          const relevantCategoryIds = getAllChildCategoryIds(selectedCategory);
+          categoryMatch = relevantCategoryIds.includes(product.categoryId);
+        }
+      }
+
+      // Brand filtering
+      const brandMatch = !brandId || product.brandId === brandId;
+
+      // Return true only if both conditions are met
+      return categoryMatch && brandMatch;
+    });
+  }, [productsData?.data, categoryId, brandId, categories]);
+
+  // Update available brands based on filtered products
+  const availableBrands = useMemo(() => {
+    if (!filteredProducts.length || !brandsData?.data) return [];
+
+    // Get unique brand IDs from filtered products
+    const brandIds = new Set(
+      filteredProducts.map((product) => product.brandId)
+    );
+
+    // Filter brands to only show those that have products in the current category
+    return brandsData.data.filter((brand) => brandIds.has(brand.id));
+  }, [filteredProducts, brandsData?.data]);
 
   // Find active category and brand for displaying names
   const activeCategoryName =
@@ -130,6 +169,31 @@ export default function ShopProducts() {
     brandId && brandsData
       ? brandsData.data.find((brand) => brand.id === brandId)
       : null;
+
+  const handleCategorySelect = (selectedId: string) => {
+    // Toggle off if already selected
+    if (categoryId === selectedId) {
+      setCategoryId(null);
+    } else {
+      setCategoryId(selectedId);
+      // Reset brand filter when changing category
+      setBrandId(null);
+    }
+    // Reset to first page
+    setPage(1);
+  };
+
+  const handleBrandSelect = (selectedBrandId: string) => {
+    // Toggle off if already selected
+    if (brandId === selectedBrandId) {
+      setBrandId(null);
+    } else {
+      setBrandId(selectedBrandId);
+      // Don't reset category when selecting brand
+    }
+    // Reset to first page
+    setPage(1);
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -154,67 +218,21 @@ export default function ShopProducts() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Categories Filter */}
-            <div className="space-y-2">
-              <h3 className="font-medium text-sm">Categories</h3>
-              <Accordion type="single" collapsible className="w-full">
-                {!categoriesLoading && categories
-                  ? categories.map((category) => (
-                      <AccordionItem key={category.id} value={category.id}>
-                        <div className="flex items-center">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className={cn(
-                              "flex-grow justify-start h-8 px-2 text-left font-normal",
-                              categoryId === category.id &&
-                                "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                            )}
-                            onClick={() => {
-                              setCategoryId(category.id);
-                              setPage(1); // Reset to first page
-                            }}
-                          >
-                            {category.name}
-                          </Button>
-                          {category.children &&
-                            category.children.length > 0 && (
-                              <AccordionTrigger className="h-8 px-0" />
-                            )}
-                        </div>
-                        {category.children && category.children.length > 0 && (
-                          <AccordionContent className="ml-4 border-l border-border pl-2">
-                            {category.children.map((subcat) => (
-                              <Button
-                                key={subcat.id}
-                                variant="ghost"
-                                size="sm"
-                                className={cn(
-                                  "w-full justify-start h-8 mb-1 font-normal",
-                                  categoryId === subcat.id &&
-                                    "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                                )}
-                                onClick={() => {
-                                  setCategoryId(subcat.id);
-                                  setPage(1); // Reset to first page
-                                }}
-                              >
-                                {subcat.name}
-                              </Button>
-                            ))}
-                          </AccordionContent>
-                        )}
-                      </AccordionItem>
-                    ))
-                  : Array(5)
-                      .fill(0)
-                      .map((_, i) => (
-                        <div
-                          key={i}
-                          className="h-8 bg-muted/30 rounded-md animate-pulse mb-1"
-                        />
-                      ))}
-              </Accordion>
-            </div>
+            <CategoryFilter
+              categories={(categories || []).map((cat) => ({
+                ...cat,
+                createdAt: new Date(cat.createdAt),
+                updatedAt: cat.updatedAt ? new Date(cat.updatedAt) : null,
+                children: cat.children?.map((child) => ({
+                  ...child,
+                  createdAt: new Date(child.createdAt),
+                  updatedAt: child.updatedAt ? new Date(child.updatedAt) : null,
+                })),
+              }))}
+              isLoading={categoriesLoading}
+              onSelect={handleCategorySelect}
+              selectedCategoryId={categoryId}
+            />
 
             <Separator />
 
@@ -223,24 +241,50 @@ export default function ShopProducts() {
               <h3 className="font-medium text-sm">Brands</h3>
               <div className="space-y-1 max-h-56 overflow-y-auto">
                 {!brandsLoading && brandsData
-                  ? brandsData.data.map((brand) => (
-                      <Button
-                        key={brand.id}
-                        variant="ghost"
-                        size="sm"
-                        className={cn(
-                          "w-full justify-start h-8 font-normal",
-                          brandId === brand.id &&
-                            "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                        )}
-                        onClick={() => {
-                          setBrandId(brand.id === brandId ? null : brand.id);
-                          setPage(1); // Reset to first page
-                        }}
-                      >
-                        {brand.name}
-                      </Button>
-                    ))
+                  ? brandsData.data.map((brand) => {
+                      const productCount =
+                        productsData?.data.filter((product) => {
+                          const brandMatch = product.brandId === brand.id;
+                          let categoryMatch = true;
+                          if (categoryId && categories) {
+                            const selectedCategory = categories.find(
+                              (cat) => cat.id === categoryId
+                            );
+                            if (selectedCategory) {
+                              const relevantCategoryIds =
+                                getAllChildCategoryIds(selectedCategory);
+                              categoryMatch = relevantCategoryIds.includes(
+                                product.categoryId
+                              );
+                            }
+                          }
+                          return brandMatch && categoryMatch;
+                        }).length || 0;
+
+                      return (
+                        <Button
+                          key={brand.id}
+                          variant="ghost"
+                          size="sm"
+                          className={cn(
+                            "w-full h-8 font-normal flex items-center px-2",
+                            brandId === brand.id &&
+                              "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                          )}
+                          onClick={() => handleBrandSelect(brand.id)}
+                          disabled={Boolean(categoryId && productCount === 0)}
+                        >
+                          <div className="flex w-full items-center">
+                            <span className="flex-grow text-left truncate">
+                              {brand.name}
+                            </span>
+                            <span className="flex-shrink-0 text-xs text-muted-foreground ml-2">
+                              ({productCount})
+                            </span>
+                          </div>
+                        </Button>
+                      );
+                    })
                   : Array(5)
                       .fill(0)
                       .map((_, i) => (
@@ -304,7 +348,7 @@ export default function ShopProducts() {
                               variant="ghost"
                               size="sm"
                               className={cn(
-                                "flex-grow justify-start h-8 px-2 text-left font-normal",
+                                "flex-grow h-8 px-2 font-normal",
                                 categoryId === category.id &&
                                   "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
                               )}
@@ -313,7 +357,15 @@ export default function ShopProducts() {
                                 setPage(1); // Reset to first page
                               }}
                             >
-                              {category.name}
+                              <span className="flex-grow text-left">
+                                {category.name}
+                              </span>
+                              {category.children &&
+                                category.children.length > 0 && (
+                                  <span className="text-xs text-muted-foreground text-right">
+                                    ({category.children.length})
+                                  </span>
+                                )}
                             </Button>
                             {category.children &&
                               category.children.length > 0 && (
@@ -329,7 +381,7 @@ export default function ShopProducts() {
                                     variant="ghost"
                                     size="sm"
                                     className={cn(
-                                      "w-full justify-start h-8 mb-1 font-normal",
+                                      "w-full h-8 mb-1 font-normal",
                                       categoryId === subcat.id &&
                                         "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
                                     )}
@@ -338,7 +390,9 @@ export default function ShopProducts() {
                                       setPage(1); // Reset to first page
                                     }}
                                   >
-                                    {subcat.name}
+                                    <span className="flex-grow text-left">
+                                      {subcat.name}
+                                    </span>
                                   </Button>
                                 ))}
                               </AccordionContent>
