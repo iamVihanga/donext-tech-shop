@@ -36,6 +36,10 @@ export function Hero({}: Props) {
           <h1 className="text-5xl font-black text-amber-500 text-center font-heading">
             {SITE_NAME}
           </h1>
+          <p className="text-amber-200">
+            Contact Us:{" "}
+            <span className="font-semibold">+94 76 023 0340</span>{" "}
+          </p>
 
           <div className="mt-3 flex items-center gap-3 z-40 pointer-events-auto">
             <Button asChild variant={"accent"}>

@@ -24,7 +24,12 @@ export function Footer({}: Props) {
           <p className="text-sm text-background">
             gamezonetechhorana@gmail.com
           </p>
-          <p className="text-sm text-background">Phone: +94 123 456 789</p>
+
+          <div className="bg-amber-950/10 p-2 my-2">
+            <p className="text-sm text-white">+94 76 023 0340</p>
+            <p className="text-sm text-white">+94 71 930 8389</p>
+          </div>
+
           <p className="text-sm text-background">
             No.20 Suderis Silva Mawatha, Horana, Sri Lanka
           </p>
