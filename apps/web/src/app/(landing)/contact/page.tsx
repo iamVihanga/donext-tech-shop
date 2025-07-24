@@ -1,19 +1,17 @@
 import { Logo } from "@/components/logo";
 import Socials from "@/components/socials";
-import { CONTACTS } from "@/lib/constants";
+import { CONTACTS, SOCIALS } from "@/lib/constants";
 import { Button } from "@repo/ui/components/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle
 } from "@repo/ui/components/card";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
 import { Separator } from "@repo/ui/components/separator";
-import { Textarea } from "@repo/ui/components/textarea";
-import { Clock, HeadphonesIcon, Mail, MapPin, Phone, Send } from "lucide-react";
+import { IconSocial } from "@tabler/icons-react";
+import { Clock, HeadphonesIcon, Mail, MapPin, Phone } from "lucide-react";
+import Link from "next/link";
 
 export default function ContactPage() {
   return (
@@ -35,10 +33,10 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Information & Form Section */}
+
       <section className="py-16">
         <div className="content-container mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Contact Information */}
+          <div className=" gap-12">
             <div className="space-y-8">
               <div>
                 <h2 className="text-3xl font-bold font-heading mb-6 text-foreground">
@@ -50,9 +48,37 @@ export default function ContactPage() {
                   assist you. Reach out through any of the channels below.
                 </p>
               </div>
-
-              {/* Contact Cards */}
               <div className="space-y-6">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 bg-amber-100 dark:bg-amber-900/20 rounded-full">
+                        <IconSocial className="h-6 w-6 text-amber-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground mb-2">
+                          Follow Us
+                        </h3>
+                        <div className="space-x-4">
+                          {SOCIALS.map((item, i) => (
+                            <Link
+                              href={item.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              key={i}
+                              className="space-x-2 text-background hover:underline transition-all duration-200"
+                            >
+                              <item.icon
+                                className={`inline-block size-8 ${item.social === "Facebook" ? "text-blue-600" : "text-white"}`}
+                              />
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 <Card className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
@@ -67,7 +93,7 @@ export default function ContactPage() {
                           Call us for immediate assistance
                         </p>
                         <p className="font-medium text-foreground">
-                          {CONTACTS.phone}
+                          {`+94 76 023 0340 / +94 71 930 8389`}
                         </p>
                         <p className="text-sm text-muted-foreground mt-1">
                           Available: Mon-Sat, 9:00 AM - 8:00 PM
@@ -91,7 +117,7 @@ export default function ContactPage() {
                           Send us an email anytime
                         </p>
                         <p className="font-medium text-foreground">
-                          {CONTACTS.email}
+                          {`gamezonetechinfo@gmail.com`}
                         </p>
                         <p className="text-sm text-muted-foreground mt-1">
                           We'll respond within 24 hours
@@ -115,7 +141,7 @@ export default function ContactPage() {
                           Come see our products in person
                         </p>
                         <p className="font-medium text-foreground">
-                          {CONTACTS.address}
+                          {`No.20 Suderis Silva Mawatha, Horana, Sri Lanka`}
                         </p>
                         <p className="text-sm text-muted-foreground mt-1">
                           Open: Mon-Sat, 10:00 AM - 7:00 PM
@@ -150,7 +176,6 @@ export default function ContactPage() {
                 </Card>
               </div>
 
-              {/* Social Media */}
               <div>
                 <h3 className="font-semibold text-foreground mb-4">
                   Follow Us
@@ -164,8 +189,7 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Contact Form */}
-            <div>
+            {/* <div>
               <Card className="border-amber-200 dark:border-amber-800">
                 <CardHeader>
                   <CardTitle className="text-2xl font-heading">
@@ -272,7 +296,7 @@ export default function ContactPage() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>

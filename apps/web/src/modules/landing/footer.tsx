@@ -50,8 +50,9 @@ export function Footer({}: Props) {
                 key={i}
                 className="space-x-2 text-background hover:underline transition-all duration-200"
               >
-                <item.icon className="inline-block" />
-                {item.social}
+                <item.icon
+                  className={`inline-block size-8 ${item.social === "Facebook" && "text-blue-600"} `}
+                />
               </Link>
             ))}
           </div>

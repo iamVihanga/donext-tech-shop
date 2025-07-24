@@ -242,7 +242,7 @@ export const updateCartItemById: AppRouteHandler<
 
   const [updatedCartItem] = await db
     .update(cartItems)
-    .set(body)
+    .set({ ...body, updatedAt: new Date() })
     .where(eq(cartItems.id, id))
     .returning();
 

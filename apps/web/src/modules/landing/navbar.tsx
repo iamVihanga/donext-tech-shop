@@ -54,7 +54,7 @@ export async function Navbar() {
 
                 {/* Mobile Navigation Links */}
                 <div className="flex flex-col gap-2">
-                  <Wishlist />
+                  {/* <Wishlist /> */}
                   {session.data ? (
                     <>
                       <NavbarCartSection />
@@ -94,7 +94,7 @@ export async function Navbar() {
 
         {/* Desktop Nav Links - Hidden on mobile */}
         <div className="hidden md:flex items-center gap-3">
-          <Wishlist />
+          {/* <Wishlist /> */}
 
           {session.data ? (
             <div className="flex items-center gap-2">
