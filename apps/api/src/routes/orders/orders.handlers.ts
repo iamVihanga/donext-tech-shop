@@ -603,7 +603,10 @@ export const updateOrderStatus: AppRouteHandler<
         updateFields.carrierName = updateData.carrierName;
       }
 
-      await trx.update(orders).set(updateFields).where(eq(orders.id, id));
+      await trx
+        .update(orders)
+        .set({ ...updateFields, updatedAt: new Date() })
+        .where(eq(orders.id, id));
 
       // Create status history entry
       if (
@@ -723,7 +726,8 @@ export const cancelOrder: AppRouteHandler<CancelOrderRoute> = async (c) => {
           await trx
             .update(productVariants)
             .set({
-              stockQuantity: sql`${productVariants.stockQuantity} + ${item.quantity}`
+              stockQuantity: sql`${productVariants.stockQuantity} + ${item.quantity}`,
+              updatedAt: new Date()
             })
             .where(eq(productVariants.id, item.variantId));
         } else {
@@ -731,7 +735,8 @@ export const cancelOrder: AppRouteHandler<CancelOrderRoute> = async (c) => {
           await trx
             .update(products)
             .set({
-              stockQuantity: sql`${products.stockQuantity} + ${item.quantity}`
+              stockQuantity: sql`${products.stockQuantity} + ${item.quantity}`,
+              updatedAt: new Date()
             })
             .where(eq(products.id, item.productId));
         }

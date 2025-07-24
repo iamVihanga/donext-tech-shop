@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 
-import { SITE_NAME } from "@/lib/constants";
+import { SITE_NAME, SOCIALS } from "@/lib/constants";
 import { Button } from "@repo/ui/components/button";
 import { Card, CardContent } from "@repo/ui/components/card";
 import {
@@ -40,6 +40,22 @@ export function Hero({}: Props) {
             Contact Us:{" "}
             <span className="font-semibold">+94 76 023 0340</span>{" "}
           </p>
+
+          <div className="mt-2 flex items-center gap-3 pointer-events-auto">
+            {SOCIALS.map((item, i) => (
+              <Link
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                key={i}
+                className="space-x-2 text-background hover:underline transition-all duration-200"
+              >
+                <item.icon
+                  className={`inline-block size-8 ${item.social === "Facebook" && "text-blue-600"} ${item.social === "TikTok" && "text-pink-500"}`}
+                />
+              </Link>
+            ))}
+          </div>
 
           <div className="mt-3 flex items-center gap-3 z-40 pointer-events-auto">
             <Button asChild variant={"accent"}>

@@ -167,7 +167,7 @@ export const update: AppRouteHandler<UpdateRoute> = async (c) => {
 
   const [updated] = await db
     .update(media)
-    .set(body)
+    .set({ ...body, updatedAt: new Date() })
     .where(eq(media.id, params.id))
     .returning();
 

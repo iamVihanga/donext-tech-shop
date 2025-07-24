@@ -101,7 +101,7 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
 
   if (body.parentId) {
     const allCategories = await db.select().from(categories);
-    path = generateCategoryPath(allCategories, body.parentId) + `/${slug}`;
+    path = `${generateCategoryPath(allCategories, body.parentId)}/${slug}`;
     level = calculateCategoryLevel(allCategories, body.parentId) + 1;
   }
 
@@ -170,15 +170,14 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
   }
 
   // Calculate new path and level if parent is changing
-  let updateData: any = { ...body };
+  const updateData: any = { ...body };
 
   if (body.parentId !== existingCategory.parentId) {
     const allCategories = await db.select().from(categories);
     const slug = body.name ? toKebabCase(body.name) : existingCategory.slug;
 
     if (body.parentId) {
-      updateData.path =
-        generateCategoryPath(allCategories, body.parentId) + `/${slug}`;
+      updateData.path = `${generateCategoryPath(allCategories, body.parentId)}/${slug}`;
       updateData.level =
         calculateCategoryLevel(allCategories, body.parentId) + 1;
     } else {
@@ -193,9 +192,10 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
     // Update path with new slug
     if (existingCategory.parentId) {
       const allCategories = await db.select().from(categories);
-      updateData.path =
-        generateCategoryPath(allCategories, existingCategory.parentId) +
-        `/${slug}`;
+      updateData.path = `${generateCategoryPath(
+        allCategories,
+        existingCategory.parentId
+      )}/${slug}`;
     } else {
       updateData.path = `/${slug}`;
     }
@@ -250,8 +250,10 @@ export const moveCategory: AppRouteHandler<MoveCategoryRoute> = async (c) => {
   }
 
   const newPath = newParentId
-    ? generateCategoryPath(allCategories, newParentId) +
-      `/${categoryToMove.slug}`
+    ? `${generateCategoryPath(
+        allCategories,
+        newParentId
+      )}/${categoryToMove.slug}`
     : `/${categoryToMove.slug}`;
 
   const newLevel = newParentId
@@ -264,7 +266,8 @@ export const moveCategory: AppRouteHandler<MoveCategoryRoute> = async (c) => {
       parentId: newParentId,
       sortOrder: newSortOrder,
       path: newPath,
-      level: newLevel
+      level: newLevel,
+      updatedAt: new Date()
     })
     .where(eq(categories.id, categoryId))
     .returning();
@@ -282,7 +285,7 @@ export const addSubcategory: AppRouteHandler<AddSubcategoryRoute> = async (
   // This is now just creating a child category
   const slug = toKebabCase(body.name);
   const allCategories = await db.select().from(categories);
-  const path = generateCategoryPath(allCategories, parentId) + `/${slug}`;
+  const path = `${generateCategoryPath(allCategories, parentId)}/${slug}`;
   const level = calculateCategoryLevel(allCategories, parentId) + 1;
 
   const [subcategory] = await db
