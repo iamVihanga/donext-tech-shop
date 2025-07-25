@@ -2,6 +2,7 @@
 
 import { formatPrice } from "@/components/price";
 import { cn } from "@/lib/utils";
+import { generateWishlistPDF } from "@/lib/utils/pdf-generator";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -164,7 +165,22 @@ export function Wishlist({}: Props) {
           {itemCount > 0 && (
             <>
               <Separator className="bg-amber-100 dark:bg-amber-800" />
-              <div className="p-4">
+              <div className="p-4 flex flex-col gap-3">
+                <Button
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+                  onClick={() => {
+                    // Call the generateWishlistPDF function to generate the PDF
+                    generateWishlistPDF(
+                      products.map((p) => ({
+                        ...p,
+                        description: p.description ?? undefined,
+                        stockQuantity: p.stockQuantity ?? undefined,
+                      }))
+                    );
+                  }}
+                >
+                  Get Quotation
+                </Button>
                 <Button
                   className="w-full bg-amber-500 hover:bg-amber-600 text-white"
                   onClick={() => setDialogOpen(true)}

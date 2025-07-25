@@ -16,8 +16,8 @@ import { NavbarCartSection } from "./navbar-cart-section";
 export async function Navbar() {
   const session = await authClient.getSession({
     fetchOptions: {
-      headers: await headers()
-    }
+      headers: await headers(),
+    },
   });
 
   return (
@@ -89,7 +89,7 @@ export async function Navbar() {
 
         {/* Desktop Nav Links - Hidden on mobile */}
         <div className="hidden md:flex items-center gap-3">
-          {/* <Wishlist /> */}
+          <Wishlist />
 
           {session.data ? (
             <div className="flex items-center gap-2">
