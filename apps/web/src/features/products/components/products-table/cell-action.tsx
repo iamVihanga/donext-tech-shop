@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal, Trash, TrashIcon } from "lucide-react";
+import { Edit, MoreHorizontal, Trash, TrashIcon } from "lucide-react";
 import { useState } from "react";
 
 import { OpenInNewWindowIcon } from "@radix-ui/react-icons";
@@ -12,7 +12,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
+  AlertDialogTitle,
 } from "@repo/ui/components/alert-dialog";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -20,11 +20,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuTrigger
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { useDeleteProduct } from "../../actions/use-delete-product";
+import { useUpdateProduct } from "../../actions/use-update-product";
 import { Product } from "../../schemas/products.zod";
 
 interface CellActionProps {
@@ -33,9 +36,23 @@ interface CellActionProps {
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const { mutate: mutateDelete, isPending: deleting } = useDeleteProduct();
+  const { mutate: mutateUpdate, isPending: updating } = useUpdateProduct();
+
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const onConfirmDelete = () => mutateDelete(data.id);
+
+  const onEdit = () => {
+    router.push(`/admin/products/${data.id}/edit`);
+  };
+
+  // const onToggleFeatured = () => {
+  //   mutateUpdate({
+  //     productId: data.id,
+  //     data: { isFeatured: !data.isFeatured },
+  //   });
+  // };
 
   return (
     <>
@@ -66,8 +83,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       </AlertDialog>
 
       <div className="flex items-center gap-2">
-        <Link href={`/admin/products/${data.id}`}>
-          <OpenInNewWindowIcon />
+        <Link href={`/products/${data.slug || data.id}`} target="_blank">
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <OpenInNewWindowIcon />
+          </Button>
         </Link>
 
         <DropdownMenu modal={false}>
@@ -79,8 +98,16 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-            <DropdownMenuItem onClick={() => setOpen(true)}>
+            <DropdownMenuItem onClick={onEdit} disabled={updating}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => setOpen(true)}
+              className="text-destructive focus:text-destructive"
+              disabled={deleting || updating}
+            >
               <Trash className="mr-2 h-4 w-4" /> Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
