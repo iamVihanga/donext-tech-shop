@@ -7,7 +7,7 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@repo/ui/components/card";
 import { Separator } from "@repo/ui/components/separator";
 import { ArrowLeft, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
@@ -24,7 +24,7 @@ export function CartPage() {
     getItemCount,
     getTotalPrice,
     isRemovingFromCart,
-    isUpdatingCart
+    isUpdatingCart,
   } = useCart();
 
   const itemCount = getItemCount();
@@ -71,7 +71,7 @@ export function CartPage() {
               Looks like you haven't added any items to your cart yet.
             </p>
             <Button asChild>
-              <Link href="/products">Continue Shopping</Link>
+              <Link href="/shop">Continue Shopping</Link>
             </Button>
           </CardContent>
         </Card>
@@ -215,7 +215,7 @@ export function CartPage() {
                       size="lg"
                       asChild
                     >
-                      <Link href="/products">Continue Shopping</Link>
+                      <Link href="/shop">Continue Shopping</Link>
                     </Button>
                   </div>
                 </div>

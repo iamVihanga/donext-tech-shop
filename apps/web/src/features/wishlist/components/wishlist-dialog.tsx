@@ -158,8 +158,8 @@ export function WishlistDialog({ open, onOpenChange }: Props) {
                               size="sm"
                               className="bg-amber-500 hover:bg-amber-600 text-white min-w-[120px]"
                               disabled={
-                                product?.stockQuantity === 0 ||
-                                product?.stockQuantity === undefined
+                                !product?.stockQuantity ||
+                                product.stockQuantity <= 0
                               }
                             >
                               <ShoppingCart className="h-4 w-4 mr-2" />

@@ -67,13 +67,13 @@ export const generateWishlistPDF = async (products: WishlistProduct[]) => {
   doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 65);
 
   // Add customer info section
-  doc.setFontSize(12);
-  doc.text("Customer Information:", 20, 80);
-  doc.setFontSize(10);
-  doc.text("Name: _________________________", 20, 90);
-  doc.text("Email: _________________________", 20, 100);
-  doc.text("Phone: _________________________", 20, 110);
-  doc.text("Company: _________________________", 20, 120);
+  // doc.setFontSize(12);
+  // doc.text("Customer Information:", 20, 80);
+  // doc.setFontSize(10);
+  // doc.text("Name: _________________________", 20, 90);
+  // doc.text("Email: _________________________", 20, 100);
+  // doc.text("Phone: _________________________", 20, 110);
+  // doc.text("Company: _________________________", 20, 120);
 
   // Calculate total price
   const totalPrice = products.reduce((sum, product) => {
