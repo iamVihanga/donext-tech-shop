@@ -6,7 +6,7 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import type { AppRouteHandler } from "@api/types";
 import type {
   CreateRoute,
-  GeneratePdfRoute,
+  GeneratePDFRoute,
   GetOneRoute,
   GetUserQuotationsRoute,
   ListRoute,
@@ -460,36 +460,60 @@ export const updateStatus: AppRouteHandler<UpdateStatusRoute> = async (c) => {
 /**
  * Generate PDF handler
  */
-export const generatePdf: AppRouteHandler<GeneratePdfRoute> = async (c) => {
+export const generatePDF: AppRouteHandler<GeneratePDFRoute> = async (c) => {
   const { id } = c.req.valid("param");
 
-  // Fetch quotation with items
-  const quotation = await db.query.quotations.findFirst({
-    where: (fields, { eq }) => eq(fields.id, id),
-    with: {
-      items: {
-        with: {
-          product: true,
-          variant: true
+  try {
+    // Fetch quotation with full details
+    const quotation = await db.query.quotations.findFirst({
+      where: (fields, { eq }) => eq(fields.id, id),
+      with: {
+        items: {
+          with: {
+            product: {
+              columns: {
+                id: true,
+                name: true,
+                sku: true
+              }
+            },
+            variant: {
+              columns: {
+                id: true,
+                name: true
+              }
+            }
+          }
         }
       }
+    });
+
+    if (!quotation) {
+      return c.json(
+        { message: "Quotation not found" },
+        HttpStatusCodes.NOT_FOUND
+      );
     }
-  });
 
-  if (!quotation) {
-    return c.json(
-      { message: "Quotation not found" },
-      HttpStatusCodes.NOT_FOUND
+    // Import PDF generator
+    const { generateSimpleQuotationPDF } = await import(
+      "../../lib/pdf-generator"
     );
-  }
 
-  try {
-    // TODO: Implement PDF generation
-    // For now, return a simple response
-    return c.json(
-      { message: "PDF generation not implemented yet" },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
+    // Generate PDF buffer
+    const pdfBuffer = generateSimpleQuotationPDF(
+      quotation as Parameters<typeof generateSimpleQuotationPDF>[0]
     );
+
+    // Set headers for PDF download
+    c.header("Content-Type", "application/pdf");
+    c.header(
+      "Content-Disposition",
+      `attachment; filename="quotation-${quotation.quotationNumber}.pdf"`
+    );
+    c.header("Content-Length", pdfBuffer.length.toString());
+
+    return c.body(pdfBuffer);
   } catch (error) {
     console.error("Generate PDF error:", error);
     return c.json(

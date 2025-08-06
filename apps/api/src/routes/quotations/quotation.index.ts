@@ -10,7 +10,7 @@ const router = createRouter()
   .openapi(routes.update, handlers.update)
   .openapi(routes.remove, handlers.remove)
   .openapi(routes.updateStatus, handlers.updateStatus)
-  .openapi(routes.generatePdf, handlers.generatePdf)
+  .openapi(routes.generatePDF, handlers.generatePDF)
   .openapi(routes.getUserQuotations, handlers.getUserQuotations);
 
 export default router;

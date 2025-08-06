@@ -1,6 +1,7 @@
 "use client";
 
 import { useCreateQuotation } from "@/features/quotations/actions/use-create-quotation";
+import { useDownloadQuotationPDF } from "@/features/quotations/actions/use-download-quotation-pdf";
 import { useQuotationStore } from "@/features/quotations/store/quotation-store";
 import { Alert, AlertDescription } from "@repo/ui/components/alert";
 import { Button } from "@repo/ui/components/button";
@@ -20,11 +21,13 @@ interface QuotationActionsProps {
 
 export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [savedQuotationId, setSavedQuotationId] = useState<string | null>(null);
 
   const { items, customerInfo, quotationDetails, totals, clearQuotation } =
     useQuotationStore();
 
   const { mutate: createQuotation, isPending } = useCreateQuotation();
+  const downloadPDF = useDownloadQuotationPDF();
 
   const validateQuotation = () => {
     const errors: string[] = [];
@@ -33,19 +36,14 @@ export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
       errors.push("At least one product must be added");
     }
 
-    if (!customerInfo.customerName.trim()) {
-      errors.push("Customer name is required");
-    }
-
-    if (!customerInfo.customerEmail.trim()) {
-      errors.push("Customer email is required");
-    }
-
+    // Customer details are now optional for guest users
+    // Only validate email format if email is provided
     if (
       customerInfo.customerEmail &&
+      customerInfo.customerEmail.trim() &&
       !/\S+@\S+\.\S+/.test(customerInfo.customerEmail)
     ) {
-      errors.push("Valid customer email is required");
+      errors.push("Valid customer email format is required");
     }
 
     return errors;
@@ -64,11 +62,11 @@ export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
     try {
       // Prepare quotation data for API
       const quotationData = {
-        // Customer information
-        customerName: customerInfo.customerName,
-        customerEmail: customerInfo.customerEmail,
-        customerPhone: customerInfo.customerPhone || undefined,
-        customerCompany: customerInfo.customerCompany || undefined,
+        // Customer information (now optional for guest users)
+        customerName: customerInfo.customerName.trim() || "Guest User",
+        customerEmail: customerInfo.customerEmail.trim() || "guest@example.com",
+        customerPhone: customerInfo.customerPhone?.trim() || undefined,
+        customerCompany: customerInfo.customerCompany?.trim() || undefined,
         customerAddress: Object.values(customerInfo.customerAddress).some((v) =>
           v.trim()
         )
@@ -78,7 +76,7 @@ export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
         // Quotation details
         title:
           quotationDetails.title ||
-          `Quotation for ${customerInfo.customerName}`,
+          `Quotation for ${customerInfo.customerName.trim() || "Guest User"}`,
         description: quotationDetails.description || undefined,
         validUntil: quotationDetails.validUntil || undefined,
         notes: quotationDetails.notes || undefined,
@@ -110,6 +108,7 @@ export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
       createQuotation(quotationData, {
         onSuccess: (data) => {
           toast.success("Quotation saved successfully!");
+          setSavedQuotationId(data.id);
           clearQuotation();
           // Could redirect to quotation view page
           // router.push(`/quotations/${data.id}`);
@@ -126,7 +125,11 @@ export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
   };
 
   const handleDownloadPDF = () => {
-    toast.info("PDF download will be implemented soon");
+    if (!savedQuotationId) {
+      toast.error("Please save the quotation first before downloading PDF");
+      return;
+    }
+    downloadPDF.mutate(savedQuotationId);
   };
 
   const handleClearQuotation = () => {
@@ -179,11 +182,11 @@ export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
           <Button
             variant="outline"
             onClick={handleDownloadPDF}
-            disabled={hasValidationErrors}
+            disabled={!savedQuotationId || downloadPDF.isPending}
             className="w-full"
           >
             <Download className="h-4 w-4 mr-2" />
-            Download PDF
+            {downloadPDF.isPending ? "Downloading..." : "Download PDF"}
           </Button>
 
           <Button

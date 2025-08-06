@@ -170,16 +170,10 @@ export const updateStatus = createRoute({
   method: "patch",
   request: {
     params: stringIdParamSchema,
-    body: jsonContentRequired(
-      quotationStatusSchema,
-      "Update quotation status"
-    )
+    body: jsonContentRequired(quotationStatusSchema, "Update quotation status")
   },
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(
-      quotationSchema,
-      "Updated quotation"
-    ),
+    [HttpStatusCodes.OK]: jsonContent(quotationSchema, "Updated quotation"),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       errorMessageSchema,
       "Quotation not found"

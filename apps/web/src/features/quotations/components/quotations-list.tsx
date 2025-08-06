@@ -1,5 +1,6 @@
 "use client";
 
+import { useDownloadQuotationPDF } from "@/features/quotations/actions/use-download-quotation-pdf";
 import { useGetQuotations } from "@/features/quotations/actions/use-get-quotations";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -35,6 +36,8 @@ export function QuotationsList() {
     page: page.toString(),
     limit: "10"
   });
+
+  const downloadPDF = useDownloadQuotationPDF();
 
   if (isLoading) {
     return (
@@ -135,7 +138,12 @@ export function QuotationsList() {
                 <Button variant="ghost" size="sm">
                   <Eye className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => downloadPDF.mutate(quotation.id)}
+                  disabled={downloadPDF.isPending}
+                >
                   <Download className="h-4 w-4" />
                 </Button>
                 <Button variant="ghost" size="sm">

@@ -1,5 +1,5 @@
 import { ProductPrice } from "@/components/price";
-import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
+import { AddToQuotationButton } from "@/features/quotations/components/add-to-quotation-button";
 import { WishlistButton } from "@/features/wishlist/components/wishlist-button";
 import { getProductThumbnail } from "@/lib/helpers";
 import { getClient } from "@/lib/rpc/server";
@@ -154,7 +154,7 @@ export default async function ProductPage(props: Props) {
                     Select Variant to Add
                   </Button>
                 ) : (
-                  <AddToCartButton
+                  <AddToQuotationButton
                     product={product}
                     size="lg"
                     className="flex-1 bg-amber-500 hover:bg-amber-600 text-neutral-900 font-semibold shadow-lg hover:shadow-amber-500/25"
