@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useId } from "react";
 import { toast } from "sonner";
 
-import { UpdateProductRequest } from "@/features/products/types/api.types";
 import { getClient } from "@/lib/rpc/client";
+import { UpdateProductRequest } from "@/features/products/types/api.types";
 
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();

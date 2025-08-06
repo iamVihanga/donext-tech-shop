@@ -2,22 +2,22 @@
 // This ensures tight coupling between frontend and backend types
 
 import type {
-  InsertProduct,
-  InsertProductImage,
-  InsertProductVariant,
   Product,
   ProductImage,
   ProductVariant,
+  InsertProduct,
+  InsertProductImage,
+  InsertProductVariant,
   UpdateProduct
 } from "@/features/products/schemas/products.zod";
 
 export type {
-  InsertProduct,
-  InsertProductImage,
-  InsertProductVariant,
   Product,
   ProductImage,
   ProductVariant,
+  InsertProduct,
+  InsertProductImage,
+  InsertProductVariant,
   UpdateProduct
 };
 
@@ -31,5 +31,5 @@ export interface UpdateProductRequest {
 
 // Type guards and validation helpers can be added here as needed
 export const isProduct = (obj: any): obj is Product => {
-  return obj && typeof obj.id === "string" && typeof obj.name === "string";
+  return obj && typeof obj.id === 'string' && typeof obj.name === 'string';
 };
