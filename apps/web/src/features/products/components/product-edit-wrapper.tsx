@@ -3,8 +3,8 @@
 import { Card, CardContent } from "@repo/ui/components/card";
 import { Skeleton } from "@repo/ui/components/skeleton";
 import { useEffect } from "react";
-import { useGetProduct } from "../../actions/use-get-product";
-import { useCreateProductStore } from "../../store/create-product-store";
+import { useGetProduct } from "../actions/use-get-product";
+import { useCreateProductStore } from "../store/create-product-store";
 
 interface Props {
   productId: string;

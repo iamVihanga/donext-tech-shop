@@ -8,12 +8,14 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function EditProductPage({ params }: Props) {
+export default async function EditProductPage({ params }: Props) {
+  const { id } = await params;
+
   return (
     <PageContainer scrollable={false}>
       <div className="flex flex-1 flex-col space-y-4">
@@ -31,7 +33,7 @@ export default function EditProductPage({ params }: Props) {
           }
         />
 
-        <ProductEditWrapper productId={params.id}>
+        <ProductEditWrapper productId={id}>
           <NewProductTabBar />
           <NewProductFormLayout />
         </ProductEditWrapper>
