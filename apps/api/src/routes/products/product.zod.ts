@@ -54,6 +54,10 @@ export const insertProductSchema = createInsertSchema(products)
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 
 export const updateProductSchema = createInsertSchema(products)
+  .extend({
+    images: z.array(insertProductImageSchema).optional(),
+    variants: z.array(insertProductVariantSchema).optional()
+  })
   .omit({
     id: true,
     createdAt: true,
