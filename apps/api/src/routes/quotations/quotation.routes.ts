@@ -161,7 +161,7 @@ export const remove = createRoute({
 });
 
 /**
- * Update Quotation Status
+ * Update Quotation Status by ID
  */
 export const updateStatus = createRoute({
   tags,
@@ -170,24 +170,53 @@ export const updateStatus = createRoute({
   method: "patch",
   request: {
     params: stringIdParamSchema,
-    body: jsonContentRequired(quotationStatusSchema, "Status update details")
+    body: jsonContentRequired(
+      quotationStatusSchema,
+      "Update quotation status"
+    )
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
       quotationSchema,
-      "Status updated successfully"
+      "Updated quotation"
     ),
     [HttpStatusCodes.NOT_FOUND]: jsonContent(
       errorMessageSchema,
       "Quotation not found"
     ),
-    [HttpStatusCodes.FORBIDDEN]: jsonContent(
+    [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       errorMessageSchema,
-      "Request forbidden, you are not allowed to update status"
-    ),
-    [HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+      "Something went wrong"
+    )
+  }
+});
+
+/**
+ * Generate PDF for Quotation
+ */
+export const generatePDF = createRoute({
+  tags,
+  summary: "Generate PDF for quotation",
+  path: "/{id}/pdf",
+  method: "get",
+  request: {
+    params: stringIdParamSchema
+  },
+  responses: {
+    [HttpStatusCodes.OK]: {
+      description: "PDF file",
+      content: {
+        "application/pdf": {
+          schema: {
+            type: "string",
+            format: "binary"
+          }
+        }
+      }
+    },
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
       errorMessageSchema,
-      "Unauthorized access forbidden"
+      "Quotation not found"
     ),
     [HttpStatusCodes.INTERNAL_SERVER_ERROR]: jsonContent(
       errorMessageSchema,
@@ -267,5 +296,5 @@ export type GetOneRoute = typeof getOne;
 export type UpdateRoute = typeof update;
 export type RemoveRoute = typeof remove;
 export type UpdateStatusRoute = typeof updateStatus;
-export type GeneratePdfRoute = typeof generatePdf;
+export type GeneratePDFRoute = typeof generatePDF;
 export type GetUserQuotationsRoute = typeof getUserQuotations;
