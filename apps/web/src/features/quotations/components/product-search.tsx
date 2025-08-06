@@ -147,7 +147,6 @@ export function ProductSearch() {
                       <SelectValue placeholder="Select variant" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Default</SelectItem>
                       {product.variants.map((variant) => (
                         <SelectItem key={variant.id} value={variant.id}>
                           {variant.name} - $
