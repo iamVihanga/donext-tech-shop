@@ -1,7 +1,6 @@
 "use client";
 
 import { useCreateQuotation } from "@/features/quotations/actions/use-create-quotation";
-import { useDownloadQuotationPDF } from "@/features/quotations/actions/use-download-quotation-pdf";
 import { useQuotationStore } from "@/features/quotations/store/quotation-store";
 import { Alert, AlertDescription } from "@repo/ui/components/alert";
 import { Button } from "@repo/ui/components/button";
@@ -11,7 +10,8 @@ import {
   CardHeader,
   CardTitle
 } from "@repo/ui/components/card";
-import { Download, FileText, Save, Trash2 } from "lucide-react";
+import { ExternalLink, FileText, Save, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -22,12 +22,12 @@ interface QuotationActionsProps {
 export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [savedQuotationId, setSavedQuotationId] = useState<string | null>(null);
+  const router = useRouter();
 
   const { items, customerInfo, quotationDetails, totals, clearQuotation } =
     useQuotationStore();
 
   const { mutate: createQuotation, isPending } = useCreateQuotation();
-  const downloadPDF = useDownloadQuotationPDF();
 
   const validateQuotation = () => {
     const errors: string[] = [];
@@ -124,12 +124,17 @@ export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
     }
   };
 
-  const handleDownloadPDF = () => {
+  const handleViewAndPrint = () => {
     if (!savedQuotationId) {
-      toast.error("Please save the quotation first before downloading PDF");
+      toast.error(
+        "Please save the quotation first before viewing and printing"
+      );
       return;
     }
-    downloadPDF.mutate(savedQuotationId);
+
+    // Open print page in new window/tab
+    const printUrl = `/quotations/${savedQuotationId}/print`;
+    window.open(printUrl, "_blank");
   };
 
   const handleClearQuotation = () => {
@@ -181,12 +186,12 @@ export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
 
           <Button
             variant="outline"
-            onClick={handleDownloadPDF}
-            disabled={!savedQuotationId || downloadPDF.isPending}
+            onClick={handleViewAndPrint}
+            disabled={!savedQuotationId}
             className="w-full"
           >
-            <Download className="h-4 w-4 mr-2" />
-            {downloadPDF.isPending ? "Downloading..." : "Download PDF"}
+            <ExternalLink className="h-4 w-4 mr-2" />
+            View & Print
           </Button>
 
           <Button

@@ -1,6 +1,5 @@
 "use client";
 
-import { useDownloadQuotationPDF } from "@/features/quotations/actions/use-download-quotation-pdf";
 import { useGetQuotations } from "@/features/quotations/actions/use-get-quotations";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -14,7 +13,7 @@ import {
   SelectValue
 } from "@repo/ui/components/select";
 import { formatDistanceToNow } from "date-fns";
-import { Download, Edit, Eye, Trash2 } from "lucide-react";
+import { Edit, ExternalLink, Eye, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 const statusColors = {
@@ -37,7 +36,10 @@ export function QuotationsList() {
     limit: "10"
   });
 
-  const downloadPDF = useDownloadQuotationPDF();
+  const handlePrintQuotation = (quotationId: string) => {
+    const printUrl = `/quotations/${quotationId}/print`;
+    window.open(printUrl, "_blank");
+  };
 
   if (isLoading) {
     return (
@@ -141,10 +143,10 @@ export function QuotationsList() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => downloadPDF.mutate(quotation.id)}
-                  disabled={downloadPDF.isPending}
+                  onClick={() => handlePrintQuotation(quotation.id)}
+                  title="View & Print"
                 >
-                  <Download className="h-4 w-4" />
+                  <ExternalLink className="h-4 w-4" />
                 </Button>
                 <Button variant="ghost" size="sm">
                   <Edit className="h-4 w-4" />
