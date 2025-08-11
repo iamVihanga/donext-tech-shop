@@ -211,8 +211,43 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
       itemsCount: items.length
     });
 
+    // Helper function to ensure null instead of undefined or empty strings
+    const sanitizeValue = (value: string | null | undefined): string | null => {
+      if (value === undefined || value === "" || value === null) {
+        return null;
+      }
+      return value;
+    };
+
+    // Helper function for address objects
+    const sanitizeAddress = (
+      address:
+        | {
+            street?: string;
+            city?: string;
+            state?: string;
+            postalCode?: string;
+            country?: string;
+          }
+        | null
+        | undefined
+    ): {
+      street?: string;
+      city?: string;
+      state?: string;
+      postalCode?: string;
+      country?: string;
+    } | null => {
+      if (!address || typeof address !== "object") {
+        return null;
+      }
+      return address;
+    };
+
     // Generate quotation number
     const quotationNumber = `QUO-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+
+    console.log("Generated quotation number:", quotationNumber);
 
     /**
      * Database Transactional Process
@@ -221,21 +256,38 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
      * - Calculate totals
      */
     const result = await db.transaction(async (tx) => {
-      // Create Quotation
+      console.log("Starting database transaction...");
+
+      // Create Quotation with sanitized values
+      const insertData = {
+        quotationNumber,
+        // Required fields
+        customerName: quotationData.customerName,
+        customerEmail: quotationData.customerEmail,
+        title: quotationData.title,
+        // Optional fields - properly sanitized
+        userId: sanitizeValue(quotationData.userId),
+        customerPhone: sanitizeValue(quotationData.customerPhone),
+        customerCompany: sanitizeValue(quotationData.customerCompany),
+        description: sanitizeValue(quotationData.description),
+        validUntil: sanitizeValue(quotationData.validUntil),
+        notes: sanitizeValue(quotationData.notes),
+        terms: sanitizeValue(quotationData.terms),
+        customerAddress: sanitizeAddress(quotationData.customerAddress),
+        // Decimal fields with proper defaults
+        subtotal: quotationData.subtotal || "0.00",
+        taxAmount: quotationData.taxAmount || "0.00",
+        discountAmount: quotationData.discountAmount || "0.00",
+        totalAmount: quotationData.totalAmount || "0.00",
+        // Status with default
+        status: quotationData.status || "draft"
+      };
+
+      console.log("Insert data prepared:", insertData);
 
       const [createdQuotation] = await tx
         .insert(quotations)
-        .values({
-          ...quotationData,
-          quotationNumber,
-          // Ensure decimal fields have proper defaults
-          subtotal: quotationData.subtotal || "0.00",
-          taxAmount: quotationData.taxAmount || "0.00",
-          discountAmount: quotationData.discountAmount || "0.00",
-          totalAmount: quotationData.totalAmount || "0.00",
-          // Ensure status has a valid value
-          status: quotationData.status || "draft"
-        })
+        .values(insertData)
         .returning();
 
       console.log("Quotation created successfully:", {
@@ -351,15 +403,29 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
     console.error("Error stack:", error.stack);
 
     // Log the full error object for debugging
-    // if (error.code) {
-    //   console.error("Error code:", error.code);
-    // }
-    // if (error.detail) {
-    //   console.error("Error detail:", error.detail);
-    // }
-    // if (error.constraint) {
-    //   console.error("Database constraint:", error.constraint);
-    // }
+    const dbError = error as Error & {
+      code?: string;
+      detail?: string;
+      constraint?: string;
+      severity?: string;
+      routine?: string;
+    };
+
+    if (dbError.code) {
+      console.error("Error code:", dbError.code);
+    }
+    if (dbError.detail) {
+      console.error("Error detail:", dbError.detail);
+    }
+    if (dbError.constraint) {
+      console.error("Database constraint:", dbError.constraint);
+    }
+    if (dbError.severity) {
+      console.error("Error severity:", dbError.severity);
+    }
+    if (dbError.routine) {
+      console.error("Error routine:", dbError.routine);
+    }
 
     // Return more specific error messages based on error type
     let errorMessage = "Failed to create quotation";
@@ -372,13 +438,16 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
       errorMessage = "Invalid data format";
     } else if (error.message.includes("foreign key constraint")) {
       errorMessage = "Referenced product not found";
+    } else if (error.message.includes("Failed query")) {
+      errorMessage = "Database query failed - check server logs for details";
     }
 
     return c.json(
       {
         message: errorMessage,
-        details:
-          process.env.NODE_ENV === "development" ? error.message : undefined
+        details: error.message.includes("Failed query")
+          ? "Check server logs for SQL details"
+          : undefined
       },
       HttpStatusCodes.INTERNAL_SERVER_ERROR
     );
