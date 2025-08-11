@@ -41,6 +41,12 @@ const nextConfig: NextConfig = {
         hostname: "donext.s3.ap-south-1.amazonaws.com",
         port: "",
         pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "codeville.s3.ap-southeast-4.amazonaws.com",
+        port: "",
+        pathname: "/**"
       }
     ]
   },

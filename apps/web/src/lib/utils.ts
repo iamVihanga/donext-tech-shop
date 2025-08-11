@@ -22,3 +22,12 @@ export function toKebabCase(str: string) {
       .replace(/-+/g, "-")
   );
 }
+
+export const formatCurrency = (amount: number | string) => {
+  const num = typeof amount === "string" ? parseFloat(amount) : amount;
+  return new Intl.NumberFormat("en-LK", {
+    style: "currency",
+    currency: "LKR",
+    minimumFractionDigits: 2
+  }).format(num);
+};
