@@ -19,15 +19,16 @@ export default function QuotationPrintPage() {
   const { data: quotation, isLoading, error } = useGetQuotation(quotationId);
 
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    // content: () => printRef.current,
+    contentRef: printRef,
     documentTitle: `Quotation-${quotation?.quotationNumber || quotationId}`,
-    onBeforeGetContent: () => {
-      // Hide the action buttons before printing
-      const actionButtons = document.getElementById("action-buttons");
-      if (actionButtons) {
-        actionButtons.style.display = "none";
-      }
-    },
+    // onBeforeGetContent: () => {
+    //   // Hide the action buttons before printing
+    //   const actionButtons = document.getElementById("action-buttons");
+    //   if (actionButtons) {
+    //     actionButtons.style.display = "none";
+    //   }
+    // },
     onAfterPrint: () => {
       // Show the action buttons after printing
       const actionButtons = document.getElementById("action-buttons");
