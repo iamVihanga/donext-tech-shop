@@ -13,16 +13,28 @@ export const useCreateQuotation = () => {
     mutationFn: async (data: InsertQuotation) => {
       const rpcClient = await getClient();
 
+      console.log("Creating quotation with data:", data);
+
       const response = await rpcClient.api.quotations.$post({
         json: data
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create quotation");
+        console.error("Quotation creation failed:", {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        });
+
+        // Throw more specific error message
+        const errorMessage = errorData.message || "Failed to create quotation";
+
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
+      console.log("Quotation created successfully:", result);
       return result;
     },
     onMutate: () => {

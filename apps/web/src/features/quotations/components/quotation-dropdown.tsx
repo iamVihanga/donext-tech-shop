@@ -57,48 +57,58 @@ export function QuotationDropdown({ className }: Props) {
       return;
     }
 
+    // Validate customer information - provide defaults if empty but ensure they're valid
+    const finalCustomerName =
+      customerInfo.customerName?.trim() || "Guest Customer";
+    const finalCustomerEmail =
+      customerInfo.customerEmail?.trim() || "guest@gamezonetech.com";
+    const finalTitle =
+      quotationDetails.title?.trim() || "Product Quotation Request";
+
     setIsDownloading(true);
     try {
       // Step 1: Save quotation to database first
       const quotationNumber = `QT-${Date.now()}`;
 
-      // Prepare quotation data for saving
+      // Prepare quotation data for saving with proper validation
       const quotationData = {
-        customerName: customerInfo.customerName || "Guest User",
-        customerEmail: customerInfo.customerEmail || "guest@example.com",
-        customerPhone: customerInfo.customerPhone || null,
-        customerCompany: customerInfo.customerCompany || null,
-        customerAddress: customerInfo.customerAddress.street
+        customerName: finalCustomerName,
+        customerEmail: finalCustomerEmail,
+        customerPhone: customerInfo.customerPhone?.trim() || null,
+        customerCompany: customerInfo.customerCompany?.trim() || null,
+        customerAddress: customerInfo.customerAddress.street?.trim()
           ? {
-              street: customerInfo.customerAddress.street,
-              city: customerInfo.customerAddress.city,
-              state: customerInfo.customerAddress.state,
-              postalCode: customerInfo.customerAddress.postalCode,
-              country: customerInfo.customerAddress.country
+              street: customerInfo.customerAddress.street.trim(),
+              city: customerInfo.customerAddress.city?.trim() || "",
+              state: customerInfo.customerAddress.state?.trim() || "",
+              postalCode: customerInfo.customerAddress.postalCode?.trim() || "",
+              country: customerInfo.customerAddress.country?.trim() || ""
             }
           : null,
-        title: quotationDetails.title || "Quotation Request",
-        description: quotationDetails.description || null,
+        title: finalTitle,
+        description: quotationDetails.description?.trim() || null,
         validUntil: quotationDetails.validUntil || null,
-        notes: quotationDetails.notes || null,
-        terms: quotationDetails.terms || null,
-        subtotal: totals.subtotal.toString(),
-        taxAmount: totals.taxAmount.toString(),
-        discountAmount: totals.discountAmount.toString(),
-        totalAmount: totals.totalAmount.toString(),
+        notes: quotationDetails.notes?.trim() || null,
+        terms: quotationDetails.terms?.trim() || null,
+        subtotal: totals.subtotal.toFixed(2),
+        taxAmount: totals.taxAmount.toFixed(2),
+        discountAmount: totals.discountAmount.toFixed(2),
+        totalAmount: totals.totalAmount.toFixed(2),
         status: "draft" as const,
         items: items.map((item) => ({
           productId: item.product.id,
           variantId: item.variant?.id || null,
           quantity: item.quantity,
-          unitPrice: item.unitPrice.toString(),
-          totalPrice: item.totalPrice.toString(),
+          unitPrice: item.unitPrice.toFixed(2),
+          totalPrice: item.totalPrice.toFixed(2),
           productName: item.product.name,
           productSku: item.product.sku || null,
           variantName: item.variant?.name || null,
-          notes: item.notes || null
+          notes: item.notes?.trim() || null
         }))
       };
+
+      console.log("Sending quotation data:", quotationData);
 
       // Save to database
       const savedQuotation =

@@ -138,6 +138,79 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
   const body = c.req.valid("json");
 
   try {
+    // Validate required fields
+    const { items, ...quotationData } = body;
+
+    // Ensure required fields are present and not null/empty
+    if (!quotationData.customerName?.trim()) {
+      console.error("Validation error: customerName is required");
+      return c.json(
+        { message: "Customer name is required" },
+        HttpStatusCodes.BAD_REQUEST
+      );
+    }
+
+    if (!quotationData.customerEmail?.trim()) {
+      console.error("Validation error: customerEmail is required");
+      return c.json(
+        { message: "Customer email is required" },
+        HttpStatusCodes.BAD_REQUEST
+      );
+    }
+
+    if (!quotationData.title?.trim()) {
+      console.error("Validation error: title is required");
+      return c.json(
+        { message: "Quotation title is required" },
+        HttpStatusCodes.BAD_REQUEST
+      );
+    }
+
+    // Validate items
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      console.error(
+        "Validation error: items array is required and must not be empty"
+      );
+      return c.json(
+        { message: "At least one quotation item is required" },
+        HttpStatusCodes.BAD_REQUEST
+      );
+    }
+
+    // Validate each item
+    for (const item of items) {
+      if (!item.productId?.trim()) {
+        console.error("Validation error: productId is required for all items");
+        return c.json(
+          { message: "Product ID is required for all items" },
+          HttpStatusCodes.BAD_REQUEST
+        );
+      }
+      if (!item.productName?.trim()) {
+        console.error(
+          "Validation error: productName is required for all items"
+        );
+        return c.json(
+          { message: "Product name is required for all items" },
+          HttpStatusCodes.BAD_REQUEST
+        );
+      }
+      if (!item.unitPrice || isNaN(parseFloat(item.unitPrice))) {
+        console.error(
+          "Validation error: valid unitPrice is required for all items"
+        );
+        return c.json(
+          { message: "Valid unit price is required for all items" },
+          HttpStatusCodes.BAD_REQUEST
+        );
+      }
+    }
+
+    console.log("Creating quotation with data:", {
+      quotationData,
+      itemsCount: items.length
+    });
+
     // Generate quotation number
     const quotationNumber = `QUO-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
 
@@ -149,56 +222,96 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
      */
     const result = await db.transaction(async (tx) => {
       // Create Quotation
-      const { items, ...quotationData } = body;
 
       const [createdQuotation] = await tx
         .insert(quotations)
         .values({
           ...quotationData,
-          quotationNumber
+          quotationNumber,
+          // Ensure decimal fields have proper defaults
+          subtotal: quotationData.subtotal || "0.00",
+          taxAmount: quotationData.taxAmount || "0.00",
+          discountAmount: quotationData.discountAmount || "0.00",
+          totalAmount: quotationData.totalAmount || "0.00",
+          // Ensure status has a valid value
+          status: quotationData.status || "draft"
         })
         .returning();
 
-      console.log({ createdQuotation, bodyData: { items, ...quotationData } });
+      console.log("Quotation created successfully:", {
+        id: createdQuotation?.id,
+        quotationNumber: createdQuotation?.quotationNumber
+      });
 
       if (!createdQuotation) {
-        throw new Error("Failed to create quotation");
-      }
-
-      // Insert Quotation Items
-      if (items && items.length > 0) {
-        const quotationItemsData = items.map((item: QuotationItemData) => ({
-          ...item,
-          quotationId: createdQuotation.id,
-          quantity: item.quantity || 1,
-          totalPrice: (
-            parseFloat(item.unitPrice) * (item.quantity || 1)
-          ).toString()
-        }));
-
-        await tx.insert(quotationItems).values(quotationItemsData);
-
-        // Calculate totals
-        const subtotal = quotationItemsData.reduce(
-          (sum: number, item: { totalPrice: string }) =>
-            sum + parseFloat(item.totalPrice),
-          0
+        console.error(
+          "Database error: Failed to create quotation - no data returned"
         );
-        const taxAmount = subtotal * 0.1; // 10% tax (configurable)
-        const discountAmount = parseFloat(quotationData.discountAmount || "0");
-        const totalAmount = subtotal + taxAmount - discountAmount;
-
-        // Update quotation with calculated totals
-        await tx
-          .update(quotations)
-          .set({
-            subtotal: subtotal.toFixed(2),
-            taxAmount: taxAmount.toFixed(2),
-            totalAmount: totalAmount.toFixed(2),
-            updatedAt: new Date()
-          })
-          .where(eq(quotations.id, createdQuotation.id));
+        throw new Error(
+          "Failed to create quotation - no data returned from database"
+        );
       }
+
+      console.log("Processing quotation items:", { itemsCount: items.length });
+      const quotationItemsData = items.map((item: QuotationItemData) => ({
+        ...item,
+        quotationId: createdQuotation.id,
+        quantity: item.quantity || 1,
+        totalPrice: (
+          parseFloat(item.unitPrice) * (item.quantity || 1)
+        ).toString()
+      }));
+
+      console.log("Inserting quotation items:", {
+        itemsCount: quotationItemsData.length,
+        items: quotationItemsData.map((i) => ({
+          productId: i.productId,
+          quantity: i.quantity,
+          unitPrice: i.unitPrice
+        }))
+      });
+
+      await tx.insert(quotationItems).values(quotationItemsData);
+
+      console.log("Quotation items inserted successfully");
+
+      await tx.insert(quotationItems).values(quotationItemsData);
+
+      // Calculate totals
+      const subtotal = quotationItemsData.reduce(
+        (sum: number, item: { totalPrice: string }) =>
+          sum + parseFloat(item.totalPrice),
+        0
+      );
+      const taxAmount = subtotal * 0.1; // 10% tax (configurable)
+      const discountAmount = parseFloat(quotationData.discountAmount || "0");
+      const totalAmount = subtotal + taxAmount - discountAmount;
+
+      console.log("Calculated totals:", {
+        subtotal: subtotal.toFixed(2),
+        taxAmount: taxAmount.toFixed(2),
+        discountAmount: discountAmount.toFixed(2),
+        totalAmount: totalAmount.toFixed(2)
+      });
+
+      // Update quotation with calculated totals
+      const [updatedQuotation] = await tx
+        .update(quotations)
+        .set({
+          subtotal: subtotal.toFixed(2),
+          taxAmount: taxAmount.toFixed(2),
+          totalAmount: totalAmount.toFixed(2),
+          updatedAt: new Date()
+        })
+        .where(eq(quotations.id, createdQuotation.id))
+        .returning();
+
+      if (!updatedQuotation) {
+        console.error("Database error: Failed to update quotation totals");
+        throw new Error("Failed to update quotation totals");
+      }
+
+      console.log("Quotation totals updated successfully");
 
       // Fetch full quotation with items
       const fullQuotation = await tx.query.quotations.findFirst({
@@ -213,14 +326,60 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
         }
       });
 
+      if (!fullQuotation) {
+        console.error("Database error: Failed to fetch created quotation");
+        throw new Error("Failed to fetch created quotation");
+      }
+
+      console.log("Quotation created successfully with items:", {
+        quotationId: fullQuotation.id,
+        itemsCount: fullQuotation.items.length
+      });
+
       return fullQuotation;
     });
 
+    console.log("Transaction completed successfully, returning quotation");
     return c.json(result, HttpStatusCodes.OK);
-  } catch (error) {
-    console.error("Create quotation error:", error);
+  } catch (err) {
+    const error = err as Error;
+
+    // Enhanced error logging
+    console.error("Create quotation error details:");
+    console.error("Error name:", error.name);
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+
+    // Log the full error object for debugging
+    // if (error.code) {
+    //   console.error("Error code:", error.code);
+    // }
+    // if (error.detail) {
+    //   console.error("Error detail:", error.detail);
+    // }
+    // if (error.constraint) {
+    //   console.error("Database constraint:", error.constraint);
+    // }
+
+    // Return more specific error messages based on error type
+    let errorMessage = "Failed to create quotation";
+
+    if (error.message.includes("violates not-null constraint")) {
+      errorMessage = "Missing required field";
+    } else if (error.message.includes("violates unique constraint")) {
+      errorMessage = "Duplicate quotation number";
+    } else if (error.message.includes("invalid input syntax")) {
+      errorMessage = "Invalid data format";
+    } else if (error.message.includes("foreign key constraint")) {
+      errorMessage = "Referenced product not found";
+    }
+
     return c.json(
-      { message: "Failed to create quotation" },
+      {
+        message: errorMessage,
+        details:
+          process.env.NODE_ENV === "development" ? error.message : undefined
+      },
       HttpStatusCodes.INTERNAL_SERVER_ERROR
     );
   }

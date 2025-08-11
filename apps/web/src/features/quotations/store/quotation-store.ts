@@ -82,7 +82,7 @@ const initialCustomerInfo = {
 };
 
 const initialQuotationDetails = {
-  title: "",
+  title: "Product Quotation Request",
   description: "",
   validUntil: "",
   notes: "",
