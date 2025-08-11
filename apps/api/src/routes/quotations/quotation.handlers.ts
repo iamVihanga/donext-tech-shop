@@ -159,6 +159,8 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
         })
         .returning();
 
+      console.log({ createdQuotation, bodyData: { items, ...quotationData } });
+
       if (!createdQuotation) {
         throw new Error("Failed to create quotation");
       }
