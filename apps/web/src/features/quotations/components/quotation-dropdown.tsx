@@ -1,5 +1,6 @@
 "use client";
 
+import { useCreateQuotation } from "@/features/quotations/actions/use-create-quotation";
 import { useQuotationStore } from "@/features/quotations/store/quotation-store";
 import { getProductThumbnail } from "@/lib/helpers";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -25,6 +26,7 @@ interface Props {
 
 export function QuotationDropdown({ className }: Props) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const createQuotationMutation = useCreateQuotation();
   const {
     items,
     updateItemQuantity,
@@ -57,6 +59,52 @@ export function QuotationDropdown({ className }: Props) {
 
     setIsDownloading(true);
     try {
+      // Step 1: Save quotation to database first
+      const quotationNumber = `QT-${Date.now()}`;
+
+      // Prepare quotation data for saving
+      const quotationData = {
+        customerName: customerInfo.customerName || "Guest User",
+        customerEmail: customerInfo.customerEmail || "guest@example.com",
+        customerPhone: customerInfo.customerPhone || null,
+        customerCompany: customerInfo.customerCompany || null,
+        customerAddress: customerInfo.customerAddress.street
+          ? {
+              street: customerInfo.customerAddress.street,
+              city: customerInfo.customerAddress.city,
+              state: customerInfo.customerAddress.state,
+              postalCode: customerInfo.customerAddress.postalCode,
+              country: customerInfo.customerAddress.country
+            }
+          : null,
+        title: quotationDetails.title || "Quotation Request",
+        description: quotationDetails.description || null,
+        validUntil: quotationDetails.validUntil || null,
+        notes: quotationDetails.notes || null,
+        terms: quotationDetails.terms || null,
+        subtotal: totals.subtotal.toString(),
+        taxAmount: totals.taxAmount.toString(),
+        discountAmount: totals.discountAmount.toString(),
+        totalAmount: totals.totalAmount.toString(),
+        status: "draft" as const,
+        items: items.map((item) => ({
+          productId: item.product.id,
+          variantId: item.variant?.id || null,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice.toString(),
+          totalPrice: item.totalPrice.toString(),
+          productName: item.product.name,
+          productSku: item.product.sku || null,
+          variantName: item.variant?.name || null,
+          notes: item.notes || null
+        }))
+      };
+
+      // Save to database
+      const savedQuotation =
+        await createQuotationMutation.mutateAsync(quotationData);
+
+      // Step 2: Generate PDF with saved quotation number
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -102,14 +150,18 @@ export function QuotationDropdown({ className }: Props) {
         fontSize: 10
       });
 
-      const quotationNumber = `QT-${Date.now()}`;
       addText("QUOTATION", pageWidth - 60, yPosition, {
         fontSize: 14,
         fontStyle: "bold"
       });
-      addText(`#${quotationNumber}`, pageWidth - 60, yPosition + 6, {
-        fontSize: 10
-      });
+      addText(
+        `#${savedQuotation.quotationNumber}`,
+        pageWidth - 60,
+        yPosition + 6,
+        {
+          fontSize: 10
+        }
+      );
       addText(
         `Date: ${new Date().toLocaleDateString()}`,
         pageWidth - 60,
@@ -118,44 +170,6 @@ export function QuotationDropdown({ className }: Props) {
       );
 
       yPosition += 30;
-
-      // Customer Information
-      checkNewPage(30);
-      addText("CUSTOMER INFORMATION", margin, yPosition, {
-        fontSize: 12,
-        fontStyle: "bold"
-      });
-      yPosition += 8;
-
-      pdf.setDrawColor(200, 200, 200);
-      pdf.rect(margin, yPosition, pageWidth - 2 * margin, 20);
-      yPosition += 5;
-
-      addText(
-        `Name: ${customerInfo.customerName || "Guest User"}`,
-        margin + 5,
-        yPosition
-      );
-      yPosition += 5;
-      addText(
-        `Email: ${customerInfo.customerEmail || "guest@example.com"}`,
-        margin + 5,
-        yPosition
-      );
-      if (customerInfo.customerPhone) {
-        yPosition += 5;
-        addText(`Phone: ${customerInfo.customerPhone}`, margin + 5, yPosition);
-      }
-      if (customerInfo.customerCompany) {
-        yPosition += 5;
-        addText(
-          `Company: ${customerInfo.customerCompany}`,
-          margin + 5,
-          yPosition
-        );
-      }
-
-      yPosition += 15;
 
       // Quotation Details
       if (quotationDetails.title || quotationDetails.description) {
@@ -315,11 +329,13 @@ export function QuotationDropdown({ className }: Props) {
       });
 
       // Download the PDF
-      pdf.save(`Quotation-${quotationNumber}.pdf`);
-      toast.success("Quotation PDF downloaded successfully!");
+      pdf.save(`Quotation-${savedQuotation.quotationNumber}.pdf`);
+      toast.success("Quotation saved and PDF downloaded successfully!");
     } catch (error) {
       console.error("Error generating PDF:", error);
-      toast.error("Failed to generate PDF. Please try again.");
+      toast.error(
+        "Failed to save quotation or generate PDF. Please try again."
+      );
     } finally {
       setIsDownloading(false);
     }
@@ -344,7 +360,7 @@ export function QuotationDropdown({ className }: Props) {
             <p className="text-sm text-muted-foreground mb-4">
               Your quotation is empty
             </p>
-            <Link href="/products">
+            <Link href="/shop">
               <Button size="sm" className="w-full">
                 <Plus className="h-4 w-4 mr-2" />
                 Browse Products
