@@ -258,29 +258,25 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
     const result = await db.transaction(async (tx) => {
       console.log("Starting database transaction...");
 
-      // Create Quotation with sanitized values
+      // Create Quotation with sanitized values - order must match schema
       const insertData = {
         quotationNumber,
-        // Required fields
+        userId: sanitizeValue(quotationData.userId),
         customerName: quotationData.customerName,
         customerEmail: quotationData.customerEmail,
-        title: quotationData.title,
-        // Optional fields - properly sanitized
-        userId: sanitizeValue(quotationData.userId),
         customerPhone: sanitizeValue(quotationData.customerPhone),
         customerCompany: sanitizeValue(quotationData.customerCompany),
+        title: quotationData.title,
         description: sanitizeValue(quotationData.description),
-        validUntil: sanitizeValue(quotationData.validUntil),
-        notes: sanitizeValue(quotationData.notes),
-        terms: sanitizeValue(quotationData.terms),
-        customerAddress: sanitizeAddress(quotationData.customerAddress),
-        // Decimal fields with proper defaults
         subtotal: quotationData.subtotal || "0.00",
         taxAmount: quotationData.taxAmount || "0.00",
         discountAmount: quotationData.discountAmount || "0.00",
         totalAmount: quotationData.totalAmount || "0.00",
-        // Status with default
-        status: quotationData.status || "draft"
+        status: quotationData.status || "draft",
+        validUntil: sanitizeValue(quotationData.validUntil),
+        notes: sanitizeValue(quotationData.notes),
+        terms: sanitizeValue(quotationData.terms),
+        customerAddress: sanitizeAddress(quotationData.customerAddress)
       };
 
       console.log("Insert data prepared:", insertData);
