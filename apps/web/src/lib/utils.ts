@@ -1,22 +1,4 @@
-import { clsx, type Classexport const formatCurrency = (amount: number | string) => {
-  const num = typeof amount === "string" ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat("en-LK", {
-    style: "currency",
-    currency: "LKR",
-    minimumFractionDigits: 2,
-  }).format(num);
-};
-
-export const formatPhoneNumber = (phoneNumber: string) => {
-  // Remove all non-digit characters except +
-  const cleaned = phoneNumber.replace(/[^\d+]/g, '');
-  return cleaned;
-};
-
-export const createPhoneLink = (phoneNumber: string) => {
-  const formatted = formatPhoneNumber(phoneNumber);
-  return `tel:${formatted}`;
-};from "clsx";
+import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
