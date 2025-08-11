@@ -92,9 +92,21 @@ export default function ContactPage() {
                         <p className="text-muted-foreground text-sm mb-2">
                           Call us for immediate assistance
                         </p>
-                        <p className="font-medium text-foreground">
-                          {`+94 76 023 0340 / +94 71 930 8389`}
-                        </p>
+                        <div className="font-medium text-foreground">
+                          <Link
+                            href="tel:+94760230340"
+                            className="hover:text-blue-600 transition-colors duration-200"
+                          >
+                            +94 76 023 0340
+                          </Link>
+                          {" / "}
+                          <Link
+                            href="tel:+94719308389"
+                            className="hover:text-blue-600 transition-colors duration-200"
+                          >
+                            +94 71 930 8389
+                          </Link>
+                        </div>
                         <p className="text-sm text-muted-foreground mt-1">
                           Available: Mon-Sat, 9:00 AM - 8:00 PM
                         </p>

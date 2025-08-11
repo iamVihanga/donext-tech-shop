@@ -5,6 +5,7 @@ import {
   IconBuilding,
   IconCamera,
   IconDashboard,
+  IconFileText,
   IconSettings,
   IconUsers
 } from "@tabler/icons-react";
@@ -60,6 +61,13 @@ const data = {
       icon: IconBox,
       isActive: false,
       url: "/admin/orders",
+      items: []
+    },
+    {
+      title: "Quotations",
+      icon: IconFileText,
+      isActive: false,
+      url: "/admin/quotations",
       items: []
     },
     {

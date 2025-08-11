@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetQuotations } from "@/features/quotations/actions/use-get-quotations";
+import { formatCurrency } from "@/lib/utils";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { Card } from "@repo/ui/components/card";
@@ -13,7 +14,7 @@ import {
   SelectValue
 } from "@repo/ui/components/select";
 import { formatDistanceToNow } from "date-fns";
-import { Edit, ExternalLink, Eye, Trash2 } from "lucide-react";
+import { Download, Edit, ExternalLink, Eye, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 const statusColors = {
@@ -123,8 +124,8 @@ export function QuotationsList() {
 
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                   <span>
-                    <strong>Total:</strong> $
-                    {parseFloat(quotation.totalAmount).toFixed(2)}
+                    <strong>Total:</strong>{" "}
+                    {formatCurrency(parseFloat(quotation.totalAmount))}
                   </span>
                   <span>
                     <strong>Items:</strong> {quotation.items?.length || 0}
@@ -137,7 +138,7 @@ export function QuotationsList() {
               </div>
 
               <div className="flex items-center gap-2 ml-4">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" title="View Details">
                   <Eye className="h-4 w-4" />
                 </Button>
                 <Button
@@ -148,13 +149,17 @@ export function QuotationsList() {
                 >
                   <ExternalLink className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" title="Download PDF">
+                  <Download className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" title="Edit">
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="text-red-600 hover:text-red-700"
+                  title="Delete"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

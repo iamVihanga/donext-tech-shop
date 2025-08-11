@@ -38,7 +38,12 @@ export function Hero({}: Props) {
           </h1>
           <p className="text-amber-200">
             Contact Us:{" "}
-            <span className="font-semibold">+94 76 023 0340</span>{" "}
+            <Link
+              href="tel:+94760230340"
+              className="font-semibold hover:text-amber-100 transition-colors duration-200"
+            >
+              +94 76 023 0340
+            </Link>{" "}
           </p>
 
           <div className="mt-2 flex items-center gap-3 pointer-events-auto">

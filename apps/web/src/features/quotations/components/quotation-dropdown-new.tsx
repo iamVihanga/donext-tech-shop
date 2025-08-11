@@ -344,7 +344,7 @@ export function QuotationDropdown({ className }: Props) {
             <p className="text-sm text-muted-foreground mb-4">
               Your quotation is empty
             </p>
-            <Link href="/products">
+            <Link href="/shop">
               <Button size="sm" className="w-full">
                 <Plus className="h-4 w-4 mr-2" />
                 Browse Products
