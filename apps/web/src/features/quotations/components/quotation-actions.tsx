@@ -60,27 +60,38 @@ export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
     setIsSaving(true);
 
     try {
-      // Prepare quotation data for API
+      // Prepare quotation data for API with proper defaults
+      const finalCustomerName =
+        customerInfo.customerName?.trim() || "Guest Customer";
+      const finalCustomerEmail =
+        customerInfo.customerEmail?.trim() || "guest@gamezonetech.com";
+      const finalTitle =
+        quotationDetails.title?.trim() || `Quotation for ${finalCustomerName}`;
+
       const quotationData = {
-        // Customer information (now optional for guest users)
-        customerName: customerInfo.customerName.trim() || "Guest User",
-        customerEmail: customerInfo.customerEmail.trim() || "guest@example.com",
-        customerPhone: customerInfo.customerPhone?.trim() || undefined,
-        customerCompany: customerInfo.customerCompany?.trim() || undefined,
+        // Customer information (with proper defaults)
+        customerName: finalCustomerName,
+        customerEmail: finalCustomerEmail,
+        customerPhone: customerInfo.customerPhone?.trim() || null,
+        customerCompany: customerInfo.customerCompany?.trim() || null,
         customerAddress: Object.values(customerInfo.customerAddress).some((v) =>
-          v.trim()
+          v?.trim()
         )
-          ? customerInfo.customerAddress
-          : undefined,
+          ? {
+              street: customerInfo.customerAddress.street?.trim() || "",
+              city: customerInfo.customerAddress.city?.trim() || "",
+              state: customerInfo.customerAddress.state?.trim() || "",
+              postalCode: customerInfo.customerAddress.postalCode?.trim() || "",
+              country: customerInfo.customerAddress.country?.trim() || ""
+            }
+          : null,
 
         // Quotation details
-        title:
-          quotationDetails.title ||
-          `Quotation for ${customerInfo.customerName.trim() || "Guest User"}`,
-        description: quotationDetails.description || undefined,
-        validUntil: quotationDetails.validUntil || undefined,
-        notes: quotationDetails.notes || undefined,
-        terms: quotationDetails.terms || undefined,
+        title: finalTitle,
+        description: quotationDetails.description?.trim() || null,
+        validUntil: quotationDetails.validUntil || null,
+        notes: quotationDetails.notes?.trim() || null,
+        terms: quotationDetails.terms?.trim() || null,
 
         // Totals
         subtotal: totals.subtotal.toFixed(2),
@@ -94,16 +105,18 @@ export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
         // Items
         items: items.map((item) => ({
           productId: item.product.id,
-          variantId: item.variant?.id || undefined,
+          variantId: item.variant?.id || null,
           quantity: item.quantity,
           unitPrice: item.unitPrice.toFixed(2),
           totalPrice: item.totalPrice.toFixed(2),
           productName: item.product.name,
-          productSku: item.product.sku || undefined,
-          variantName: item.variant?.name || undefined,
-          notes: item.notes || undefined
+          productSku: item.product.sku || null,
+          variantName: item.variant?.name || null,
+          notes: item.notes?.trim() || null
         }))
       };
+
+      console.log("Saving quotation with data:", quotationData);
 
       createQuotation(quotationData, {
         onSuccess: (data) => {
