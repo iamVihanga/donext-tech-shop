@@ -61,9 +61,9 @@ export function Hero({}: Props) {
             <Button asChild variant={"accent"}>
               <Link href="/shop">Shop Now</Link>
             </Button>
-            <Button asChild variant={"accent-outline"}>
+            {/* <Button asChild variant={"accent-outline"}>
               <Link href="#">Featured</Link>
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>

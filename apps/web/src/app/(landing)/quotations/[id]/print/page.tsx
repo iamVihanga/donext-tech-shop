@@ -202,7 +202,14 @@ function QuotationPrintTemplate({ quotation }: QuotationPrintTemplateProps) {
             </h1>
             <p className="text-gray-600">Your Technology Partner</p>
             <p className="text-sm text-gray-500 mt-2">
-              Email: info@gamezonetech.com | Phone: +94 XXX XXX XXX
+              Email: info@gamezonetech.com | Phone:
+              <a
+                href="tel:+94760230340"
+                className="hover:text-blue-600 no-print"
+              >
+                +94 76 023 0340
+              </a>
+              <span className="print-only">+94 76 023 0340</span>
             </p>
           </div>
           <div className="text-right">

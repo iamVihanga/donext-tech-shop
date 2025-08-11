@@ -21,7 +21,7 @@ export default async function Homepage() {
           description="Explore our collection of trusted brands that offer quality and reliability."
           rightContent={
             <Button asChild variant={"link"}>
-              <Link href="/brands">View All Brands</Link>
+              <Link href="/shop">View All Brands</Link>
             </Button>
           }
         />

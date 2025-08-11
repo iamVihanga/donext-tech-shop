@@ -91,9 +91,9 @@ export function AddToQuotationButton({
       size={size}
       onClick={handleAddToQuotation}
       disabled={!product.isActive || disabled}
-      className={className}
+      className={cn("text-sm", className)}
     >
-      <FileText className="h-4 w-4 mr-2" />
+      <FileText className="h-4 w-4 mr-1" />
       Add to Quotation
     </Button>
   );
