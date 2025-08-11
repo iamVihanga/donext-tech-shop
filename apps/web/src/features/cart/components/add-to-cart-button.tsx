@@ -7,6 +7,7 @@ import { Button } from "@repo/ui/components/button";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import { useCart } from "../hooks/use-cart";
 import type { AddCartItemT } from "../schemas/cart.zod";
 
@@ -46,6 +47,16 @@ export function AddToCartButton({
   const session = authClient.useSession();
   const router = useRouter();
 
+  // Find selected variant
+  const selectedVariant = variantId
+    ? product.variants?.find((v) => v.id === variantId)
+    : undefined;
+
+  // Check stock availability
+  const isOutOfStock = selectedVariant
+    ? (selectedVariant.stockQuantity ?? 0) <= 0
+    : (product.stockQuantity ?? 0) <= 0;
+
   const inCart = isInCart(product.id, variantId);
   const currentQuantity = getCartItemQuantity(product.id, variantId);
 
@@ -53,6 +64,11 @@ export function AddToCartButton({
     if (!session.data || session.error) {
       // Redirect to sign-in if not authenticated
       router.push("/signin");
+      return;
+    }
+
+    if (isOutOfStock) {
+      toast.error("This product is currently out of stock");
       return;
     }
 
@@ -75,6 +91,16 @@ export function AddToCartButton({
   const handleUpdateQuantity = async (newQuantity: number) => {
     if (newQuantity <= 0) return;
 
+    // Check if new quantity exceeds available stock
+    const availableStock = selectedVariant
+      ? (selectedVariant.stockQuantity ?? 0)
+      : (product.stockQuantity ?? 0);
+
+    if (newQuantity > availableStock) {
+      toast.error(`Only ${availableStock} items available in stock`);
+      return;
+    }
+
     const cartItem = product.variants?.find((v) => v.id === variantId);
     if (!cartItem) return;
 
@@ -84,6 +110,12 @@ export function AddToCartButton({
   const isLoading = isAddingToCart || isUpdatingCart;
 
   if (inCart) {
+    const availableStock = selectedVariant
+      ? (selectedVariant.stockQuantity ?? 0)
+      : (product.stockQuantity ?? 0);
+
+    const isAtMaxStock = currentQuantity >= availableStock;
+
     return (
       <div className={cn("flex items-center gap-2", className)}>
         <Button
@@ -101,7 +133,10 @@ export function AddToCartButton({
           variant="outline"
           size="icon"
           onClick={() => handleUpdateQuantity(currentQuantity + 1)}
-          disabled={isLoading || disabled}
+          disabled={isLoading || disabled || isAtMaxStock}
+          title={
+            isAtMaxStock ? `Only ${availableStock} items available` : undefined
+          }
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -114,11 +149,12 @@ export function AddToCartButton({
       variant={variant}
       size={size}
       onClick={handleAddToCart}
-      disabled={isLoading || !product.isActive || disabled}
+      disabled={isLoading || !product.isActive || disabled || isOutOfStock}
       className={className}
+      title={isOutOfStock ? "Product is out of stock" : undefined}
     >
       <ShoppingCart className="h-4 w-4 mr-2" />
-      {isLoading ? "Adding..." : "Add to Cart"}
+      {isLoading ? "Adding..." : isOutOfStock ? "Out of Stock" : "Add to Cart"}
     </Button>
   );
 }

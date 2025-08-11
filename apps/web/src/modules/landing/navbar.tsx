@@ -50,9 +50,9 @@ export async function Navbar() {
                 {/* Mobile Navigation Links */}
                 <div className="flex flex-col gap-2">
                   {/* <Wishlist /> */}
+                  <NavbarQuotationSection />
                   {session.data ? (
                     <>
-                      <NavbarQuotationSection />
                       <Button asChild variant="default" className="w-full">
                         <Link href="/account">My Account</Link>
                       </Button>
@@ -90,10 +90,10 @@ export async function Navbar() {
         {/* Desktop Nav Links - Hidden on mobile */}
         <div className="hidden md:flex items-center gap-3">
           {/* <Wishlist /> */}
+          <NavbarQuotationSection />
 
           {session.data ? (
             <div className="flex items-center gap-2">
-              <NavbarQuotationSection />
               <Button asChild variant="accent" className="w-32">
                 <Link href="/account">Account</Link>
               </Button>

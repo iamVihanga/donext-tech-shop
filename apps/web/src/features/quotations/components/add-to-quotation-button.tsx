@@ -40,6 +40,11 @@ export function AddToQuotationButton({
     ? product.variants?.find((v) => v.id === variantId)
     : undefined;
 
+  // Check stock availability
+  const isOutOfStock = selectedVariant
+    ? (selectedVariant.stockQuantity ?? 0) <= 0
+    : (product.stockQuantity ?? 0) <= 0;
+
   // Check if item is already in quotation
   const existingItem = items.find(
     (item) =>
@@ -48,17 +53,39 @@ export function AddToQuotationButton({
   );
 
   const handleAddToQuotation = () => {
+    if (isOutOfStock) {
+      toast.error("This product is currently out of stock");
+      return;
+    }
+
     addItem(product, selectedVariant, localQuantity);
     toast.success(`${product.name} added to quotation`);
   };
 
   const handleUpdateQuantity = (newQuantity: number) => {
     if (newQuantity <= 0 || !existingItem) return;
+
+    // Check if new quantity exceeds available stock
+    const availableStock = selectedVariant
+      ? (selectedVariant.stockQuantity ?? 0)
+      : (product.stockQuantity ?? 0);
+
+    if (newQuantity > availableStock) {
+      toast.error(`Only ${availableStock} items available in stock`);
+      return;
+    }
+
     updateItemQuantity(existingItem.id, newQuantity);
   };
 
   // If item is already in quotation, show quantity controls
   if (existingItem) {
+    const availableStock = selectedVariant
+      ? (selectedVariant.stockQuantity ?? 0)
+      : (product.stockQuantity ?? 0);
+
+    const isAtMaxStock = existingItem.quantity >= availableStock;
+
     return (
       <div className={cn("flex items-center gap-2", className)}>
         <Button
@@ -76,7 +103,10 @@ export function AddToQuotationButton({
           variant="outline"
           size="icon"
           onClick={() => handleUpdateQuantity(existingItem.quantity + 1)}
-          disabled={disabled}
+          disabled={disabled || isAtMaxStock}
+          title={
+            isAtMaxStock ? `Only ${availableStock} items available` : undefined
+          }
         >
           <Plus className="h-4 w-4" />
         </Button>
@@ -90,11 +120,12 @@ export function AddToQuotationButton({
       variant={variant}
       size={size}
       onClick={handleAddToQuotation}
-      disabled={!product.isActive || disabled}
+      disabled={!product.isActive || disabled || isOutOfStock}
       className={cn("text-sm", className)}
+      title={isOutOfStock ? "Product is out of stock" : undefined}
     >
       <FileText className="h-4 w-4 mr-1" />
-      Add to Quotation
+      {isOutOfStock ? "Out of Stock" : "Add to Quotation"}
     </Button>
   );
 }
