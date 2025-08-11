@@ -2,6 +2,7 @@
 
 import { Separator } from "@repo/ui/components/separator";
 
+import { useCreateProductStore } from "@/features/products/store/create-product-store";
 import {
   getAllTabs,
   getTabName,
@@ -14,6 +15,7 @@ import { PublishProductButton } from "./publish-product-button";
 
 export default function NewProductTabBar() {
   const activeTab = useActiveTab();
+  const isUpdateMode = useCreateProductStore((state) => state.isUpdateMode);
 
   return (
     <div className="mt-1 ">

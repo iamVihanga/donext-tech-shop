@@ -13,6 +13,12 @@ export function Topbar() {
 
         <div className="flex items-center gap-3 text-sm text-accent-foreground">
           <Link
+            className="text-amber-400 hover:text-amber-600 hover:underline transition-all duration-200  underline-offset-8 hover:underline-offset-2"
+            href="/quotation"
+          >
+            Quotation
+          </Link>
+          <Link
             className="hover:underline transition-all duration-200  underline-offset-8 hover:underline-offset-2"
             href="/about"
           >

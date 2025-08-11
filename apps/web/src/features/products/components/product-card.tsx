@@ -1,6 +1,6 @@
 // components/product-card.tsx
 import { ProductPrice } from "@/components/price";
-import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
+import { AddToQuotationButton } from "@/features/quotations/components/add-to-quotation-button";
 import { WishlistButton } from "@/features/wishlist/components/wishlist-button";
 import { getProductPrice, getProductThumbnail } from "@/lib/helpers";
 import { Button } from "@repo/ui/components/button";
@@ -101,7 +101,7 @@ export function ProductCard({ product }: Props) {
               <Link href={`/products/${product.id}`}>View Product</Link>
             </Button>
           ) : (
-            <AddToCartButton
+            <AddToQuotationButton
               product={product}
               className="flex-1 w-full rounded text-xs sm:text-sm h-8 sm:h-10"
               variant="accent"

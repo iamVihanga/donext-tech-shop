@@ -210,36 +210,92 @@ export const update: AppRouteHandler<UpdateRoute> = async (c) => {
 
   // Check if product exists
   const existingProduct = await db.query.products.findFirst({
-    where: (fields, { eq }) => eq(fields.id, id)
-  });
-
-  if (!existingProduct) {
-    return c.json({ message: "Product not found" }, HttpStatusCodes.NOT_FOUND);
-  }
-
-  // Update product details
-  const [updatedProduct] = await db
-    .update(products)
-    .set({ ...body, updatedAt: new Date() })
-    .where(eq(products.id, id))
-    .returning();
-
-  if (!updatedProduct) {
-    return c.json(
-      { message: "Product update failed" },
-      HttpStatusCodes.INTERNAL_SERVER_ERROR
-    );
-  }
-
-  const fullProduct = await db.query.products.findFirst({
-    where: (fields, { eq }) => eq(fields.id, updatedProduct.id),
+    where: (fields, { eq }) => eq(fields.id, id),
     with: {
       images: true,
       variants: true
     }
   });
 
-  return c.json(fullProduct, HttpStatusCodes.OK);
+  if (!existingProduct) {
+    return c.json({ message: "Product not found" }, HttpStatusCodes.NOT_FOUND);
+  }
+
+  /**
+   * Database Transactional Process
+   * - Update Product basic details,
+   * - Delete existing images and variants,
+   * - Create new Product images with product ID,
+   * - Create new Product variants with product ID.
+   */
+  const result = await db.transaction(async (tx) => {
+    // Extract images and variants from body
+    const { images, variants, ...productData } = body;
+
+    // Update basic product data
+    const [updatedProduct] = await tx
+      .update(products)
+      .set({ ...productData, updatedAt: new Date() })
+      .where(eq(products.id, id))
+      .returning();
+
+    if (!updatedProduct) {
+      tx.rollback();
+      return null;
+    }
+
+    // Handle images update if provided
+    if (images !== undefined) {
+      // Delete existing images
+      await tx.delete(productImages).where(eq(productImages.productId, id));
+
+      // Insert new images if any
+      if (images.length > 0) {
+        await tx.insert(productImages).values(
+          images.map((image) => ({
+            ...image,
+            productId: id
+          }))
+        );
+      }
+    }
+
+    // Handle variants update if provided
+    if (variants !== undefined) {
+      // Delete existing variants
+      await tx.delete(productVariants).where(eq(productVariants.productId, id));
+
+      // Insert new variants if any
+      if (variants.length > 0) {
+        await tx.insert(productVariants).values(
+          variants.map((variant) => ({
+            ...variant,
+            productId: id
+          }))
+        );
+      }
+    }
+
+    // Fetch full updated product with images and variants
+    const fullProduct = await tx.query.products.findFirst({
+      where: (fields, { eq }) => eq(fields.id, id),
+      with: {
+        images: true,
+        variants: true
+      }
+    });
+
+    return fullProduct;
+  });
+
+  if (!result) {
+    return c.json(
+      { message: "Product update failed" },
+      HttpStatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+
+  return c.json(result, HttpStatusCodes.OK);
 };
 
 /**

@@ -6,6 +6,7 @@ import type {
 import type { InventoryFormSchemaT } from "@/features/products/schemas/forms/inventory-form";
 import type { PricingFormSchemaT } from "@/features/products/schemas/forms/pricing-form";
 import { AdditionalInfoFormSchemaT } from "../schemas/forms/additional-info-form";
+import { Product } from "../types/api.types";
 
 export interface CategoriesFormSchemaT {
   selectedCategoryId: string;
@@ -17,6 +18,8 @@ export interface CreateProductStore_FormTypes {
   // Form control
   activeTab: number;
   isSubmitting: boolean;
+  isUpdateMode: boolean;
+  productId?: string;
 
   validationErrors: Record<string, string[]>;
 
@@ -49,6 +52,10 @@ export interface CreateProductStore_Actions {
   setPricing: (data: CreateProductStore_FormTypes["pricing"]) => void;
   setAdditional: (data: CreateProductStore_FormTypes["additional"]) => void;
   setActiveTab: (tabIndex: number) => void;
+
+  // Update mode actions
+  setUpdateMode: (isUpdate: boolean, productId?: string) => void;
+  populateFromProduct: (product: Product) => void;
 
   // Media actions
   addUploadedImage: (image: CtxImageT) => void;

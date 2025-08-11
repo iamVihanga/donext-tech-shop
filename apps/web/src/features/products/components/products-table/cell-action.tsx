@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal, Trash, TrashIcon } from "lucide-react";
+import { Edit, MoreHorizontal, Trash, TrashIcon } from "lucide-react";
 import { useState } from "react";
 
 import { OpenInNewWindowIcon } from "@radix-ui/react-icons";
@@ -79,6 +79,12 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/products/${data.id}/edit`}>
+                <Edit className="mr-2 h-4 w-4" /> Edit
+              </Link>
+            </DropdownMenuItem>
 
             <DropdownMenuItem onClick={() => setOpen(true)}>
               <Trash className="mr-2 h-4 w-4" /> Delete

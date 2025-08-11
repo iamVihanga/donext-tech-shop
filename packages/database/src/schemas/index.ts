@@ -12,4 +12,6 @@ export * from "./cart.schema";
 
 export * from "./orders.schema";
 
+export * from "./quotations.schema";
+
 export * from "./settings.schema";
