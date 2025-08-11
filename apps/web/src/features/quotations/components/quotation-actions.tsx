@@ -78,11 +78,12 @@ export function QuotationActions({ onTabChangeAction }: QuotationActionsProps) {
           v?.trim()
         )
           ? {
-              street: customerInfo.customerAddress.street?.trim() || "",
-              city: customerInfo.customerAddress.city?.trim() || "",
-              state: customerInfo.customerAddress.state?.trim() || "",
-              postalCode: customerInfo.customerAddress.postalCode?.trim() || "",
-              country: customerInfo.customerAddress.country?.trim() || ""
+              street: customerInfo.customerAddress.street?.trim() || undefined,
+              city: customerInfo.customerAddress.city?.trim() || undefined,
+              state: customerInfo.customerAddress.state?.trim() || undefined,
+              postalCode:
+                customerInfo.customerAddress.postalCode?.trim() || undefined,
+              country: customerInfo.customerAddress.country?.trim() || undefined
             }
           : null,
 
