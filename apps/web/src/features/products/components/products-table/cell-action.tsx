@@ -20,7 +20,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
 import Link from "next/link";
@@ -98,16 +97,14 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={onEdit} disabled={updating}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
+
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/products/${data.id}/edit`}>
+                <Edit className="mr-2 h-4 w-4" /> Edit
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => setOpen(true)}
-              className="text-destructive focus:text-destructive"
-              disabled={deleting || updating}
-            >
+
+            <DropdownMenuItem onClick={() => setOpen(true)}>
               <Trash className="mr-2 h-4 w-4" /> Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

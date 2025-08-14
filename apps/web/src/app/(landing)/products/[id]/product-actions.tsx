@@ -2,8 +2,8 @@
 "use client";
 
 import { formatPrice } from "@/components/price";
-import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { ProductVariant } from "@/features/products/schemas/products.zod";
+import { AddToQuotationButton } from "@/features/quotations/components/add-to-quotation-button";
 import { Button } from "@repo/ui/components/button";
 import { useState } from "react";
 
@@ -104,7 +104,7 @@ export function ProductActions({ product }: ProductActionsProps) {
                   </span>
                 </div>
                 <div className="mt-4">
-                  <AddToCartButton
+                  <AddToQuotationButton
                     product={product}
                     variantId={selectedVariant.id}
                     className="w-full bg-amber-500 hover:bg-amber-600 text-neutral-900 font-semibold"

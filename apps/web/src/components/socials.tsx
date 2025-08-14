@@ -35,7 +35,21 @@ export default function Socials({ size, className, text = false }: Props) {
           <RiCustomerService2Line />
 
           {/* <p>{process.env.NEXT_PUBLIC_CONTACT_NUMBER || "+94 755 1234"}</p> */}
-          <p>{"+9476 023 0340" + " | " + "+9471 930 8389"}</p>
+          <div className="flex items-center gap-1">
+            <Link
+              href="tel:+94760230340"
+              className="hover:text-amber-400 transition-colors duration-200"
+            >
+              +9476 023 0340
+            </Link>
+            <span> | </span>
+            <Link
+              href="tel:+94719308389"
+              className="hover:text-amber-400 transition-colors duration-200"
+            >
+              +9471 930 8389
+            </Link>
+          </div>
           {/* <p>+94 755 1234</p> */}
         </div>
       </div>

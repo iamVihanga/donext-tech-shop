@@ -1,24 +1,21 @@
-import { getClient } from "@/lib/rpc/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useId } from "react";
 import { toast } from "sonner";
 
-interface UpdateProductParams {
-  productId: string;
-  data: Record<string, any>;
-}
+import { UpdateProductRequest } from "@/features/products/types/api.types";
+import { getClient } from "@/lib/rpc/client";
 
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
   const toastId = useId();
 
   const mutation = useMutation({
-    mutationFn: async (params: UpdateProductParams) => {
+    mutationFn: async ({ id, data }: UpdateProductRequest) => {
       const rpcClient = await getClient();
 
       const response = await rpcClient.api.products[":id"].$patch({
-        param: { id: params.productId },
-        json: params.data,
+        param: { id },
+        json: data,
       });
 
       if (!response.ok) {
@@ -26,21 +23,21 @@ export const useUpdateProduct = () => {
         throw new Error(errorData.message || "Failed to update product");
       }
 
-      const data = await response.json();
-      return data;
+      const result = await response.json();
+      return result;
     },
-    onMutate: (params) => {
+    onMutate: () => {
       toast.loading("Updating product...", { id: toastId });
     },
-    onSuccess: (data, params) => {
+    onSuccess: (data) => {
       toast.success("Product updated successfully!", { id: toastId });
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      queryClient.invalidateQueries({
-        queryKey: ["products", params.productId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["product", data.id] });
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to update product", { id: toastId });
+      toast.error(error.message || "Failed to update product", {
+        id: toastId,
+      });
     },
   });
 

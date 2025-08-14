@@ -79,28 +79,36 @@ export default function ContactPage() {
                 </CardContent>
               </Card>
 
-              {/* Phone Support Card */}
               <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex flex-col items-center text-center space-y-3">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
                     <div className="p-3 bg-amber-100 dark:bg-amber-900/20 rounded-full">
                       <Phone className="h-6 w-6 text-amber-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground mb-1 text-sm">
+                      <h3 className="font-semibold text-foreground mb-2">
                         Phone Support
                       </h3>
-                      <p className="text-xs text-muted-foreground mb-2">
+                      <p className="text-muted-foreground text-sm mb-2">
                         Call us for immediate assistance
                       </p>
-                      <p className="font-medium text-foreground text-xs leading-tight">
-                        +94 76 023 0340
-                      </p>
-                      <p className="font-medium text-foreground text-xs leading-tight">
-                        +94 71 930 8389
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Mon-Sat, 9AM-8PM
+                      <div className="font-medium text-foreground">
+                        <Link
+                          href="tel:+94760230340"
+                          className="hover:text-blue-600 transition-colors duration-200"
+                        >
+                          +94 76 023 0340
+                        </Link>
+                        {" / "}
+                        <Link
+                          href="tel:+94719308389"
+                          className="hover:text-blue-600 transition-colors duration-200"
+                        >
+                          +94 71 930 8389
+                        </Link>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Available: Mon-Sat, 9:00 AM - 8:00 PM
                       </p>
                     </div>
                   </div>

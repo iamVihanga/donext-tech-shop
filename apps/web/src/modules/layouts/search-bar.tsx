@@ -70,7 +70,7 @@ export function SearchBar({}: Props) {
       </div>
 
       {open && (
-        <div className="flex flex-col gap-3 bg-background border border-foreground/20 p-3 absolute z-30 top-full mt-2 rounded-md left-0 w-full">
+        <div className="flex flex-col gap-3 bg-background border border-foreground/20 p-3 absolute z-50 top-full mt-2 rounded-md left-0 w-full">
           {data?.data.map((product) => (
             <Card
               className="p-2 flex items-center gap-2 flex-row overflow-hidden"

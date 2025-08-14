@@ -26,8 +26,18 @@ export function Footer({}: Props) {
           </p>
 
           <div className="bg-amber-950/10 p-2 my-2">
-            <p className="text-sm text-white">+94 76 023 0340</p>
-            <p className="text-sm text-white">+94 71 930 8389</p>
+            <a
+              href="tel:+94760230340"
+              className="text-sm text-white hover:text-amber-200 transition-colors duration-200 cursor-pointer block"
+            >
+              +94 76 023 0340
+            </a>
+            <a
+              href="tel:+94719308389"
+              className="text-sm text-white hover:text-amber-200 transition-colors duration-200 cursor-pointer block"
+            >
+              +94 71 930 8389
+            </a>
           </div>
 
           <p className="text-sm text-background">

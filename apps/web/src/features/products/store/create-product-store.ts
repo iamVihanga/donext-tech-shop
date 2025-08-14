@@ -14,6 +14,8 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
   activeTab: 0,
   validationErrors: {},
   isSubmitting: false,
+  isUpdateMode: false,
+  productId: undefined,
 
   basicInformation: {
     name: "",
@@ -88,6 +90,108 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
 
   setActiveTab: (tabIndex) => {
     set({ activeTab: tabIndex });
+  },
+
+  setUpdateMode: (isUpdate, productId) => {
+    set({ isUpdateMode: isUpdate, productId });
+  },
+
+  populateFromProduct: (product) => {
+    // Extract category path from product (you might need to fetch this separately)
+    const categoryPath = product.categoryId
+      ? [{ id: product.categoryId, name: "Category", slug: "category" }]
+      : [];
+
+    // Convert product images to the expected format
+    const images =
+      product.images?.map((img, index) => ({
+        url: img.imageUrl,
+        orderIndex: img.sortOrder || index,
+        isThumbnail: img.isThumbnail || index === 0
+      })) || [];
+
+    // Convert product variants to the expected format
+    const variantTypes: Array<{
+      name: string;
+      values: Array<{
+        name: string;
+        sku: string;
+        quantity: number;
+        price: number;
+        comparePrice: number;
+      }>;
+    }> = [];
+
+    if (product.variants && product.variants.length > 0) {
+      // Group variants by type (assuming variants have a 'name' that represents the type)
+      const variantGroups: Record<string, any[]> = {};
+
+      product.variants.forEach((variant) => {
+        const typeName = variant.name || "Default";
+        if (!variantGroups[typeName]) {
+          variantGroups[typeName] = [];
+        }
+        variantGroups[typeName].push({
+          name: variant.name,
+          sku: variant.sku || "",
+          quantity: Number(variant.stockQuantity) || 0,
+          price: Number(variant.price) || 0,
+          comparePrice: Number(variant.comparePrice) || 0
+        });
+      });
+
+      // Convert to the expected format
+      Object.entries(variantGroups).forEach(([typeName, values]) => {
+        variantTypes.push({
+          name: typeName,
+          values: values
+        });
+      });
+    }
+
+    set({
+      basicInformation: {
+        name: product.name || "",
+        slug: product.slug || "",
+        shortDescription: product.shortDescription || "",
+        description: product.description || "",
+        brandId: product.brandId || "",
+        isActive: product.isActive ?? true,
+        isFeatured: product.isFeatured ?? false,
+        status: "valid"
+      },
+      categories: {
+        selectedCategoryId: product.categoryId || "",
+        categoryPath,
+        status: product.categoryId ? "valid" : "pending"
+      },
+      media: {
+        images,
+        status: images.length > 0 ? "valid" : "pending"
+      },
+      inventory: {
+        hasVariants: variantTypes.length > 0,
+        mainSku: product.sku || "",
+        quantity: Number(product.stockQuantity) || 0,
+        reservedQuantity: Number(product.reservedQuantity) || 0,
+        minStockLevel: Number(product.minStockLevel) || 0,
+        variantTypes,
+        status: "valid"
+      },
+      pricing: {
+        basePrice: Number(product.price) || 0,
+        status: "valid"
+      },
+      additional: {
+        weight: Number(product.weight) || 0,
+        dimensions: product.dimensions || "",
+        requiresShipping: product.requiresShipping ?? false,
+        metaTitle: product.metaTitle || "",
+        metaDescription: product.metaDescription || "",
+        tags: product.tags || "",
+        status: "valid"
+      }
+    });
   },
 
   toggleHasVariants: (hasVariants) => {
@@ -173,6 +277,8 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
       activeTab: 0,
       validationErrors: {},
       isSubmitting: false,
+      isUpdateMode: false,
+      productId: undefined,
       basicInformation: {
         name: "",
         slug: "",

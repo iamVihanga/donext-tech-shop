@@ -10,13 +10,14 @@ import {
   DialogTitle
 } from "@repo/ui/components/dialog";
 import { CheckCircle2Icon } from "lucide-react";
-import { useId, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useCreateProductStore } from "../store/create-product-store";
 import { getActiveTab, Tabs } from "../store/helpers";
 import { validateProductDetails, ValidatorResponseT } from "../store/validator";
 
-import { getClient } from "@/lib/rpc/client";
+import { useCreateProduct } from "@/features/products/actions/use-create-product";
+import { useUpdateProduct } from "@/features/products/actions/use-update-product";
 import { useRouter } from "next/navigation";
 
 interface PreparedProductData {
@@ -66,19 +67,30 @@ interface PreparedProductData {
 export function PublishProductButton() {
   const activeTab = getActiveTab();
   const state = useCreateProductStore();
-  const toastId = useId();
   const router = useRouter();
+
+  const { mutate: createProduct, isPending: isCreating } = useCreateProduct();
+  const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
 
   const [showValidationErrorsDialog, setShowValidationErrorsDialog] =
     useState<boolean>(false);
   const [validatorResponse, setValidatorResponse] =
     useState<ValidatorResponseT | null>(null);
 
+  const isUpdateMode = state.isUpdateMode;
+  const isLoading = isCreating || isUpdating;
+
+  // Handle success for navigation
+  const handleSuccess = () => {
+    state.clearForm();
+    router.push("/admin/products");
+  };
+
   if (activeTab !== Tabs.SUMMARY) {
     return <></>;
   }
 
-  const prepareData = (): PreparedProductData => {
+  const prepareDataForAPI = () => {
     const {
       basicInformation,
       categories,
@@ -88,50 +100,33 @@ export function PublishProductButton() {
       additional
     } = state;
 
-    // Prepare main product data
-    const product = {
-      name: basicInformation.name.trim(),
-      slug: basicInformation.slug.trim(),
-      description: basicInformation.description.trim() || null,
-      shortDescription: basicInformation.shortDescription.trim() || null,
-      price: inventory.hasVariants ? "0.00" : pricing.basePrice.toFixed(2),
-      sku: inventory.mainSku.trim(),
-      reservedQuantity: inventory.reservedQuantity,
-      stockQuantity: inventory.hasVariants ? 0 : inventory.quantity, // 0 if has variants, use variant stock instead
-      minStockLevel: inventory.minStockLevel,
-      weight: additional.weight > 0 ? additional.weight.toFixed(2) : null,
-      dimensions: additional.dimensions.trim() || null,
-      categoryId: categories.selectedCategoryId,
-      subcategoryId: null, // Remove subcategoryId as we're using infinite nested categories
-      isActive: basicInformation.isActive,
-      isFeatured: basicInformation.isFeatured,
-      requiresShipping: additional.requiresShipping,
-      metaTitle: additional.metaTitle.trim() || null,
-      metaDescription: additional.metaDescription.trim() || null,
-      tags: additional.tags.trim() || null
-    };
-
-    // Prepare images data
-    const images = media.images.map((image, index) => ({
+    // Convert images to the expected API format
+    const images = media.images.map((image) => ({
       imageUrl: image.url,
-      altText: basicInformation.name, // Use product name as alt text
       sortOrder: image.orderIndex,
       isThumbnail: image.isThumbnail
     }));
 
-    // Prepare variants data
-    const variants: PreparedProductData["variants"] = [];
+    // Convert variants to the expected API format
+    const variants: Array<{
+      name: string;
+      sku: string;
+      stockQuantity: number;
+      price: string;
+      comparePrice: string;
+      attributes: string;
+      isActive: boolean;
+    }> = [];
 
     if (inventory.hasVariants && inventory.variantTypes.length > 0) {
       inventory.variantTypes.forEach((variantType) => {
         variantType.values.forEach((value) => {
           variants.push({
-            name: value.name.trim(),
-            sku: value.sku.trim(),
+            name: `${variantType.name} - ${value.name}`,
+            sku: value.sku,
             stockQuantity: value.quantity,
-            price: value.price.toFixed(2),
-            comparePrice:
-              value.comparePrice > 0 ? value.comparePrice.toFixed(2) : null,
+            price: value.price.toString(),
+            comparePrice: value.comparePrice.toString(),
             attributes: JSON.stringify({
               type: variantType.name,
               value: value.name
@@ -143,60 +138,78 @@ export function PublishProductButton() {
     }
 
     return {
-      product,
+      name: basicInformation.name,
+      slug: basicInformation.slug,
+      shortDescription: basicInformation.shortDescription || undefined,
+      description: basicInformation.description || undefined,
+      brandId: basicInformation.brandId,
+      categoryId: categories.selectedCategoryId,
+      price: inventory.hasVariants ? "0" : pricing.basePrice.toString(),
+      sku: inventory.mainSku,
+      stockQuantity: inventory.hasVariants ? 0 : inventory.quantity,
+      reservedQuantity: inventory.reservedQuantity || undefined,
+      minStockLevel: inventory.minStockLevel || undefined,
+      weight: additional.weight ? additional.weight.toString() : undefined,
+      dimensions: additional.dimensions || undefined,
+      requiresShipping: additional.requiresShipping,
+      metaTitle: additional.metaTitle || undefined,
+      metaDescription: additional.metaDescription || undefined,
+      tags: additional.tags || undefined,
+      isActive: basicInformation.isActive,
+      isFeatured: basicInformation.isFeatured,
       images,
-      variants
+      ...(variants.length > 0 && { variants })
     };
   };
 
   const handlePublish = async () => {
     try {
-      toast.loading("Validating product details...", { id: toastId });
-
       // Step 1: Validate all data
       const validation = validateProductDetails();
 
       setValidatorResponse(validation);
 
       if (!validation.isValid) {
-        toast.error(`Product validation failed !`, { id: toastId });
+        toast.error(`Product validation failed!`);
         setShowValidationErrorsDialog(true);
         return;
       }
 
       // Step 2: Prepare data for API
-      const { images, variants, ...productData } = prepareData();
+      const productData = prepareDataForAPI();
+      const { images, variants, ...restProductData } = productData;
 
-      // Step 3: Make API Call through RPC
-      const rpcClient = await getClient();
-
-      const response = await rpcClient.api.products.$post({
-        json: {
-          images,
-          variants,
-          ...productData.product
-        } as any
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-
-        toast.error(`Failed: ${errorData.message}`, { id: toastId });
-        return;
+      if (isUpdateMode && state.productId) {
+        // Update existing product
+        updateProduct(
+          {
+            id: state.productId,
+            data: {
+              images,
+              variants,
+              ...restProductData
+            }
+          },
+          {
+            onSuccess: handleSuccess
+          }
+        );
+      } else {
+        // Create new product
+        createProduct(
+          {
+            images,
+            variants,
+            ...restProductData
+          } as any,
+          {
+            onSuccess: handleSuccess
+          }
+        );
       }
-
-      const data = await response.json();
-      toast.success(`Congratulations..!`, {
-        id: toastId,
-        description: `${data.name} is live now !`
-      });
-
-      // Clear form and redirect
-      state.clearForm();
-      router.push("/admin/products");
     } catch (error) {
-      console.error("Error publishing product:", error);
-      alert("Failed to publish product. Please try again.");
+      console.error("Error processing product:", error);
+      toast.error("Failed to process product. Please try again.");
     }
   };
 
@@ -232,8 +245,10 @@ export function PublishProductButton() {
         className="h-12 rounded-none"
         icon={<CheckCircle2Icon />}
         onClick={handlePublish}
+        loading={isLoading}
+        disabled={isLoading}
       >
-        Publish Product
+        {isUpdateMode ? "Update Product" : "Publish Product"}
       </Button>
     </div>
   );

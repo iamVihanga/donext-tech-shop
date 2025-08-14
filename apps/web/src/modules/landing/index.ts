@@ -6,5 +6,6 @@ export { Hero } from "./hero";
 export { MobileCategoryMenu } from "./mobile-category-menu";
 export { Navbar } from "./navbar";
 export { NavbarCartSection } from "./navbar-cart-section";
+export { NavbarQuotationSection } from "./navbar-quotation-section";
 export { ProductGrid } from "./product-grid";
 export { Topbar } from "./topbar";

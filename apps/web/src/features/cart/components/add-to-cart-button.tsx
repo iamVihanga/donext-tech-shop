@@ -33,7 +33,7 @@ export function AddToCartButton({
   className,
   variant = "default",
   size = "default",
-  disabled = false
+  disabled = false,
 }: Props) {
   const {
     addToCart,
@@ -41,11 +41,21 @@ export function AddToCartButton({
     isAddingToCart,
     isUpdatingCart,
     isInCart,
-    getCartItemQuantity
+    getCartItemQuantity,
   } = useCart();
   const [localQuantity, setLocalQuantity] = useState(1);
   const session = authClient.useSession();
   const router = useRouter();
+
+  // Find selected variant
+  const selectedVariant = variantId
+    ? product.variants?.find((v) => v.id === variantId)
+    : undefined;
+
+  // Check stock availability
+  const isOutOfStock = selectedVariant
+    ? (selectedVariant.stockQuantity ?? 0) <= 0
+    : (product.stockQuantity ?? 0) <= 0;
 
   const inCart = isInCart(product.id, variantId);
   const currentQuantity = getCartItemQuantity(product.id, variantId);
@@ -66,6 +76,11 @@ export function AddToCartButton({
       return;
     }
 
+    if (isOutOfStock) {
+      toast.error("This product is currently out of stock");
+      return;
+    }
+
     const price = variantId
       ? product.variants?.find((v) => v.id === variantId)?.price ||
         product.price
@@ -76,7 +91,7 @@ export function AddToCartButton({
       variantId,
       quantity: localQuantity,
       unitPrice: price,
-      totalPrice: (parseFloat(price) * localQuantity).toString()
+      totalPrice: (parseFloat(price) * localQuantity).toString(),
     };
 
     await addToCart(cartItem);
@@ -100,6 +115,12 @@ export function AddToCartButton({
   const isLoading = isAddingToCart || isUpdatingCart;
 
   if (inCart) {
+    const availableStock = selectedVariant
+      ? (selectedVariant.stockQuantity ?? 0)
+      : (product.stockQuantity ?? 0);
+
+    const isAtMaxStock = currentQuantity >= availableStock;
+
     return (
       <div className={cn("flex items-center gap-2", className)}>
         <Button
@@ -131,14 +152,12 @@ export function AddToCartButton({
       size={size}
       onClick={handleAddToCart}
       disabled={isLoading || !product.isActive || disabled || isOutOfStock}
+      disabled={isLoading || !product.isActive || disabled || isOutOfStock}
       className={className}
+      title={isOutOfStock ? "Product is out of stock" : undefined}
     >
       <ShoppingCart className="h-4 w-4 mr-2" />
-      {isOutOfStock
-        ? "Out of Stock"
-        : isLoading
-        ? "Adding..."
-        : "Add to Cart"}
+      {isOutOfStock ? "Out of Stock" : isLoading ? "Adding..." : "Add to Cart"}
     </Button>
   );
 }

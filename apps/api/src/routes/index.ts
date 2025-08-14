@@ -9,6 +9,7 @@ import index from "./index.route";
 import media from "./media/media.index";
 import orders from "./orders";
 import products from "./products/product.index";
+import quotations from "./quotations/quotation.index";
 import tasks from "./tasks/tasks.index";
 
 export function registerRoutes(app: AppOpenAPI) {
@@ -20,6 +21,7 @@ export function registerRoutes(app: AppOpenAPI) {
     .route("/brands", brands)
     .route("/cart", cart)
     .route("/orders", orders)
+    .route("/quotations", quotations)
     .route("/media", media);
 }
 
