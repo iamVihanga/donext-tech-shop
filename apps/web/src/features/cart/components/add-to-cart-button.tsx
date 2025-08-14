@@ -60,9 +60,6 @@ export function AddToCartButton({
   const inCart = isInCart(product.id, variantId);
   const currentQuantity = getCartItemQuantity(product.id, variantId);
 
-  // Check if product is out of stock
-  const isOutOfStock = !product.stockQuantity || product.stockQuantity <= 0;
-
   const handleAddToCart = async () => {
     // Check if product is out of stock
     if (isOutOfStock) {
@@ -151,7 +148,6 @@ export function AddToCartButton({
       variant={variant}
       size={size}
       onClick={handleAddToCart}
-      disabled={isLoading || !product.isActive || disabled || isOutOfStock}
       disabled={isLoading || !product.isActive || disabled || isOutOfStock}
       className={className}
       title={isOutOfStock ? "Product is out of stock" : undefined}
