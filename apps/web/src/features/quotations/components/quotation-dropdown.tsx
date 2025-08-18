@@ -517,6 +517,12 @@ export function QuotationDropdown({ className }: Props) {
               </Button>
             </div>
           </div>
+
+          <DropdownMenuSeparator className="my-4" />
+
+          <Button className="w-full" asChild variant={"outline"}>
+            <Link href="/shop">Continue Shopping</Link>
+          </Button>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
