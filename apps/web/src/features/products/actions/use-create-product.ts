@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useId } from "react";
 import { toast } from "sonner";
 
-import { getClient } from "@/lib/rpc/client";
 import { InsertProduct } from "@/features/products/types/api.types";
+import { getClient } from "@/lib/rpc/client";
 
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
@@ -13,12 +13,15 @@ export const useCreateProduct = () => {
     mutationFn: async (data: InsertProduct) => {
       const rpcClient = await getClient();
 
+      console.log({ data });
+
       const response = await rpcClient.api.products.$post({
         json: data
       });
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.log({ errorData });
         throw new Error(errorData.message || "Failed to create product");
       }
 
@@ -33,6 +36,7 @@ export const useCreateProduct = () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
     },
     onError: (error) => {
+      console.log(error);
       toast.error(error.message || "Failed to create product", {
         id: toastId
       });
