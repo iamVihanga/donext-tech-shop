@@ -158,7 +158,7 @@ export function PublishProductButton() {
       isActive: basicInformation.isActive,
       isFeatured: basicInformation.isFeatured,
       images,
-      ...(variants.length > 0 && { variants })
+      ...(variants.length > 0 ? { variants } : { variants: [] })
     };
   };
 
