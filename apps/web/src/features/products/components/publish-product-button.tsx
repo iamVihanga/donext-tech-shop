@@ -82,8 +82,14 @@ export function PublishProductButton() {
 
   // Handle success for navigation
   const handleSuccess = () => {
-    state.clearForm();
-    router.push("/admin/products");
+    if (isUpdateMode) {
+      // For updates, don't clear the form or navigate away
+      // Just stay on the same page with updated data
+    } else {
+      // For creation, clear form and navigate to products list
+      state.clearForm();
+      router.push("/admin/products");
+    }
   };
 
   if (activeTab !== Tabs.SUMMARY) {
@@ -99,9 +105,6 @@ export function PublishProductButton() {
       pricing,
       additional
     } = state;
-
-    console.log("Preparing data for API - basicInformation:", basicInformation);
-    console.log("BrandId from store:", basicInformation.brandId);
 
     // Convert images to the expected API format
     const images = media.images.map((image) => ({
@@ -163,9 +166,6 @@ export function PublishProductButton() {
       images,
       ...(variants.length > 0 ? { variants } : { variants: [] })
     };
-
-    console.log("Final prepared data:", finalData);
-    console.log("Final brandId:", finalData.brandId);
 
     return finalData;
   };

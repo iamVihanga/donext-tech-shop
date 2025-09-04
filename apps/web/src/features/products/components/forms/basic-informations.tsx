@@ -38,13 +38,6 @@ export function BasicInformationsForm({}: Props) {
 
   // Sync form with store changes (important for update mode)
   useEffect(() => {
-    console.log("BasicInformationsForm - Syncing with store:", {
-      ctxBrandId: ctx.brandId,
-      formBrandId: form.getFieldValue("brandId"),
-      isUpdateMode,
-      allCtx: ctx
-    });
-
     // Only sync if we have data and we're in update mode or if the form values don't match
     if (isUpdateMode || ctx.name || ctx.brandId) {
       // Try using reset instead of setFieldValue for better form state management
@@ -157,12 +150,6 @@ export function BasicInformationsForm({}: Props) {
         <form.AppField
           name="brandId"
           children={(field) => {
-            console.log("BrandId field state:", {
-              fieldValue: field.state.value,
-              ctxBrandId: ctx.brandId,
-              formValue: form.getFieldValue("brandId")
-            });
-
             // Use context value as fallback if field value is empty but context has value
             const effectiveValue =
               field.state.value ||
