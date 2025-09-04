@@ -47,14 +47,17 @@ export function BasicInformationsForm({}: Props) {
 
     // Only sync if we have data and we're in update mode or if the form values don't match
     if (isUpdateMode || ctx.name || ctx.brandId) {
-      form.setFieldValue("name", ctx.name || "");
-      form.setFieldValue("slug", ctx.slug || "");
-      form.setFieldValue("shortDescription", ctx.shortDescription || "");
-      form.setFieldValue("description", ctx.description || "");
-      form.setFieldValue("brandId", ctx.brandId || "");
-      form.setFieldValue("isActive", ctx.isActive ?? false);
-      form.setFieldValue("isFeatured", ctx.isFeatured ?? false);
-      form.setFieldValue("status", ctx.status || "pending");
+      // Try using reset instead of setFieldValue for better form state management
+      form.reset({
+        name: ctx.name || "",
+        slug: ctx.slug || "",
+        shortDescription: ctx.shortDescription || "",
+        description: ctx.description || "",
+        brandId: ctx.brandId || "",
+        isActive: ctx.isActive ?? false,
+        isFeatured: ctx.isFeatured ?? false,
+        status: ctx.status || "pending"
+      });
     }
   }, [ctx, form, isUpdateMode]);
   const handleSubmit = useCallback(
@@ -153,23 +156,40 @@ export function BasicInformationsForm({}: Props) {
 
         <form.AppField
           name="brandId"
-          children={(field) => (
-            <field.FormItem>
-              <field.FormLabel>Brand *</field.FormLabel>
-              <field.FormControl>
-                <BrandSelector
-                  value={field.state.value}
-                  onValueChange={field.handleChange}
-                  placeholder="Select a brand..."
-                  required={true}
-                />
-              </field.FormControl>
-              <field.FormDescription>
-                Choose the brand for this product.
-              </field.FormDescription>
-              <field.FormMessage />
-            </field.FormItem>
-          )}
+          children={(field) => {
+            console.log("BrandId field state:", {
+              fieldValue: field.state.value,
+              ctxBrandId: ctx.brandId,
+              formValue: form.getFieldValue("brandId")
+            });
+
+            // Use context value as fallback if field value is empty but context has value
+            const effectiveValue =
+              field.state.value ||
+              (isUpdateMode && ctx.brandId ? ctx.brandId : "");
+
+            return (
+              <field.FormItem>
+                <field.FormLabel>Brand *</field.FormLabel>
+                <field.FormControl>
+                  <BrandSelector
+                    value={effectiveValue}
+                    onValueChange={(value) => {
+                      field.handleChange(value);
+                      // Also update the context to keep them in sync
+                      updateCtx({ ...ctx, brandId: value });
+                    }}
+                    placeholder="Select a brand..."
+                    required={true}
+                  />
+                </field.FormControl>
+                <field.FormDescription>
+                  Choose the brand for this product.
+                </field.FormDescription>
+                <field.FormMessage />
+              </field.FormItem>
+            );
+          }}
         />
 
         <div className="grid grid-cols-2 gap-3">
