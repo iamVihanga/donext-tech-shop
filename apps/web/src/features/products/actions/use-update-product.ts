@@ -13,9 +13,6 @@ export const useUpdateProduct = () => {
     mutationFn: async ({ id, data }: UpdateProductRequest) => {
       const rpcClient = await getClient();
 
-      console.log("Updating product with data:", { id, data });
-      console.log("BrandId in update data:", data.brandId);
-
       const response = await rpcClient.api.products[":id"].$patch({
         param: { id },
         json: data

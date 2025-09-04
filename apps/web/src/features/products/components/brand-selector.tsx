@@ -40,12 +40,6 @@ export function BrandSelector({
 
   const brands = brandsData?.data || [];
 
-  console.log("BrandSelector - Props:", {
-    value,
-    brands: brands.length,
-    brandsData: brandsData?.data?.map((b) => ({ id: b.id, name: b.name }))
-  });
-
   const handleBrandCreated = () => {
     // The brand list will automatically refresh due to React Query
     setCreateBrandOpen(false);
