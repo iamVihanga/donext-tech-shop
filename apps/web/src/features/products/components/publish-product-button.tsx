@@ -100,6 +100,9 @@ export function PublishProductButton() {
       additional
     } = state;
 
+    console.log("Preparing data for API - basicInformation:", basicInformation);
+    console.log("BrandId from store:", basicInformation.brandId);
+
     // Convert images to the expected API format
     const images = media.images.map((image) => ({
       imageUrl: image.url,
@@ -137,7 +140,7 @@ export function PublishProductButton() {
       });
     }
 
-    return {
+    const finalData = {
       name: basicInformation.name,
       slug: basicInformation.slug,
       shortDescription: basicInformation.shortDescription || undefined,
@@ -160,6 +163,11 @@ export function PublishProductButton() {
       images,
       ...(variants.length > 0 ? { variants } : { variants: [] })
     };
+
+    console.log("Final prepared data:", finalData);
+    console.log("Final brandId:", finalData.brandId);
+
+    return finalData;
   };
 
   const handlePublish = async () => {

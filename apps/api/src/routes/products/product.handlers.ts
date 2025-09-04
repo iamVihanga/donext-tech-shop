@@ -196,6 +196,10 @@ export const update: AppRouteHandler<UpdateRoute> = async (c) => {
   const { id } = c.req.valid("param");
   const body = c.req.valid("json");
 
+  console.log("API: Updating product with ID:", id);
+  console.log("API: Request body:", JSON.stringify(body, null, 2));
+  console.log("API: BrandId in request:", body.brandId);
+
   // Validate Authentication
   const session = c.get("session");
 
@@ -232,12 +236,18 @@ export const update: AppRouteHandler<UpdateRoute> = async (c) => {
     // Extract images and variants from body
     const { images, variants, ...productData } = body;
 
+    console.log("API: Product data to update (excluding images/variants):", JSON.stringify(productData, null, 2));
+    console.log("API: BrandId in productData:", productData.brandId);
+
     // Update basic product data
     const [updatedProduct] = await tx
       .update(products)
       .set({ ...productData, updatedAt: new Date() })
       .where(eq(products.id, id))
       .returning();
+
+    console.log("API: Updated product result:", JSON.stringify(updatedProduct, null, 2));
+    console.log("API: BrandId in updated result:", updatedProduct?.brandId);
 
     if (!updatedProduct) {
       tx.rollback();
