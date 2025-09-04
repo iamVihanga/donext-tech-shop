@@ -5,7 +5,7 @@ import { Switch } from "@repo/ui/components/switch";
 import { useAppForm } from "@repo/ui/components/tanstack-form";
 import { Textarea } from "@repo/ui/components/textarea";
 import { SaveIcon } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { basicInformationsFormSchema } from "../../schemas/forms/basic-informations-form";
 import { useCreateProductStore } from "../../store/create-product-store";
 import { setActiveTab, Tabs } from "../../store/helpers";
@@ -34,6 +34,18 @@ export function BasicInformationsForm({}: Props) {
       setActiveTab(Tabs.CATEGORIES);
     }
   });
+
+  // Sync form with store changes (important for update mode)
+  useEffect(() => {
+    form.setFieldValue("name", ctx.name);
+    form.setFieldValue("slug", ctx.slug);
+    form.setFieldValue("shortDescription", ctx.shortDescription);
+    form.setFieldValue("description", ctx.description);
+    form.setFieldValue("brandId", ctx.brandId);
+    form.setFieldValue("isActive", ctx.isActive);
+    form.setFieldValue("isFeatured", ctx.isFeatured);
+    form.setFieldValue("status", ctx.status);
+  }, [ctx, form]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
