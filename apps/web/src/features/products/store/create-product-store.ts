@@ -97,6 +97,11 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
   },
 
   populateFromProduct: (product) => {
+    console.log("Store - populateFromProduct called with:", {
+      productBrandId: product.brandId,
+      productData: product
+    });
+
     // Extract category path from product (you might need to fetch this separately)
     const categoryPath = product.categoryId
       ? [{ id: product.categoryId, name: "Category", slug: "category" }]
@@ -191,6 +196,11 @@ export const useCreateProductStore = create<Types & Actions>((set, get) => ({
         tags: product.tags || "",
         status: "valid"
       }
+    });
+
+    console.log("Store - After setting state:", {
+      brandId: product.brandId || "",
+      currentState: get().basicInformation
     });
   },
 
