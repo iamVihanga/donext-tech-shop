@@ -18,6 +18,12 @@ export function ProductEditWrapper({ productId, children }: Props) {
 
   useEffect(() => {
     if (product && !isLoading) {
+      console.log("ProductEditWrapper - Populating product data:", {
+        productId,
+        brandId: product.brandId,
+        product
+      });
+
       // Set update mode and populate the store with product data
       setUpdateMode(true, productId);
       populateFromProduct(product);

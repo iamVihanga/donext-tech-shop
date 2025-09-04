@@ -16,6 +16,7 @@ type Props = {};
 export function BasicInformationsForm({}: Props) {
   const ctx = useCreateProductStore((state) => state.basicInformation);
   const updateCtx = useCreateProductStore((state) => state.setBasicInformation);
+  const isUpdateMode = useCreateProductStore((state) => state.isUpdateMode);
 
   const form = useAppForm({
     validators: { onChange: basicInformationsFormSchema },
@@ -37,16 +38,25 @@ export function BasicInformationsForm({}: Props) {
 
   // Sync form with store changes (important for update mode)
   useEffect(() => {
-    form.setFieldValue("name", ctx.name);
-    form.setFieldValue("slug", ctx.slug);
-    form.setFieldValue("shortDescription", ctx.shortDescription);
-    form.setFieldValue("description", ctx.description);
-    form.setFieldValue("brandId", ctx.brandId);
-    form.setFieldValue("isActive", ctx.isActive);
-    form.setFieldValue("isFeatured", ctx.isFeatured);
-    form.setFieldValue("status", ctx.status);
-  }, [ctx, form]);
+    console.log("BasicInformationsForm - Syncing with store:", {
+      ctxBrandId: ctx.brandId,
+      formBrandId: form.getFieldValue("brandId"),
+      isUpdateMode,
+      allCtx: ctx
+    });
 
+    // Only sync if we have data and we're in update mode or if the form values don't match
+    if (isUpdateMode || ctx.name || ctx.brandId) {
+      form.setFieldValue("name", ctx.name || "");
+      form.setFieldValue("slug", ctx.slug || "");
+      form.setFieldValue("shortDescription", ctx.shortDescription || "");
+      form.setFieldValue("description", ctx.description || "");
+      form.setFieldValue("brandId", ctx.brandId || "");
+      form.setFieldValue("isActive", ctx.isActive ?? false);
+      form.setFieldValue("isFeatured", ctx.isFeatured ?? false);
+      form.setFieldValue("status", ctx.status || "pending");
+    }
+  }, [ctx, form, isUpdateMode]);
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
