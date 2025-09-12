@@ -408,7 +408,7 @@ export function QuotationDropdown({ className }: Props) {
             <Badge variant="secondary">{totalItems} items</Badge>
           </div>
 
-          <ScrollArea className="max-h-64 mb-4">
+          <ScrollArea className="h-44 max-h-44 mb-4">
             <div className="space-y-3">
               {items.map((item) => {
                 const thumbnail = getProductThumbnail(item.product);
