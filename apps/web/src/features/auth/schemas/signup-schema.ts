@@ -4,18 +4,18 @@ import { z } from "zod";
 export const signupSchema = z
   .object({
     email: z.string().email({
-      message: "Please enter a valid email address !"
+      message: "Please enter a valid email address !",
     }),
-    password: z.string().min(6, {
-      message: "Password must be at least 6 characters long !"
+    password: z.string().min(8, {
+      message: "Password must be at least 8 characters long !",
     }),
     confirmPassword: z.string().min(1, {
-      message: "Confirm password is required !"
-    })
+      message: "Confirm password is required !",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match !",
-    path: ["confirmPassword"]
+    path: ["confirmPassword"],
   });
 
 // Inffered Type Definition
