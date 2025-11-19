@@ -9,7 +9,7 @@ import { Button } from "@repo/ui/components/button";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger
+  PopoverTrigger,
 } from "@repo/ui/components/popover";
 import { ScrollArea } from "@repo/ui/components/scroll-area";
 import { Separator } from "@repo/ui/components/separator";
@@ -59,7 +59,7 @@ export function QuotationDropdown({ className }: Props) {
       <PopoverContent className="w-80" align="end">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-medium">Quotation</h4>
+            <h4 className="font-medium">Cart</h4>
             <Badge variant="secondary">{itemCount} items</Badge>
           </div>
 
@@ -68,7 +68,7 @@ export function QuotationDropdown({ className }: Props) {
           {items.length === 0 ? (
             <div className="text-center py-8">
               <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Your quotation is empty</p>
+              <p className="text-muted-foreground">Your cart is empty</p>
               <p className="text-sm text-muted-foreground mt-2">
                 Add some products to get started
               </p>
