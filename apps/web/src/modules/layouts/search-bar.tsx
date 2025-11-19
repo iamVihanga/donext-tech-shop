@@ -16,14 +16,16 @@ export function SearchBar({}: Props) {
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   const [open, setOpen] = useState(false);
   const { data, error, isPending } = useGetProducts({
-    search: search || "no-product"
+    search: search || "no-product",
   });
 
   useEffect(() => {
     if (search && data && data.data.length > 0) {
       setOpen(true);
+    } else if (!search) {
+      setOpen(false);
     }
-  }, [data, error, isPending]);
+  }, [data, error, isPending, search]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDebouncedSearch(e.target.value);
@@ -71,32 +73,80 @@ export function SearchBar({}: Props) {
 
       {open && (
         <div className="flex flex-col gap-3 bg-background border border-foreground/20 p-3 absolute z-50 top-full mt-2 rounded-md left-0 w-full">
-          {data?.data.map((product) => (
-            <Card
-              className="p-2 flex items-center gap-2 flex-row overflow-hidden"
-              key={product.id}
-            >
-              <Image
-                src={getProductThumbnail(product) || "/assets/no-image.png"}
-                alt={product.name}
-                width={60}
-                height={60}
-                className="size-16 object-cover rounded-md"
-              />
+          {data?.data.map(
+            (product: {
+              name: string;
+              id: string;
+              createdAt: string;
+              updatedAt: string | null;
+              slug: string;
+              description: string | null;
+              shortDescription: string | null;
+              price: string;
+              sku: string | null;
+              reservedQuantity: number | null;
+              stockQuantity: number | null;
+              minStockLevel: number | null;
+              weight: string | null;
+              dimensions: string | null;
+              categoryId: string;
+              brandId: string | null;
+              isActive: boolean | null;
+              isFeatured: boolean | null;
+              requiresShipping: boolean | null;
+              metaTitle: string | null;
+              metaDescription: string | null;
+              tags: string | null;
+              images: {
+                id: string;
+                createdAt: string;
+                updatedAt: string | null;
+                productId: string;
+                imageUrl: string;
+                altText: string | null;
+                sortOrder: number | null;
+                isThumbnail: boolean | null;
+              }[];
+              variants: {
+                name: string;
+                id: string;
+                createdAt: string;
+                updatedAt: string | null;
+                price: string | null;
+                sku: string | null;
+                stockQuantity: number | null;
+                isActive: boolean | null;
+                productId: string;
+                comparePrice: string | null;
+                attributes: string | null;
+              }[];
+            }) => (
+              <Card
+                className="p-2 flex items-center gap-2 flex-row overflow-hidden"
+                key={product.id}
+              >
+                <Image
+                  src={getProductThumbnail(product) || "/assets/no-image.png"}
+                  alt={product.name}
+                  width={60}
+                  height={60}
+                  className="size-16 object-cover rounded-md"
+                />
 
-              <div className="flex flex-col space-y-1">
-                <Link
-                  className="text-sm font-medium hover:underline cursor-pointer"
-                  href={`/products/${product.id}`}
-                >
-                  {product.name}
-                </Link>
-                <p className="text-xs text-muted-foreground truncate w-full max-w-full">
-                  {product.shortDescription || "No description available"}
-                </p>
-              </div>
-            </Card>
-          ))}
+                <div className="flex flex-col space-y-1">
+                  <Link
+                    className="text-sm font-medium hover:underline cursor-pointer"
+                    href={`/products/${product.id}`}
+                  >
+                    {product.name}
+                  </Link>
+                  <p className="text-xs text-muted-foreground truncate w-full max-w-full">
+                    {product.shortDescription || "No description available"}
+                  </p>
+                </div>
+              </Card>
+            )
+          )}
         </div>
       )}
     </div>
