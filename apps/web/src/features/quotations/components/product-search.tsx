@@ -12,12 +12,13 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@repo/ui/components/select";
 import { Plus, Search } from "lucide-react";
 import { useState } from "react";
 
 export function ProductSearch() {
+  const [inputValue, setInputValue] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedQuantities, setSelectedQuantities] = useState<
     Record<string, number>
@@ -31,8 +32,18 @@ export function ProductSearch() {
   const { data: productsData, isLoading } = useGetProducts({
     search: searchTerm,
     limit: 20,
-    page: 1
+    page: 1,
   });
+
+  const handleSearch = () => {
+    setSearchTerm(inputValue);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   const handleAddToQuotation = (product: Product) => {
     const quantity = selectedQuantities[product.id] || 1;
@@ -72,16 +83,23 @@ export function ProductSearch() {
   return (
     <div className="space-y-4">
       {/* Search Input */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-        <Input
-          placeholder="Search for computer parts..."
-          value={searchTerm}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setSearchTerm(e.target.value)
-          }
-          className="pl-10"
-        />
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            placeholder="Search for computer parts..."
+            value={inputValue}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setInputValue(e.target.value)
+            }
+            onKeyPress={handleKeyPress}
+            className="pl-10"
+          />
+        </div>
+        <Button onClick={handleSearch} disabled={isLoading}>
+          <Search className="h-4 w-4 mr-2" />
+          Search
+        </Button>
       </div>
 
       {/* Products List */}
@@ -139,7 +157,7 @@ export function ProductSearch() {
                     onValueChange={(value: string) =>
                       setSelectedVariants((prev) => ({
                         ...prev,
-                        [product.id]: value
+                        [product.id]: value,
                       }))
                     }
                   >
@@ -166,7 +184,7 @@ export function ProductSearch() {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setSelectedQuantities((prev) => ({
                         ...prev,
-                        [product.id]: parseInt(e.target.value) || 1
+                        [product.id]: parseInt(e.target.value) || 1,
                       }))
                     }
                     className="w-16 h-8 text-xs"
@@ -189,7 +207,7 @@ export function ProductSearch() {
           <div className="text-center py-8 text-gray-500">
             {searchTerm
               ? `No products found for "${searchTerm}"`
-              : "Start typing to search for products"}
+              : "Click the search button or press Enter to search for products"}
           </div>
         )}
       </div>
