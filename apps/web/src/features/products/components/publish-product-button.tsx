@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@repo/ui/components/dialog";
 import { CheckCircle2Icon } from "lucide-react";
 import { useState } from "react";
@@ -97,14 +97,14 @@ export function PublishProductButton() {
       media,
       inventory,
       pricing,
-      additional
+      additional,
     } = state;
 
     // Convert images to the expected API format
     const images = media.images.map((image) => ({
       imageUrl: image.url,
       sortOrder: image.orderIndex,
-      isThumbnail: image.isThumbnail
+      isThumbnail: image.isThumbnail,
     }));
 
     // Convert variants to the expected API format
@@ -129,9 +129,9 @@ export function PublishProductButton() {
             comparePrice: value.comparePrice.toString(),
             attributes: JSON.stringify({
               type: variantType.name,
-              value: value.name
+              value: value.name,
             }),
-            isActive: true
+            isActive: true,
           });
         });
       });
@@ -158,7 +158,7 @@ export function PublishProductButton() {
       isActive: basicInformation.isActive,
       isFeatured: basicInformation.isFeatured,
       images,
-      ...(variants.length > 0 && { variants })
+      variants,
     };
   };
 
@@ -187,11 +187,11 @@ export function PublishProductButton() {
             data: {
               images,
               variants,
-              ...restProductData
-            }
+              ...restProductData,
+            },
           },
           {
-            onSuccess: handleSuccess
+            onSuccess: handleSuccess,
           }
         );
       } else {
@@ -200,10 +200,10 @@ export function PublishProductButton() {
           {
             images,
             variants,
-            ...restProductData
+            ...restProductData,
           } as any,
           {
-            onSuccess: handleSuccess
+            onSuccess: handleSuccess,
           }
         );
       }
