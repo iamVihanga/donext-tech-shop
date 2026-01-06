@@ -6,7 +6,7 @@ import {
   IconCamera,
   IconDashboard,
   IconSettings,
-  IconUsers
+  IconUsers,
 } from "@tabler/icons-react";
 import * as React from "react";
 
@@ -20,7 +20,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem
+  SidebarMenuItem,
 } from "@repo/ui/components/sidebar";
 import Link from "next/link";
 import { Logo } from "../logo";
@@ -31,8 +31,8 @@ const data = {
     {
       title: "Dashboard",
       url: "#",
-      icon: IconDashboard
-    }
+      icon: IconDashboard,
+    },
   ],
   navStore: [
     {
@@ -43,31 +43,31 @@ const data = {
       items: [
         {
           title: "New Product",
-          url: "/admin/products/new"
+          url: "/admin/products/new",
         },
         {
           title: "Categories",
-          url: "/admin/products/categories"
+          url: "/admin/products/categories",
         },
         {
           title: "Brands",
-          url: "/admin/brands"
-        }
-      ]
+          url: "/admin/brands",
+        },
+      ],
     },
     {
       title: "Orders",
       icon: IconBox,
       isActive: false,
       url: "/admin/orders",
-      items: []
+      items: [],
     },
     {
       title: "Customers",
       icon: IconUsers,
       isActive: false,
       url: "/admin/customers",
-      items: []
+      items: [],
     },
     {
       title: "Inventory",
@@ -79,16 +79,30 @@ const data = {
         //   title: "Reserved",
         //   url: "/admin/inventory/reserved"
         // }
-      ]
-    }
+      ],
+    },
+    {
+      title: "Component Specification",
+      icon: IconUsers,
+      isActive: false,
+      url: "/admin/component-specification",
+      items: [],
+    },
+    {
+      title: "Compatibility Rules",
+      icon: IconUsers,
+      isActive: false,
+      url: "/admin/compatibility-rules",
+      items: [],
+    },
   ],
   navSecondary: [
     {
       title: "Settings",
       url: "/admin/settings",
-      icon: IconSettings
-    }
-  ]
+      icon: IconSettings,
+    },
+  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

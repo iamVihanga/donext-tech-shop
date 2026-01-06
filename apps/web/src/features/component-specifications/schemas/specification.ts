@@ -237,8 +237,8 @@ export const getComponentsQuerySchema = z.object({
   socketType: socketTypeSchema.optional(),
   memoryType: memoryTypeSchema.optional(),
   formFactor: formFactorSchema.optional(),
-  minPrice: z.coerce.number().positive().optional(),
-  maxPrice: z.coerce.number().positive().optional(),
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
+  minPrice: z.number().positive().optional(),
+  maxPrice: z.number().positive().optional(),
+  page: z.number().int().positive().default(1),
+  limit: z.number().int().positive().max(100).default(20),
 });
