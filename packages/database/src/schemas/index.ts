@@ -15,3 +15,5 @@ export * from "./orders.schema";
 export * from "./quotations.schema";
 
 export * from "./settings.schema";
+
+export * from "./pc-builder.schema";

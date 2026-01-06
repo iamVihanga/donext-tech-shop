@@ -8,6 +8,7 @@ import categories from "./categories/categories.index";
 import index from "./index.route";
 import media from "./media/media.index";
 import orders from "./orders";
+import pcBuilder from "./pc-builder/pc-builder.index";
 import products from "./products/product.index";
 import quotations from "./quotations/quotation.index";
 import tasks from "./tasks/tasks.index";
@@ -22,7 +23,8 @@ export function registerRoutes(app: AppOpenAPI) {
     .route("/cart", cart)
     .route("/orders", orders)
     .route("/quotations", quotations)
-    .route("/media", media);
+    .route("/media", media)
+    .route("/pc-builder", pcBuilder);
 }
 
 // stand alone router type used for api client
