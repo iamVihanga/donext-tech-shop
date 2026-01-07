@@ -278,7 +278,7 @@ export function BuildPc() {
     // Helper to convert price to number
     const getPrice = (product: Product) => {
       const price = product.discountPrice || product.price;
-      return typeof price === 'string' ? parseFloat(price) : price;
+      return typeof price === "string" ? parseFloat(price) : price;
     };
 
     // Add core components
@@ -453,9 +453,14 @@ export function BuildPc() {
           <div className="text-sm text-muted-foreground flex items-center justify-between">
             <span>{product.brand?.name || ""}</span>
             <Price
-              amount={typeof (product.discountPrice || product.price) === 'string' 
-                ? parseFloat(product.discountPrice as string || product.price as string) 
-                : (product.discountPrice || product.price)}
+              amount={
+                typeof (product.discountPrice || product.price) === "string"
+                  ? parseFloat(
+                      (product.discountPrice as string) ||
+                        (product.price as string)
+                    )
+                  : product.discountPrice || product.price
+              }
               className="font-semibold"
             />
           </div>
@@ -490,9 +495,15 @@ export function BuildPc() {
                 />
                 {product && (
                   <Price
-                    amount={typeof (product.discountPrice || product.price) === 'string' 
-                      ? parseFloat(product.discountPrice as string || product.price as string) 
-                      : (product.discountPrice || product.price)}
+                    amount={
+                      typeof (product.discountPrice || product.price) ===
+                      "string"
+                        ? parseFloat(
+                            (product.discountPrice as string) ||
+                              (product.price as string)
+                          )
+                        : product.discountPrice || product.price
+                    }
                     className="text-sm min-w-20"
                   />
                 )}
@@ -1056,10 +1067,15 @@ export function BuildPc() {
                             <div className="flex items-center gap-2 mt-1">
                               <Badge
                                 variant={
-                                  (product.stockQuantity || product.stock || 0) > 0 ? "default" : "destructive"
+                                  (product.stockQuantity ||
+                                    product.stock ||
+                                    0) > 0
+                                    ? "default"
+                                    : "destructive"
                                 }
                               >
-                                {(product.stockQuantity || product.stock || 0) > 0
+                                {(product.stockQuantity || product.stock || 0) >
+                                0
                                   ? `In Stock (${product.stockQuantity || product.stock})`
                                   : "Out of Stock"}
                               </Badge>

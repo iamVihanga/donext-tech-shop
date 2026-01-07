@@ -29,7 +29,8 @@ export function Price({
   className?: string;
 }) {
   // Convert string prices to numbers
-  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  const numericAmount =
+    typeof amount === "string" ? parseFloat(amount) : amount;
   return (
     <span className={cn("", className)}>
       {formatPrice(numericAmount, currency, locale)}
