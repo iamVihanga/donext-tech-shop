@@ -16,8 +16,8 @@ import { NavbarQuotationSection } from "./navbar-quotation-section";
 export async function Navbar() {
   const session = await authClient.getSession({
     fetchOptions: {
-      headers: await headers()
-    }
+      headers: await headers(),
+    },
   });
 
   return (
@@ -49,6 +49,12 @@ export async function Navbar() {
 
                 {/* Mobile Navigation Links */}
                 <div className="flex flex-col gap-2">
+                  <Button asChild variant="default" className="w-full">
+                    <Link href="/build-pc">🖥️ Build Your PC</Link>
+                  </Button>
+
+                  <Separator />
+
                   {/* <Wishlist /> */}
                   {session.data ? (
                     <>
@@ -89,6 +95,12 @@ export async function Navbar() {
 
         {/* Desktop Nav Links - Hidden on mobile */}
         <div className="hidden md:flex items-center gap-3">
+          <Button asChild variant="default" size="sm">
+            <Link href="/build-pc" className="flex items-center gap-2">
+              🖥️ Build Your PC
+            </Link>
+          </Button>
+
           {/* <Wishlist /> */}
 
           {session.data ? (

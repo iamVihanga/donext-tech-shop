@@ -151,18 +151,113 @@ export const createPcBuild: AppRouteHandler<CreateBuildRoute> = async (c) => {
   // Calculate total price
   const totalPrice = await calculateBuildPrice(body);
 
-  const [newBuild] = await db
-    .insert(pcBuilds)
-    .values({
-      ...body,
-      userId: user.id,
-      compatibilityIssues: issues,
-      totalPrice: totalPrice.toString(),
-      estimatedWattage,
-    })
-    .returning();
+  // Clean up array fields - remove empty strings and return undefined if empty
+  const cleanArrayField = (arr: any) => {
+    if (!arr || !Array.isArray(arr)) return undefined;
+    const filtered = arr.filter((item) => item && item !== "");
+    return filtered.length > 0 ? filtered : undefined;
+  };
 
-  return c.json(newBuild, HttpStatusCodes.CREATED);
+  // Clean up empty string fields - convert to undefined
+  const cleanStringField = (value: any) => {
+    return value === "" || value === null ? undefined : value;
+  };
+
+  const buildData: any = {
+    name: body.name,
+    description: body.description,
+    userId: user.id,
+    compatibilityIssues: issues,
+    totalPrice: totalPrice.toString(),
+    estimatedWattage,
+    memoryQuantity: body.memoryQuantity,
+    isPublic: body.isPublic,
+    isTemplate: body.isTemplate,
+  };
+
+  // Add foreign key fields only if they have values
+  const processorId = cleanStringField(body.processorId);
+  const motherboardId = cleanStringField(body.motherboardId);
+  const memoryId = cleanStringField(body.memoryId);
+  const graphicCardId = cleanStringField(body.graphicCardId);
+  const ssdNvmeId = cleanStringField(body.ssdNvmeId);
+  const hardDiskId = cleanStringField(body.hardDiskId);
+  const powerSupplyId = cleanStringField(body.powerSupplyId);
+  const coolerId = cleanStringField(body.coolerId);
+  const pcCaseId = cleanStringField(body.pcCaseId);
+  const keyboardId = cleanStringField(body.keyboardId);
+  const mouseId = cleanStringField(body.mouseId);
+  const mousePadId = cleanStringField(body.mousePadId);
+  const headsetId = cleanStringField(body.headsetId);
+  const speakerId = cleanStringField(body.speakerId);
+  const upsId = cleanStringField(body.upsId);
+  const tableId = cleanStringField(body.tableId);
+  const chairId = cleanStringField(body.chairId);
+  const thermalPasteId = cleanStringField(body.thermalPasteId);
+
+  if (processorId !== undefined) buildData.processorId = processorId;
+  if (motherboardId !== undefined) buildData.motherboardId = motherboardId;
+  if (memoryId !== undefined) buildData.memoryId = memoryId;
+  if (graphicCardId !== undefined) buildData.graphicCardId = graphicCardId;
+  if (ssdNvmeId !== undefined) buildData.ssdNvmeId = ssdNvmeId;
+  if (hardDiskId !== undefined) buildData.hardDiskId = hardDiskId;
+  if (powerSupplyId !== undefined) buildData.powerSupplyId = powerSupplyId;
+  if (coolerId !== undefined) buildData.coolerId = coolerId;
+  if (pcCaseId !== undefined) buildData.pcCaseId = pcCaseId;
+  if (keyboardId !== undefined) buildData.keyboardId = keyboardId;
+  if (mouseId !== undefined) buildData.mouseId = mouseId;
+  if (mousePadId !== undefined) buildData.mousePadId = mousePadId;
+  if (headsetId !== undefined) buildData.headsetId = headsetId;
+  if (speakerId !== undefined) buildData.speakerId = speakerId;
+  if (upsId !== undefined) buildData.upsId = upsId;
+  if (tableId !== undefined) buildData.tableId = tableId;
+  if (chairId !== undefined) buildData.chairId = chairId;
+  if (thermalPasteId !== undefined) buildData.thermalPasteId = thermalPasteId;
+
+  // Add array fields only if they have values
+  const fanIds = cleanArrayField(body.fanIds);
+  const extraSsdNvmeIds = cleanArrayField(body.extraSsdNvmeIds);
+  const extraHardDiskIds = cleanArrayField(body.extraHardDiskIds);
+  const monitorIds = cleanArrayField(body.monitorIds);
+  const softwareIds = cleanArrayField(body.softwareIds);
+  const cableIds = cleanArrayField(body.cableIds);
+
+  if (fanIds !== undefined) buildData.fanIds = fanIds;
+  if (extraSsdNvmeIds !== undefined)
+    buildData.extraSsdNvmeIds = extraSsdNvmeIds;
+  if (extraHardDiskIds !== undefined)
+    buildData.extraHardDiskIds = extraHardDiskIds;
+  if (monitorIds !== undefined) buildData.monitorIds = monitorIds;
+  if (softwareIds !== undefined) buildData.softwareIds = softwareIds;
+  if (cableIds !== undefined) buildData.cableIds = cableIds;
+
+  try {
+    const [newBuild] = await db.insert(pcBuilds).values(buildData).returning();
+
+    return c.json(newBuild, HttpStatusCodes.CREATED);
+  } catch (error: any) {
+    console.error("Failed to create PC build:", {
+      error,
+      message: error?.message,
+      code: error?.code,
+      detail: error?.detail,
+      constraint: error?.constraint,
+      buildData,
+    });
+
+    // Check for foreign key constraint violations
+    if (error?.code === "23503") {
+      return c.json(
+        {
+          message: "Invalid product reference",
+          detail: error?.detail || "One or more product IDs do not exist",
+        },
+        HttpStatusCodes.BAD_REQUEST
+      );
+    }
+
+    throw error;
+  }
 };
 
 /**
