@@ -1,6 +1,7 @@
 "use client";
 
 import { Price } from "@/components/price";
+import { useGetProducts } from "@/features/products/actions/use-get-products";
 import { Alert, AlertDescription } from "@repo/ui/components/alert";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -11,8 +12,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@repo/ui/components/dialog";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
+import { ScrollArea } from "@repo/ui/components/scroll-area";
 import { Separator } from "@repo/ui/components/separator";
 import { Switch } from "@repo/ui/components/switch";
 import {
@@ -29,23 +38,30 @@ import {
   Info,
   Plus,
   Save,
+  Search,
   Trash2,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCloneBuild } from "../actions/use-clone-build";
 import { useCreateBuild } from "../actions/use-create-build";
 import { useGetBuild } from "../actions/use-get-build";
 import { useUpdateBuild } from "../actions/use-update-build";
 
-interface Component {
+interface Product {
   id: string;
   name: string;
-  price: number;
-  brand?: string;
-  imageUrl?: string;
-  category?: string;
+  price: string | number;
+  discountPrice?: string | number;
+  brandId?: string;
+  brand?: { name: string };
+  categoryId?: string;
+  category?: { name: string };
+  images?: Array<{ imageUrl: string }>;
+  stockQuantity?: number;
+  stock?: number;
 }
 
 interface CompatibilityIssue {
@@ -118,6 +134,28 @@ export function BuildPc() {
   const [totalPrice, setTotalPrice] = useState(0);
   const [activeTab, setActiveTab] = useState("core");
 
+  // Product selection dialog state
+  const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
+  const [selectedComponentType, setSelectedComponentType] =
+    useState<string>("");
+  const [selectedField, setSelectedField] = useState<keyof BuildData | null>(
+    null
+  );
+  const [isArrayField, setIsArrayField] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Selected products cache (for displaying names and calculating price)
+  const [selectedProducts, setSelectedProducts] = useState<
+    Map<string, Product>
+  >(new Map());
+
+  // Fetch products for dialog
+  const { data: productsData, isLoading: loadingProducts } = useGetProducts({
+    page: 1,
+    limit: 50,
+    search: searchQuery || null,
+  });
+
   // Load existing build data
   useEffect(() => {
     if (existingBuild?.data) {
@@ -165,6 +203,178 @@ export function BuildPc() {
     }
   }, [existingBuild]);
 
+  // Filter products by component type
+  const filteredProducts = useMemo(() => {
+    if (!productsData?.data) return [];
+
+    const products = productsData.data as Product[];
+
+    // Map component types to category IDs or names (case-insensitive matching)
+    // You can get these IDs from your categories API
+    const categoryIdMap: Record<string, string[]> = {
+      processor: ["88574de1-92a1-4a38-a5d1-dc8a669f538f"], // CPU category ID
+      motherboard: ["706b3ed0-7b9d-4403-99e4-d0077fe99a81"], // MOTHERBOARDS category ID
+      memory: ["705c09d0-8fb6-4439-b31f-48017f8b88ef"], // RAM category ID
+    };
+
+    // Fallback to name-based matching for categories we don't have IDs for
+    const categoryNameMap: Record<string, string[]> = {
+      processor: ["processor", "cpu"],
+      motherboard: ["motherboard", "mobo", "motherboards"],
+      memory: ["memory", "ram"],
+      graphic_card: [
+        "graphics card",
+        "gpu",
+        "graphic card",
+        "video card",
+        "vga",
+      ],
+      ssd_nvme: ["ssd", "nvme", "m.2", "solid state"],
+      hard_disk: ["hard disk", "hdd", "hard drive", "storage"],
+      power_supply: ["power supply", "psu"],
+      cooler: ["cooler", "cpu cooler", "cooling"],
+      pc_case: ["case", "pc case", "chassis", "casing"],
+      fan: ["fan", "case fan", "cooling fan"],
+      monitor: ["monitor", "display", "screen"],
+      keyboard: ["keyboard"],
+      mouse: ["mouse"],
+      mouse_pad: ["mouse pad", "mousepad"],
+      headset: ["headset", "headphone", "headphones"],
+      speaker: ["speaker", "speakers"],
+      ups: ["ups", "battery backup"],
+      table: ["table", "desk"],
+      chair: ["chair", "gaming chair"],
+      thermal_paste: ["thermal paste", "thermal compound"],
+      cable: ["cable", "cables"],
+      software: ["software", "os", "operating system"],
+    };
+
+    // If no component type is selected, return all products
+    if (!selectedComponentType) {
+      return products;
+    }
+
+    const categoryIds = categoryIdMap[selectedComponentType] || [];
+    const searchTerms = categoryNameMap[selectedComponentType] || [];
+
+    return products.filter((product) => {
+      // First try to match by category ID
+      if (product.categoryId && categoryIds.includes(product.categoryId)) {
+        return true;
+      }
+
+      // Fallback to name-based matching
+      const categoryName = product.category?.name?.toLowerCase() || "";
+      return searchTerms.some((term) =>
+        categoryName.includes(term.toLowerCase())
+      );
+    });
+  }, [productsData, selectedComponentType]);
+
+  // Calculate total price
+  useEffect(() => {
+    let total = 0;
+
+    // Helper to convert price to number
+    const getPrice = (product: Product) => {
+      const price = product.discountPrice || product.price;
+      return typeof price === 'string' ? parseFloat(price) : price;
+    };
+
+    // Add core components
+    const componentFields: (keyof BuildData)[] = [
+      "processorId",
+      "motherboardId",
+      "memoryId",
+      "graphicCardId",
+      "ssdNvmeId",
+      "hardDiskId",
+      "powerSupplyId",
+      "coolerId",
+      "pcCaseId",
+      "keyboardId",
+      "mouseId",
+      "mousePadId",
+      "headsetId",
+      "speakerId",
+      "upsId",
+      "tableId",
+      "chairId",
+      "thermalPasteId",
+    ];
+
+    componentFields.forEach((field) => {
+      const productId = buildData[field] as string | undefined;
+      if (productId && selectedProducts.has(productId)) {
+        const product = selectedProducts.get(productId)!;
+        total += getPrice(product);
+      }
+    });
+
+    // Add memory quantity multiplier
+    if (buildData.memoryId && selectedProducts.has(buildData.memoryId)) {
+      const product = selectedProducts.get(buildData.memoryId)!;
+      total += getPrice(product) * (buildData.memoryQuantity - 1); // Already added once above
+    }
+
+    // Add array fields
+    const arrayFields: (keyof BuildData)[] = [
+      "fanIds",
+      "extraSsdNvmeIds",
+      "extraHardDiskIds",
+      "monitorIds",
+      "softwareIds",
+      "cableIds",
+    ];
+
+    arrayFields.forEach((field) => {
+      const ids = buildData[field] as string[];
+      ids.forEach((id) => {
+        if (selectedProducts.has(id)) {
+          const product = selectedProducts.get(id)!;
+          total += getPrice(product);
+        }
+      });
+    });
+
+    setTotalPrice(total);
+  }, [buildData, selectedProducts]);
+
+  const openProductDialog = (
+    componentType: string,
+    field: keyof BuildData,
+    isArray: boolean = false
+  ) => {
+    setSelectedComponentType(componentType);
+    setSelectedField(field);
+    setIsArrayField(isArray);
+    setSearchQuery("");
+    setIsProductDialogOpen(true);
+  };
+
+  const handleProductSelect = (product: Product) => {
+    if (!selectedField) return;
+
+    // Cache the product
+    setSelectedProducts((prev) => new Map(prev).set(product.id, product));
+
+    if (isArrayField) {
+      // Add to array
+      setBuildData((prev) => ({
+        ...prev,
+        [selectedField]: [...(prev[selectedField] as string[]), product.id],
+      }));
+    } else {
+      // Set single value
+      setBuildData((prev) => ({
+        ...prev,
+        [selectedField]: product.id,
+      }));
+    }
+
+    setIsProductDialogOpen(false);
+  };
+
   const handleSave = () => {
     if (buildId) {
       updateBuild.mutate({ id: buildId, data: buildData });
@@ -208,38 +418,51 @@ export function BuildPc() {
     label: string;
     field: keyof BuildData;
     componentType: string;
-  }) => (
-    <div className="space-y-2">
-      <Label>{label}</Label>
-      <div className="flex gap-2">
-        <Input
-          value={(buildData[field] as string) || ""}
-          placeholder={`Select ${label.toLowerCase()}`}
-          readOnly
-          className="flex-1"
-        />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            // TODO: Open component selection modal
-            console.log(`Select ${componentType}`);
-          }}
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-        {buildData[field] && (
+  }) => {
+    const productId = buildData[field] as string | undefined;
+    const product = productId ? selectedProducts.get(productId) : null;
+
+    return (
+      <div className="space-y-2">
+        <Label>{label}</Label>
+        <div className="flex gap-2">
+          <Input
+            value={product?.name || ""}
+            placeholder={`Select ${label.toLowerCase()}`}
+            readOnly
+            className="flex-1"
+          />
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            onClick={() => handleComponentSelect(field, undefined)}
+            onClick={() => openProductDialog(componentType, field, false)}
           >
-            <X className="h-4 w-4" />
+            <Plus className="h-4 w-4" />
           </Button>
+          {buildData[field] && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleComponentSelect(field, undefined)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        {product && (
+          <div className="text-sm text-muted-foreground flex items-center justify-between">
+            <span>{product.brand?.name || ""}</span>
+            <Price
+              amount={typeof (product.discountPrice || product.price) === 'string' 
+                ? parseFloat(product.discountPrice as string || product.price as string) 
+                : (product.discountPrice || product.price)}
+              className="font-semibold"
+            />
+          </div>
         )}
       </div>
-    </div>
-  );
+    );
+  };
 
   const ArrayComponentSelector = ({
     label,
@@ -249,37 +472,53 @@ export function BuildPc() {
     label: string;
     field: keyof BuildData;
     componentType: string;
-  }) => (
-    <div className="space-y-2">
-      <Label>{label}</Label>
+  }) => {
+    const ids = buildData[field] as string[];
+
+    return (
       <div className="space-y-2">
-        {(buildData[field] as string[]).map((id, index) => (
-          <div key={index} className="flex gap-2">
-            <Input value={id} readOnly className="flex-1" />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleArrayRemove(field, index)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        ))}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            // TODO: Open component selection modal
-            console.log(`Add ${componentType}`);
-          }}
-          className="w-full"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add {label}
-        </Button>
+        <Label>{label}</Label>
+        <div className="space-y-2">
+          {ids.map((id, index) => {
+            const product = selectedProducts.get(id);
+            return (
+              <div key={index} className="flex gap-2 items-center">
+                <Input
+                  value={product?.name || id}
+                  readOnly
+                  className="flex-1"
+                />
+                {product && (
+                  <Price
+                    amount={typeof (product.discountPrice || product.price) === 'string' 
+                      ? parseFloat(product.discountPrice as string || product.price as string) 
+                      : (product.discountPrice || product.price)}
+                    className="text-sm min-w-20"
+                  />
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleArrayRemove(field, index)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            );
+          })}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => openProductDialog(componentType, field, true)}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add {label}
+          </Button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   if (loadingBuild && buildId) {
     return (
@@ -586,11 +825,57 @@ export function BuildPc() {
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex justify-between">
                     <span>Core Components:</span>
-                    <span>6 selected</span>
+                    <span>
+                      {
+                        [
+                          buildData.processorId,
+                          buildData.motherboardId,
+                          buildData.memoryId,
+                          buildData.graphicCardId,
+                          buildData.ssdNvmeId,
+                          buildData.powerSupplyId,
+                          buildData.pcCaseId,
+                        ].filter(Boolean).length
+                      }{" "}
+                      selected
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Storage & Cooling:</span>
+                    <span>
+                      {
+                        [
+                          buildData.coolerId,
+                          buildData.hardDiskId,
+                          ...buildData.fanIds,
+                          ...buildData.extraSsdNvmeIds,
+                          ...buildData.extraHardDiskIds,
+                        ].filter(Boolean).length
+                      }{" "}
+                      selected
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Accessories:</span>
-                    <span>4 selected</span>
+                    <span>
+                      {
+                        [
+                          buildData.keyboardId,
+                          buildData.mouseId,
+                          buildData.mousePadId,
+                          buildData.headsetId,
+                          buildData.speakerId,
+                          buildData.upsId,
+                          buildData.tableId,
+                          buildData.chairId,
+                          buildData.thermalPasteId,
+                          ...buildData.monitorIds,
+                          ...buildData.softwareIds,
+                          ...buildData.cableIds,
+                        ].filter(Boolean).length
+                      }{" "}
+                      selected
+                    </span>
                   </div>
                 </div>
               </div>
@@ -687,6 +972,132 @@ export function BuildPc() {
           </Card>
         </div>
       </div>
+
+      {/* Product Selection Dialog */}
+      <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>
+              Select {selectedComponentType.replace(/_/g, " ").toUpperCase()}
+            </DialogTitle>
+            <DialogDescription>
+              Choose a product from the list below
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            {/* Products List */}
+            <ScrollArea className="h-[450px] pr-4">
+              {loadingProducts ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                </div>
+              ) : filteredProducts.length === 0 ? (
+                <div className="text-center py-8 space-y-2">
+                  <p className="text-muted-foreground">
+                    No products found for this component type
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Looking for: {selectedComponentType.replace(/_/g, " ")}
+                  </p>
+                  {productsData?.data &&
+                    (productsData.data as Product[]).length > 0 && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Total products available:{" "}
+                        {(productsData.data as Product[]).length}
+                      </p>
+                    )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-3">
+                  {filteredProducts.map((product) => (
+                    <Card
+                      key={product.id}
+                      className="cursor-pointer hover:border-primary transition-colors"
+                      onClick={() => handleProductSelect(product)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex gap-4">
+                          {/* Product Image */}
+                          <div className="relative w-20 h-20 flex-shrink-0 bg-muted rounded-md overflow-hidden">
+                            {product.images && product.images[0] ? (
+                              <Image
+                                src={product.images[0].imageUrl}
+                                alt={product.name}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                No image
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Product Details */}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold truncate">
+                              {product.name}
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              {product.brand?.name || "No brand"}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge
+                                variant={
+                                  (product.stockQuantity || product.stock || 0) > 0 ? "default" : "destructive"
+                                }
+                              >
+                                {(product.stockQuantity || product.stock || 0) > 0
+                                  ? `In Stock (${product.stockQuantity || product.stock})`
+                                  : "Out of Stock"}
+                              </Badge>
+                              {product.category && (
+                                <Badge variant="outline">
+                                  {product.category.name}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Price */}
+                          <div className="text-right flex-shrink-0">
+                            {product.discountPrice ? (
+                              <>
+                                <div className="text-lg font-bold">
+                                  <Price amount={product.discountPrice} />
+                                </div>
+                                <div className="text-sm text-muted-foreground line-through">
+                                  <Price amount={product.price} />
+                                </div>
+                              </>
+                            ) : (
+                              <div className="text-lg font-bold">
+                                <Price amount={product.price} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

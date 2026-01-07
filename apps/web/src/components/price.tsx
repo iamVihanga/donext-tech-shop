@@ -13,7 +13,7 @@ export function formatPrice(
     style: "currency",
     currency: currency,
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 
@@ -21,16 +21,18 @@ export function Price({
   amount,
   currency = "LKR",
   locale,
-  className
+  className,
 }: {
-  amount: number;
+  amount: number | string;
   currency?: Currency;
   locale?: string;
   className?: string;
 }) {
+  // Convert string prices to numbers
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   return (
     <span className={cn("", className)}>
-      {formatPrice(amount, currency, locale)}
+      {formatPrice(numericAmount, currency, locale)}
     </span>
   );
 }
