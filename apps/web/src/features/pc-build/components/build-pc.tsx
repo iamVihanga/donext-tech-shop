@@ -45,9 +45,11 @@ import {
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useCheckCompatibility } from "../actions/use-check-compatibility";
 import { useCloneBuild } from "../actions/use-clone-build";
 import { useCreateBuild } from "../actions/use-create-build";
 import { useGetBuild } from "../actions/use-get-build";
+import { useGetCompatibleComponents } from "../actions/use-get-compatible-components";
 import { useUpdateBuild } from "../actions/use-update-build";
 
 interface Product {
@@ -113,6 +115,7 @@ export function BuildPc() {
   const createBuild = useCreateBuild();
   const updateBuild = useUpdateBuild();
   const cloneBuild = useCloneBuild();
+  const checkCompatibility = useCheckCompatibility();
 
   const [buildData, setBuildData] = useState<BuildData>({
     name: "My PC Build",
@@ -154,6 +157,19 @@ export function BuildPc() {
     page: 1,
     limit: 50,
     search: searchQuery || null,
+  });
+
+  // Fetch compatible components based on current build
+  const { data: compatibleComponents } = useGetCompatibleComponents({
+    componentType: selectedComponentType,
+    currentComponents: {
+      processorId: buildData.processorId,
+      motherboardId: buildData.motherboardId,
+      memoryId: buildData.memoryId,
+      graphicCardId: buildData.graphicCardId,
+      pcCaseId: buildData.pcCaseId,
+      powerSupplyId: buildData.powerSupplyId,
+    },
   });
 
   // Load existing build data
@@ -257,6 +273,7 @@ export function BuildPc() {
     const categoryIds = categoryIdMap[selectedComponentType] || [];
     const searchTerms = categoryNameMap[selectedComponentType] || [];
 
+    // Show all products matching the category (don't filter by compatibility)
     return products.filter((product) => {
       // First try to match by category ID
       if (product.categoryId && categoryIds.includes(product.categoryId)) {
@@ -270,6 +287,74 @@ export function BuildPc() {
       );
     });
   }, [productsData, selectedComponentType]);
+
+  // Get set of compatible product IDs for checking
+  const compatibleProductIds = useMemo(() => {
+    if (compatibleComponents && Array.isArray(compatibleComponents)) {
+      return new Set(compatibleComponents.map((c: any) => c.id));
+    }
+    return null;
+  }, [compatibleComponents]);
+
+  // Check compatibility whenever core components change
+  useEffect(() => {
+    const coreComponents = [
+      buildData.processorId,
+      buildData.motherboardId,
+      buildData.memoryId,
+      buildData.graphicCardId,
+      buildData.powerSupplyId,
+      buildData.coolerId,
+      buildData.pcCaseId,
+    ];
+
+    // Only check if at least 2 components are selected
+    const selectedCount = coreComponents.filter(Boolean).length;
+    if (selectedCount >= 2) {
+      checkCompatibility.mutate(
+        {
+          processorId: buildData.processorId,
+          motherboardId: buildData.motherboardId,
+          memoryId: buildData.memoryId,
+          memoryQuantity: buildData.memoryQuantity,
+          graphicCardId: buildData.graphicCardId,
+          ssdNvmeId: buildData.ssdNvmeId,
+          hardDiskId: buildData.hardDiskId,
+          powerSupplyId: buildData.powerSupplyId,
+          coolerId: buildData.coolerId,
+          pcCaseId: buildData.pcCaseId,
+          fanIds: buildData.fanIds,
+          extraSsdNvmeIds: buildData.extraSsdNvmeIds,
+          extraHardDiskIds: buildData.extraHardDiskIds,
+        },
+        {
+          onSuccess: (data) => {
+            setCompatibilityIssues(data.issues);
+          },
+          onError: () => {
+            // Silently fail - compatibility check is not critical
+            setCompatibilityIssues([]);
+          },
+        }
+      );
+    } else {
+      setCompatibilityIssues([]);
+    }
+  }, [
+    buildData.processorId,
+    buildData.motherboardId,
+    buildData.memoryId,
+    buildData.memoryQuantity,
+    buildData.graphicCardId,
+    buildData.ssdNvmeId,
+    buildData.hardDiskId,
+    buildData.powerSupplyId,
+    buildData.coolerId,
+    buildData.pcCaseId,
+    buildData.fanIds,
+    buildData.extraSsdNvmeIds,
+    buildData.extraHardDiskIds,
+  ]);
 
   // Calculate total price
   useEffect(() => {
@@ -352,8 +437,21 @@ export function BuildPc() {
     setIsProductDialogOpen(true);
   };
 
+  // Check if a product is compatible with current build
+  const isProductCompatible = (productId: string): boolean => {
+    // If we don't have compatibility data yet, allow selection
+    if (!compatibleProductIds) return true;
+    // If we have compatibility data, check if product is in the compatible list
+    return compatibleProductIds.has(productId);
+  };
+
   const handleProductSelect = (product: Product) => {
     if (!selectedField) return;
+
+    // Prevent selection of incompatible products
+    if (!isProductCompatible(product.id)) {
+      return;
+    }
 
     // Cache the product
     setSelectedProducts((prev) => new Map(prev).set(product.id, product));
@@ -992,7 +1090,14 @@ export function BuildPc() {
               Select {selectedComponentType.replace(/_/g, " ").toUpperCase()}
             </DialogTitle>
             <DialogDescription>
-              Choose a product from the list below
+              {compatibleProductIds && compatibleProductIds.size > 0 ? (
+                <span className="flex items-center gap-2">
+                  <Info className="h-4 w-4 text-blue-600" />
+                  Incompatible products are marked and cannot be selected
+                </span>
+              ) : (
+                "Choose a product from the list below"
+              )}
             </DialogDescription>
           </DialogHeader>
 
@@ -1015,99 +1120,120 @@ export function BuildPc() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
                 </div>
               ) : filteredProducts.length === 0 ? (
-                <div className="text-center py-8 space-y-2">
-                  <p className="text-muted-foreground">
-                    No products found for this component type
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Looking for: {selectedComponentType.replace(/_/g, " ")}
-                  </p>
+                <div className="text-center py-8 space-y-3">
+                  <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto" />
+                  <div>
+                    <p className="font-medium text-muted-foreground">
+                      No products found
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Looking for: {selectedComponentType.replace(/_/g, " ")}
+                    </p>
+                  </div>
                   {productsData?.data &&
                     (productsData.data as Product[]).length > 0 && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Total products available:{" "}
+                      <p className="text-xs text-muted-foreground">
+                        Total products in this category:{" "}
                         {(productsData.data as Product[]).length}
                       </p>
                     )}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-3">
-                  {filteredProducts.map((product) => (
-                    <Card
-                      key={product.id}
-                      className="cursor-pointer hover:border-primary transition-colors"
-                      onClick={() => handleProductSelect(product)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex gap-4">
-                          {/* Product Image */}
-                          <div className="relative w-20 h-20 flex-shrink-0 bg-muted rounded-md overflow-hidden">
-                            {product.images && product.images[0] ? (
-                              <Image
-                                src={product.images[0].imageUrl}
-                                alt={product.name}
-                                fill
-                                className="object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                No image
-                              </div>
-                            )}
-                          </div>
+                  {filteredProducts.map((product) => {
+                    const isCompatible = isProductCompatible(product.id);
+                    return (
+                      <Card
+                        key={product.id}
+                        className={`transition-colors ${
+                          isCompatible
+                            ? "cursor-pointer hover:border-primary"
+                            : "cursor-not-allowed border-destructive/50 bg-destructive/5"
+                        }`}
+                        onClick={() => handleProductSelect(product)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex gap-4">
+                            {/* Product Image */}
+                            <div className="relative w-20 h-20 flex-shrink-0 bg-muted rounded-md overflow-hidden">
+                              {product.images && product.images[0] ? (
+                                <Image
+                                  src={product.images[0].imageUrl}
+                                  alt={product.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                  No image
+                                </div>
+                              )}
+                            </div>
 
-                          {/* Product Details */}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold truncate">
-                              {product.name}
-                            </h4>
-                            <p className="text-sm text-muted-foreground">
-                              {product.brand?.name || "No brand"}
-                            </p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge
-                                variant={
-                                  (product.stockQuantity ||
+                            {/* Product Details */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-semibold truncate">
+                                  {product.name}
+                                </h4>
+                                {!isCompatible && (
+                                  <Badge
+                                    variant="destructive"
+                                    className="flex-shrink-0"
+                                  >
+                                    Not Compatible
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                {product.brand?.name || "No brand"}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge
+                                  variant={
+                                    (product.stockQuantity ||
+                                      product.stock ||
+                                      0) > 0
+                                      ? "default"
+                                      : "destructive"
+                                  }
+                                >
+                                  {(product.stockQuantity ||
                                     product.stock ||
                                     0) > 0
-                                    ? "default"
-                                    : "destructive"
-                                }
-                              >
-                                {(product.stockQuantity || product.stock || 0) >
-                                0
-                                  ? `In Stock (${product.stockQuantity || product.stock})`
-                                  : "Out of Stock"}
-                              </Badge>
-                              {product.category && (
-                                <Badge variant="outline">
-                                  {product.category.name}
+                                    ? `In Stock (${product.stockQuantity || product.stock})`
+                                    : "Out of Stock"}
                                 </Badge>
+                                {product.category && (
+                                  <Badge variant="outline">
+                                    {product.category.name}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Price */}
+                            <div className="text-right flex-shrink-0">
+                              {product.discountPrice ? (
+                                <>
+                                  <div className="text-lg font-bold">
+                                    <Price amount={product.discountPrice} />
+                                  </div>
+                                  <div className="text-sm text-muted-foreground line-through">
+                                    <Price amount={product.price} />
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="text-lg font-bold">
+                                  <Price amount={product.price} />
+                                </div>
                               )}
                             </div>
                           </div>
-
-                          {/* Price */}
-                          <div className="text-right flex-shrink-0">
-                            {product.discountPrice ? (
-                              <>
-                                <div className="text-lg font-bold">
-                                  <Price amount={product.discountPrice} />
-                                </div>
-                                <div className="text-sm text-muted-foreground line-through">
-                                  <Price amount={product.price} />
-                                </div>
-                              </>
-                            ) : (
-                              <div className="text-lg font-bold">
-                                <Price amount={product.price} />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
             </ScrollArea>
