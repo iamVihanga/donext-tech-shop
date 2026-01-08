@@ -26,7 +26,7 @@ export default async function ProductPage(props: Props) {
 
   // Fetch single product by slug or ID
   const response = await rpcClient.api.products[":id"].$get({
-    param: { id: params.id }
+    param: { id: params.id },
   });
 
   if (!response.ok) {
@@ -92,7 +92,7 @@ export default async function ProductPage(props: Props) {
                 )}
               </div>
 
-              <h1 className="text-4xl font-bold text-neutral-100 leading-tight">
+              <h1 className="text-4xl font-bold text-neutral-900 leading-tight">
                 {product.name}
               </h1>
 
@@ -114,7 +114,7 @@ export default async function ProductPage(props: Props) {
               </div> */}
 
               {product.shortDescription && (
-                <p className="text-neutral-300 text-lg leading-relaxed">
+                <p className="text-neutral-700 text-lg leading-relaxed">
                   {product.shortDescription}
                 </p>
               )}
@@ -122,7 +122,7 @@ export default async function ProductPage(props: Props) {
 
             {/* Price */}
             <div className="space-y-3">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 text-neutral-600">
                 <ProductPrice product={product} className="text-4xl" />
 
                 {hasDiscount && (
@@ -130,7 +130,7 @@ export default async function ProductPage(props: Props) {
                 )}
               </div>
               {product.variants?.length > 0 && (
-                <p className="text-neutral-400">
+                <p className="text-neutral-600">
                   Price varies by variant selection
                 </p>
               )}
@@ -217,10 +217,9 @@ export default async function ProductPage(props: Props) {
             )}
 
             {/* Product Details */}
-            <div className="space-y-4">
-              <Separator className="bg-neutral-700" />
-              <div>
-                <h3 className="text-xl font-semibold mb-4 text-neutral-100">
+            <Card className="bg-neutral-800 border-neutral-700">
+              <CardContent className="p-6 space-y-4">
+                <h3 className="text-xl font-semibold text-neutral-100">
                   Product Details
                 </h3>
                 <div className="space-y-3 text-sm">
@@ -265,25 +264,26 @@ export default async function ProductPage(props: Props) {
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
         {/* Description Section */}
         {product.description && (
           <div className="mt-16">
-            <Separator className="mb-10 bg-neutral-700" />
-            <div className="max-w-4xl">
-              <h2 className="text-3xl font-bold mb-6 text-neutral-100">
-                Description
-              </h2>
-              <div className="prose prose-invert max-w-none">
-                <p className="text-neutral-300 leading-relaxed text-lg">
-                  {product.description}
-                </p>
-              </div>
-            </div>
+            <h2 className="text-3xl font-bold mb-6 text-neutral-100">
+              Description
+            </h2>
+            <Card className="bg-neutral-800 border-neutral-700">
+              <CardContent className="p-6">
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-neutral-300 leading-relaxed text-lg">
+                    {product.description}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 

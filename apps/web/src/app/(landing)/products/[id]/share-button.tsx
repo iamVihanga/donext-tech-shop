@@ -18,9 +18,9 @@ interface Props {
 }
 
 export function ShareButton({
-  className = "border-neutral-600 hover:border-amber-500",
+  className = "border-neutral-600 hover:border-amber-500 ",
   size = "lg",
-  variant = "outline"
+  variant = "outline",
 }: Props) {
   const [isShared, setIsShared] = useState(false);
 
@@ -48,7 +48,7 @@ export function ShareButton({
       // Show success state briefly
       setIsShared(true);
       toast.success("Product link copied to clipboard!", {
-        description: "You can now share this product with others."
+        description: "You can now share this product with others.",
       });
 
       // Reset the icon after 2 seconds
@@ -58,7 +58,7 @@ export function ShareButton({
     } catch (error) {
       console.error("Failed to copy URL:", error);
       toast.error("Failed to copy link", {
-        description: "Please try again or copy the URL manually."
+        description: "Please try again or copy the URL manually.",
       });
     }
   };
