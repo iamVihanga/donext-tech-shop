@@ -56,26 +56,80 @@ export function SpecificationEditForm({
     defaultValues: {
       productId: specification?.productId || "",
       componentType: specification?.componentType || "",
-      ...specification?.specs,
+      // Spread the specification object directly (no nested specs)
+      socketType: specification?.socketType,
+      cores: specification?.cores,
+      threads: specification?.threads,
+      baseClock: specification?.baseClock,
+      boostClock: specification?.boostClock,
+      tdp: specification?.tdp,
+      integratedGraphics: specification?.integratedGraphics,
+      chipset: specification?.chipset,
+      formFactor: specification?.formFactor,
+      memoryType: specification?.memoryType,
+      maxMemory: specification?.maxMemory,
+      memorySlots: specification?.memorySlots,
+      pciSlots: specification?.pciSlots,
+      m2Slots: specification?.m2Slots,
+      sataSlots: specification?.sataSlots,
+      memoryCapacity: specification?.memoryCapacity,
+      memorySpeed: specification?.memorySpeed,
+      memoryLatency: specification?.memoryLatency,
+      gpuChipset: specification?.gpuChipset,
+      vram: specification?.vram,
+      powerConnectors: specification?.powerConnectors,
+      recommendedPsu: specification?.recommendedPsu,
+      slotWidth: specification?.slotWidth,
+      length: specification?.length,
+      storageCapacity: specification?.storageCapacity,
+      storageInterface: specification?.storageInterface,
+      formFactorStorage: specification?.formFactorStorage,
+      readSpeed: specification?.readSpeed,
+      writeSpeed: specification?.writeSpeed,
+      wattage: specification?.wattage,
+      efficiency: specification?.efficiency,
+      modular: specification?.modular,
+      coolerType: specification?.coolerType,
+      compatibleSockets: specification?.compatibleSockets,
+      maxTdp: specification?.maxTdp,
+      radiatorSize: specification?.radiatorSize,
+      height: specification?.height,
+      maxGpuLength: specification?.maxGpuLength,
+      maxCoolerHeight: specification?.maxCoolerHeight,
+      maxPsuLength: specification?.maxPsuLength,
+      frontFans: specification?.frontFans,
+      topFans: specification?.topFans,
+      rearFans: specification?.rearFans,
+      radiatorSupport: specification?.radiatorSupport,
+      driveBays25: specification?.driveBays25,
+      driveBays35: specification?.driveBays35,
+      fanSize: specification?.fanSize,
+      fanRpm: specification?.fanRpm,
+      noiseLevel: specification?.noiseLevel,
+      additionalSpecs: specification?.additionalSpecs,
     },
   });
 
   // Reset form when specification changes
   useEffect(() => {
     if (specification) {
+      const { id, productId, componentType, ...specFields } = specification;
       form.reset({
-        productId: specification.productId,
-        componentType: specification.componentType,
-        ...specification.specs,
+        productId,
+        componentType,
+        ...specFields,
       });
     }
   }, [specification, form]);
 
   const onSubmit = (data: FormValues) => {
+    // Remove immutable fields (productId and componentType) before sending to API
+    const { productId, componentType, ...updateData } = data;
+    
     updateMutation.mutate(
       {
         id: specification.id,
-        data,
+        data: updateData,
       },
       {
         onSuccess: () => {

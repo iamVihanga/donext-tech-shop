@@ -550,9 +550,12 @@ export const updateComponentSpec: AppRouteHandler<
   const { id } = c.req.valid("param");
   const body = c.req.valid("json");
 
+  // Remove immutable fields that shouldn't be updated
+  const { productId, componentType, ...updateData } = body;
+
   const [updatedSpec] = await db
     .update(productComponentSpecs)
-    .set({ ...body, updatedAt: new Date() })
+    .set({ ...updateData, updatedAt: new Date() })
     .where(eq(productComponentSpecs.id, id))
     .returning();
 
