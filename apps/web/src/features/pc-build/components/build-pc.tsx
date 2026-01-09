@@ -136,6 +136,7 @@ export function BuildPc() {
   >([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [activeTab, setActiveTab] = useState("core");
+  const [chipsetFilter, setChipsetFilter] = useState<"all" | "intel" | "amd">("all");
 
   // Product selection dialog state
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
@@ -629,6 +630,24 @@ export function BuildPc() {
     );
   };
 
+  // Component categories configuration
+  const componentCategories = [
+    { id: "processor", label: "Processors", field: "processorId" as keyof BuildData },
+    { id: "motherboard", label: "Motherboards", field: "motherboardId" as keyof BuildData },
+    { id: "memory", label: "Memory", field: "memoryId" as keyof BuildData },
+    { id: "graphic_card", label: "Graphics Cards", field: "graphicCardId" as keyof BuildData },
+    { id: "ssd_nvme", label: "SSD & NVMe", field: "ssdNvmeId" as keyof BuildData },
+    { id: "hard_disk", label: "Hard Disk", field: "hardDiskId" as keyof BuildData },
+    { id: "power_supply", label: "Power Supply", field: "powerSupplyId" as keyof BuildData },
+    { id: "cooler", label: "Coolers", field: "coolerId" as keyof BuildData },
+    { id: "pc_case", label: "PC Case", field: "pcCaseId" as keyof BuildData },
+    { id: "fan", label: "Fans", field: "fanIds" as keyof BuildData, isArray: true },
+    { id: "ssd_nvme_extra", label: "Extra SSD & NVMe", field: "extraSsdNvmeIds" as keyof BuildData, isArray: true },
+    { id: "hard_disk_extra", label: "Extra Hard Disk", field: "extraHardDiskIds" as keyof BuildData, isArray: true },
+  ];
+
+  const [selectedCategory, setSelectedCategory] = useState(componentCategories[0]);
+
   if (loadingBuild && buildId) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -641,444 +660,347 @@ export function BuildPc() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Build Section */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>PC Builder</CardTitle>
-              <CardDescription>Configure your custom PC build</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Build Name & Description */}
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Build Name</Label>
-                  <Input
-                    id="name"
-                    value={buildData.name}
-                    onChange={(e) =>
-                      setBuildData((prev) => ({
-                        ...prev,
-                        name: e.target.value,
-                      }))
-                    }
-                    placeholder="My PC Build"
-                  />
+    <div className="min-h-screen bg-gray-50 pb-32">
+      {/* Main 3-Column Layout */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* LEFT COLUMN - Brand & Chipset Filter */}
+          <div className="lg:col-span-3 space-y-6">
+            <Card className="rounded-2xl shadow-sm border-0 bg-white">
+              <CardContent className="p-6 space-y-6">
+                {/* Title */}
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Build My PC</h1>
+                  <p className="text-sm text-blue-600 font-medium mt-1">v2.2</p>
+                  <p className="text-xs text-gray-500 mt-2">by Game Zone Tech</p>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description (Optional)</Label>
-                  <Textarea
-                    id="description"
-                    value={buildData.description || ""}
-                    onChange={(e) =>
-                      setBuildData((prev) => ({
-                        ...prev,
-                        description: e.target.value,
-                      }))
-                    }
-                    placeholder="Describe your build..."
-                    rows={3}
-                  />
+
+                <Separator />
+
+                {/* Chipset Filter */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold text-gray-700">Chipset Filter</Label>
+                  <div className="grid grid-cols-3 gap-2 p-1 bg-gray-100 rounded-lg">
+                    <Button
+                      variant={chipsetFilter === "all" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setChipsetFilter("all")}
+                      className={`rounded-md ${chipsetFilter === "all" ? "bg-blue-600 hover:bg-blue-700 text-white" : "hover:bg-gray-200"}`}
+                    >
+                      All
+                    </Button>
+                    <Button
+                      variant={chipsetFilter === "intel" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setChipsetFilter("intel")}
+                      className={`rounded-md ${chipsetFilter === "intel" ? "bg-blue-600 hover:bg-blue-700 text-white" : "hover:bg-gray-200"}`}
+                    >
+                      Intel
+                    </Button>
+                    <Button
+                      variant={chipsetFilter === "amd" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setChipsetFilter("amd")}
+                      className={`rounded-md ${chipsetFilter === "amd" ? "bg-blue-600 hover:bg-blue-700 text-white" : "hover:bg-gray-200"}`}
+                    >
+                      AMD
+                    </Button>
+                  </div>
                 </div>
-              </div>
 
-              <Separator />
+                <Separator />
 
-              {/* Component Selection Tabs */}
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="core">Core</TabsTrigger>
-                  <TabsTrigger value="storage">Storage & Cooling</TabsTrigger>
-                  <TabsTrigger value="accessories">Accessories</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="core" className="space-y-4 mt-4">
-                  <ComponentSelector
-                    label="Processor (CPU)"
-                    field="processorId"
-                    componentType="processor"
-                  />
-                  <ComponentSelector
-                    label="Motherboard"
-                    field="motherboardId"
-                    componentType="motherboard"
-                  />
-                  <ComponentSelector
-                    label="Memory (RAM)"
-                    field="memoryId"
-                    componentType="memory"
-                  />
+                {/* Build Options */}
+                <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="memoryQuantity">Memory Quantity</Label>
+                    <Label htmlFor="name" className="text-sm font-semibold text-gray-700">Build Name</Label>
                     <Input
-                      id="memoryQuantity"
-                      type="number"
-                      min={1}
-                      max={8}
-                      value={buildData.memoryQuantity}
+                      id="name"
+                      value={buildData.name}
                       onChange={(e) =>
                         setBuildData((prev) => ({
                           ...prev,
-                          memoryQuantity: parseInt(e.target.value) || 1,
+                          name: e.target.value,
                         }))
+                      }
+                      placeholder="My PC Build"
+                      className="rounded-lg"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <Label htmlFor="isPublic" className="text-sm cursor-pointer">Public Build</Label>
+                    <Switch
+                      id="isPublic"
+                      checked={buildData.isPublic}
+                      onCheckedChange={(checked) =>
+                        setBuildData((prev) => ({ ...prev, isPublic: checked }))
                       }
                     />
                   </div>
-                  <ComponentSelector
-                    label="Graphics Card (GPU)"
-                    field="graphicCardId"
-                    componentType="graphic_card"
-                  />
-                  <ComponentSelector
-                    label="Power Supply (PSU)"
-                    field="powerSupplyId"
-                    componentType="power_supply"
-                  />
-                  <ComponentSelector
-                    label="PC Case"
-                    field="pcCaseId"
-                    componentType="pc_case"
-                  />
-                </TabsContent>
 
-                <TabsContent value="storage" className="space-y-4 mt-4">
-                  <ComponentSelector
-                    label="Primary SSD/NVMe"
-                    field="ssdNvmeId"
-                    componentType="ssd_nvme"
-                  />
-                  <ArrayComponentSelector
-                    label="Additional SSD/NVMe"
-                    field="extraSsdNvmeIds"
-                    componentType="ssd_nvme"
-                  />
-                  <ComponentSelector
-                    label="Primary Hard Disk"
-                    field="hardDiskId"
-                    componentType="hard_disk"
-                  />
-                  <ArrayComponentSelector
-                    label="Additional Hard Disks"
-                    field="extraHardDiskIds"
-                    componentType="hard_disk"
-                  />
-                  <ComponentSelector
-                    label="CPU Cooler"
-                    field="coolerId"
-                    componentType="cooler"
-                  />
-                  <ArrayComponentSelector
-                    label="Case Fans"
-                    field="fanIds"
-                    componentType="fan"
-                  />
-                </TabsContent>
-
-                <TabsContent value="accessories" className="space-y-4 mt-4">
-                  <ArrayComponentSelector
-                    label="Monitors"
-                    field="monitorIds"
-                    componentType="monitor"
-                  />
-                  <ComponentSelector
-                    label="Keyboard"
-                    field="keyboardId"
-                    componentType="keyboard"
-                  />
-                  <ComponentSelector
-                    label="Mouse"
-                    field="mouseId"
-                    componentType="mouse"
-                  />
-                  <ComponentSelector
-                    label="Mouse Pad"
-                    field="mousePadId"
-                    componentType="mouse_pad"
-                  />
-                  <ComponentSelector
-                    label="Headset"
-                    field="headsetId"
-                    componentType="headset"
-                  />
-                  <ComponentSelector
-                    label="Speaker"
-                    field="speakerId"
-                    componentType="speaker"
-                  />
-                  <ComponentSelector
-                    label="UPS"
-                    field="upsId"
-                    componentType="ups"
-                  />
-                  <ComponentSelector
-                    label="Desk/Table"
-                    field="tableId"
-                    componentType="table"
-                  />
-                  <ComponentSelector
-                    label="Chair"
-                    field="chairId"
-                    componentType="chair"
-                  />
-                  <ComponentSelector
-                    label="Thermal Paste"
-                    field="thermalPasteId"
-                    componentType="thermal_paste"
-                  />
-                  <ArrayComponentSelector
-                    label="Cables"
-                    field="cableIds"
-                    componentType="cable"
-                  />
-                  <ArrayComponentSelector
-                    label="Software"
-                    field="softwareIds"
-                    componentType="software"
-                  />
-                </TabsContent>
-              </Tabs>
-
-              <Separator />
-
-              {/* Build Options */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="isPublic">Public Build</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Share this build with the community
-                    </p>
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <Label htmlFor="isTemplate" className="text-sm cursor-pointer">Template</Label>
+                    <Switch
+                      id="isTemplate"
+                      checked={buildData.isTemplate}
+                      onCheckedChange={(checked) =>
+                        setBuildData((prev) => ({ ...prev, isTemplate: checked }))
+                      }
+                    />
                   </div>
-                  <Switch
-                    id="isPublic"
-                    checked={buildData.isPublic}
-                    onCheckedChange={(checked) =>
-                      setBuildData((prev) => ({ ...prev, isPublic: checked }))
-                    }
-                  />
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="isTemplate">Template Build</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Use this as a template for future builds
-                    </p>
-                  </div>
-                  <Switch
-                    id="isTemplate"
-                    checked={buildData.isTemplate}
-                    onCheckedChange={(checked) =>
-                      setBuildData((prev) => ({ ...prev, isTemplate: checked }))
-                    }
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Summary & Actions */}
-        <div className="space-y-6">
-          {/* Compatibility Issues */}
-          {compatibilityIssues.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5 text-destructive" />
-                  Compatibility Issues
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {compatibilityIssues.map((issue, index) => (
-                  <Alert
-                    key={index}
-                    variant={
-                      issue.severity === "error" ? "destructive" : "default"
-                    }
+                <Separator />
+
+                {/* Actions */}
+                <div className="space-y-2">
+                  <Button
+                    onClick={handleSave}
+                    className="w-full rounded-lg bg-blue-600 hover:bg-blue-700"
+                    disabled={createBuild.isPending || updateBuild.isPending}
                   >
-                    <AlertDescription className="flex items-start gap-2">
-                      {issue.severity === "error" && (
-                        <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                      )}
-                      {issue.severity === "warning" && (
-                        <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                      )}
-                      {issue.severity === "info" && (
-                        <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                      )}
-                      <div>
-                        <p className="font-medium text-sm">{issue.component}</p>
-                        <p className="text-sm">{issue.message}</p>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-                ))}
+                    <Save className="h-4 w-4 mr-2" />
+                    {buildId ? "Update Build" : "Save Build"}
+                  </Button>
+
+                  {buildId && (
+                    <Button
+                      onClick={handleClone}
+                      variant="outline"
+                      className="w-full rounded-lg"
+                      disabled={cloneBuild.isPending}
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Clone Build
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
-          )}
 
-          {/* Price Summary */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Price Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center text-2xl font-bold">
-                  <span>Total:</span>
-                  <Price amount={totalPrice} />
+            {/* Compatibility Issues */}
+            {compatibilityIssues.length > 0 && (
+              <Card className="rounded-2xl shadow-sm border-0 bg-white">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <AlertCircle className="h-5 w-5 text-red-600" />
+                    Issues
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {compatibilityIssues.slice(0, 3).map((issue, index) => (
+                    <Alert
+                      key={index}
+                      variant={issue.severity === "error" ? "destructive" : "default"}
+                      className="py-2"
+                    >
+                      <AlertDescription className="text-xs">
+                        {issue.message}
+                      </AlertDescription>
+                    </Alert>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* MIDDLE COLUMN - Component Categories Grid */}
+          <div className="lg:col-span-5 space-y-6">
+            <Card className="rounded-2xl shadow-sm border-0 bg-white">
+              <CardHeader>
+                <CardTitle className="text-lg">Select Components</CardTitle>
+                <CardDescription>Choose a category to browse products</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {componentCategories.map((category) => {
+                    const isSelected = selectedCategory.id === category.id;
+                    const hasSelection = category.isArray 
+                      ? (buildData[category.field] as string[]).length > 0
+                      : buildData[category.field];
+                    
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={() => {
+                          setSelectedCategory(category);
+                          setSelectedComponentType(category.id);
+                        }}
+                        className={`p-4 rounded-xl border-2 transition-all hover:shadow-md text-left ${
+                          isSelected
+                            ? "border-blue-600 bg-blue-50"
+                            : hasSelection
+                            ? "border-green-400 bg-green-50"
+                            : "border-gray-200 bg-white hover:border-blue-300"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className={`font-semibold text-sm ${isSelected ? "text-blue-700" : "text-gray-900"}`}>
+                              {category.label}
+                            </p>
+                            {hasSelection && (
+                              <p className="text-xs text-green-600 mt-1">
+                                {category.isArray 
+                                  ? `${(buildData[category.field] as string[]).length} selected`
+                                  : "✓ Selected"}
+                              </p>
+                            )}
+                          </div>
+                          {isSelected && (
+                            <div className="w-2 h-2 rounded-full bg-blue-600 mt-1"></div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
-                <Separator />
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <div className="flex justify-between">
-                    <span>Core Components:</span>
-                    <span>
-                      {
-                        [
-                          buildData.processorId,
-                          buildData.motherboardId,
-                          buildData.memoryId,
-                          buildData.graphicCardId,
-                          buildData.ssdNvmeId,
-                          buildData.powerSupplyId,
-                          buildData.pcCaseId,
-                        ].filter(Boolean).length
-                      }{" "}
-                      selected
-                    </span>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* RIGHT COLUMN - Product List */}
+          <div className="lg:col-span-4">
+            <Card className="rounded-2xl shadow-sm border-0 bg-white sticky top-4">
+              <CardHeader className="border-b">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{selectedCategory.label}</CardTitle>
+                    <CardDescription className="text-xs mt-1">
+                      {filteredProducts.length} products available
+                    </CardDescription>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Storage & Cooling:</span>
-                    <span>
-                      {
-                        [
-                          buildData.coolerId,
-                          buildData.hardDiskId,
-                          ...buildData.fanIds,
-                          ...buildData.extraSsdNvmeIds,
-                          ...buildData.extraHardDiskIds,
-                        ].filter(Boolean).length
-                      }{" "}
-                      selected
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Accessories:</span>
-                    <span>
-                      {
-                        [
-                          buildData.keyboardId,
-                          buildData.mouseId,
-                          buildData.mousePadId,
-                          buildData.headsetId,
-                          buildData.speakerId,
-                          buildData.upsId,
-                          buildData.tableId,
-                          buildData.chairId,
-                          buildData.thermalPasteId,
-                          ...buildData.monitorIds,
-                          ...buildData.softwareIds,
-                          ...buildData.cableIds,
-                        ].filter(Boolean).length
-                      }{" "}
-                      selected
-                    </span>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsProductDialogOpen(true)}
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    View All
+                  </Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <ScrollArea className="h-[600px]">
+                <CardContent className="p-4 space-y-3">
+                  {loadingProducts ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+                    </div>
+                  ) : filteredProducts.length === 0 ? (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500 text-sm">No products found</p>
+                    </div>
+                  ) : (
+                    filteredProducts.slice(0, 10).map((product) => {
+                      const isCompatible = isProductCompatible(product.id);
+                      const isCurrentlySelected = selectedCategory.isArray
+                        ? (buildData[selectedCategory.field] as string[]).includes(product.id)
+                        : buildData[selectedCategory.field] === product.id;
 
-          {/* Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button
-                onClick={handleSave}
-                className="w-full"
-                disabled={createBuild.isPending || updateBuild.isPending}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                {buildId ? "Update Build" : "Save Build"}
-              </Button>
+                      return (
+                        <button
+                          key={product.id}
+                          onClick={() => {
+                            if (isCompatible && !isCurrentlySelected) {
+                              setSelectedField(selectedCategory.field);
+                              setIsArrayField(selectedCategory.isArray || false);
+                              handleProductSelect(product);
+                            }
+                          }}
+                          disabled={!isCompatible || isCurrentlySelected}
+                          className={`w-full p-3 rounded-xl border transition-all text-left ${
+                            isCurrentlySelected
+                              ? "border-green-500 bg-green-50"
+                              : isCompatible
+                              ? "border-gray-200 hover:border-blue-400 hover:shadow-md bg-white"
+                              : "border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed"
+                          }`}
+                        >
+                          <div className="flex gap-3">
+                            {/* Product Image */}
+                            <div className="relative w-16 h-16 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
+                              {product.images && product.images[0] ? (
+                                <Image
+                                  src={product.images[0].imageUrl}
+                                  alt={product.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <span className="text-xs text-gray-400">No image</span>
+                                </div>
+                              )}
+                            </div>
 
-              {buildId && (
-                <>
-                  <Button
-                    onClick={handleClone}
-                    variant="outline"
-                    className="w-full"
-                    disabled={cloneBuild.isPending}
-                  >
-                    <Copy className="h-4 w-4 mr-2" />
-                    Clone Build
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    className="w-full"
-                    onClick={() => {
-                      if (
-                        confirm("Are you sure you want to delete this build?")
-                      ) {
-                        // TODO: Implement delete
-                        router.push("/account/builds");
-                      }
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete Build
-                  </Button>
-                </>
-              )}
+                            {/* Product Info */}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-sm text-gray-900 truncate">
+                                {product.name}
+                              </h4>
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                {product.brand?.name || "No brand"}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                {isCurrentlySelected && (
+                                  <Badge className="text-xs bg-green-600">Selected</Badge>
+                                )}
+                                {!isCompatible && (
+                                  <Badge variant="destructive" className="text-xs">Incompatible</Badge>
+                                )}
+                              </div>
+                            </div>
 
-              <Separator />
+                            {/* Price */}
+                            <div className="text-right flex-shrink-0">
+                              <div className="text-sm font-bold text-gray-900">
+                                <Price amount={product.discountPrice || product.price} />
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </CardContent>
+              </ScrollArea>
+            </Card>
+          </div>
+        </div>
+      </div>
 
+      {/* STICKY BOTTOM BAR */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            {/* Left - Total Price */}
+            <div>
+              <p className="text-xs text-gray-500">TOTAL</p>
+              <p className="text-2xl font-bold text-gray-900">
+                <Price amount={totalPrice} />
+              </p>
+              <p className="text-xs text-blue-600 mt-1">Monthly payments available</p>
+            </div>
+
+            {/* Right - Navigation Buttons */}
+            <div className="flex items-center gap-3">
               <Button
                 variant="outline"
-                className="w-full"
+                disabled={true}
+                className="rounded-full px-6"
+              >
+                Back
+              </Button>
+              <Button
+                className="rounded-full px-6 bg-blue-600 hover:bg-blue-700"
                 onClick={() => router.push("/account/builds")}
               >
-                View All Builds
+                Next
+                <span className="ml-2">→</span>
               </Button>
-            </CardContent>
-          </Card>
-
-          {/* Build Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Build Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Status:</span>
-                <Badge
-                  variant={
-                    compatibilityIssues.length === 0 ? "default" : "destructive"
-                  }
-                >
-                  {compatibilityIssues.length === 0
-                    ? "Compatible"
-                    : "Issues Found"}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Visibility:</span>
-                <Badge variant={buildData.isPublic ? "secondary" : "outline"}>
-                  {buildData.isPublic ? "Public" : "Private"}
-                </Badge>
-              </div>
-              {buildData.isTemplate && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Type:</span>
-                  <Badge variant="secondary">Template</Badge>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
 
