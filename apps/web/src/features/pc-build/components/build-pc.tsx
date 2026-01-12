@@ -1700,30 +1700,30 @@ export function BuildPc() {
 
       {/* Quotation Confirmation Dialog */}
       <Dialog open={showQuotationDialog} onOpenChange={setShowQuotationDialog}>
-        <DialogContent className="max-w-3xl max-h-[80vh]">
+        <DialogContent className="max-w-3xl max-h-[85vh] w-[95vw] sm:w-full">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">
+            <DialogTitle className="text-lg sm:text-xl font-bold">
               Download Quotation
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               Review your PC build quotation and optionally confirm your order
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {/* Build Summary */}
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-lg border-2 border-amber-200">
-              <h3 className="font-bold text-lg mb-2 text-amber-900">
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-3 sm:p-4 rounded-lg border-2 border-amber-200">
+              <h3 className="font-bold text-base sm:text-lg mb-1 sm:mb-2 text-amber-900 truncate">
                 {buildData.name}
               </h3>
-              <p className="text-sm text-amber-700">
+              <p className="text-xs sm:text-sm text-amber-700">
                 Generated on {new Date().toLocaleDateString()}
               </p>
             </div>
 
             {/* Components List */}
-            <ScrollArea className="h-[300px] border rounded-lg">
-              <div className="p-4 space-y-3">
+            <ScrollArea className="h-[250px] sm:h-[300px] border rounded-lg">
+              <div className="p-2 sm:p-4 space-y-2 sm:space-y-3">
                 {componentCategories.map((category) => {
                   const items: Array<{ id: string; product?: Product }> = [];
 
@@ -1741,12 +1741,14 @@ export function BuildPc() {
                   if (items.length === 0) return null;
 
                   return (
-                    <div key={category.id} className="mb-3">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <span>{category.icon}</span>
-                        {category.label}
+                    <div key={category.id} className="mb-2 sm:mb-3">
+                      <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2 flex items-center gap-1 sm:gap-2">
+                        <span className="text-sm sm:text-base">
+                          {category.icon}
+                        </span>
+                        <span className="truncate">{category.label}</span>
                       </h4>
-                      <div className="space-y-2 ml-6">
+                      <div className="space-y-1 sm:space-y-2 ml-4 sm:ml-6">
                         {items.map((item, idx) => {
                           const product = item.product;
                           if (!product) return null;
@@ -1771,11 +1773,11 @@ export function BuildPc() {
                           return (
                             <div
                               key={idx}
-                              className="flex items-center justify-between text-sm bg-white p-2 rounded border"
+                              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm bg-white p-2 rounded border"
                             >
-                              <div className="flex items-center gap-2 flex-1">
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
                                 {product.images && product.images[0] && (
-                                  <div className="relative w-10 h-10 rounded overflow-hidden bg-gray-100 flex-shrink-0">
+                                  <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded overflow-hidden bg-gray-100 flex-shrink-0">
                                     <Image
                                       src={product.images[0].imageUrl}
                                       alt={product.name}
@@ -1785,7 +1787,7 @@ export function BuildPc() {
                                   </div>
                                 )}
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-gray-900 truncate">
+                                  <p className="font-medium text-xs sm:text-sm text-gray-900 truncate">
                                     {product.name}
                                     {qty}
                                   </p>
@@ -1794,7 +1796,7 @@ export function BuildPc() {
                                   </p>
                                 </div>
                               </div>
-                              <div className="font-semibold text-amber-700 ml-4">
+                              <div className="font-semibold text-xs sm:text-sm text-amber-700 sm:ml-4 text-right sm:text-left">
                                 Rs. {totalPrice.toFixed(2)}
                               </div>
                             </div>
@@ -1808,21 +1810,23 @@ export function BuildPc() {
             </ScrollArea>
 
             {/* Total */}
-            <div className="bg-gray-900 text-white p-4 rounded-lg">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-bold">TOTAL AMOUNT</span>
-                <span className="text-2xl font-bold">
+            <div className="bg-gray-900 text-white p-3 sm:p-4 rounded-lg">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-0">
+                <span className="text-sm sm:text-lg font-bold">
+                  TOTAL AMOUNT
+                </span>
+                <span className="text-xl sm:text-2xl font-bold">
                   Rs. {totalPrice.toFixed(2)}
                 </span>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
               <Button
                 variant="outline"
                 onClick={() => setShowQuotationDialog(false)}
-                className="flex-1"
+                className="w-full sm:flex-1 text-sm"
                 disabled={isCreatingOrder}
               >
                 Cancel
@@ -1830,32 +1834,32 @@ export function BuildPc() {
               <Button
                 variant="outline"
                 onClick={handleDownloadOnly}
-                className="flex-1 border-amber-500 text-amber-600 hover:bg-amber-50"
+                className="w-full sm:flex-1 border-amber-500 text-amber-600 hover:bg-amber-50 text-sm"
                 disabled={isCreatingOrder}
               >
                 <Download className="h-4 w-4 mr-2" />
-                Download Only
+                <span className="truncate">Download Only</span>
               </Button>
               <Button
                 onClick={handleConfirmOrder}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                className="w-full sm:flex-1 bg-green-600 hover:bg-green-700 text-white text-sm"
                 disabled={isCreatingOrder}
               >
                 {isCreatingOrder ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                    Creating Order...
+                    <span className="truncate">Creating Order...</span>
                   </>
                 ) : (
                   <>
                     <Download className="h-4 w-4 mr-2" />
-                    Confirm Order & Download
+                    <span className="truncate">Confirm & Download</span>
                   </>
                 )}
               </Button>
             </div>
 
-            <p className="text-xs text-center text-gray-500 mt-2">
+            <p className="text-xs text-center text-gray-500 mt-2 px-2">
               💡 Confirming order will save it to your orders and update
               inventory stock
             </p>
