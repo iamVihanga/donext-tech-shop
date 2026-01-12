@@ -23,7 +23,16 @@ import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { ScrollArea } from "@repo/ui/components/scroll-area";
 import { Separator } from "@repo/ui/components/separator";
-import { AlertCircle, Copy, Download, Info, Plus, Save, Search, X } from "lucide-react";
+import {
+  AlertCircle,
+  Copy,
+  Download,
+  Info,
+  Plus,
+  Save,
+  Search,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -433,8 +442,15 @@ export function BuildPc() {
     return compatibleProductIds.has(productId);
   };
 
-  const handleProductSelect = (product: Product) => {
-    if (!selectedField) return;
+  const handleProductSelect = (
+    product: Product,
+    field?: keyof BuildData,
+    isArray?: boolean
+  ) => {
+    const targetField = field || selectedField;
+    const targetIsArray = isArray !== undefined ? isArray : isArrayField;
+
+    if (!targetField) return;
 
     // Prevent selection of incompatible products
     if (!isProductCompatible(product.id)) {
@@ -448,17 +464,17 @@ export function BuildPc() {
     // Cache the product
     setSelectedProducts((prev) => new Map(prev).set(product.id, product));
 
-    if (isArrayField) {
+    if (targetIsArray) {
       // Add to array
       setBuildData((prev) => ({
         ...prev,
-        [selectedField]: [...(prev[selectedField] as string[]), product.id],
+        [targetField]: [...(prev[targetField] as string[]), product.id],
       }));
     } else {
       // Set single value
       setBuildData((prev) => ({
         ...prev,
-        [selectedField]: product.id,
+        [targetField]: product.id,
       }));
     }
 
@@ -1287,11 +1303,11 @@ export function BuildPc() {
                                   size="sm"
                                   disabled={!isCompatible}
                                   onClick={() => {
-                                    setSelectedField(selectedCategory.field);
-                                    setIsArrayField(
+                                    handleProductSelect(
+                                      product,
+                                      selectedCategory.field,
                                       selectedCategory.isArray || false
                                     );
-                                    handleProductSelect(product);
                                   }}
                                   className="bg-amber-500 hover:bg-amber-600 mt-auto"
                                 >
